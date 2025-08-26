@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "602508651790",
+    "project_id": "wavelength-c084c",
+    "storage_bucket": "wavelength-c084c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602508651790:android:240858605ed669a94afb5f",
+        "android_client_info": {
+          "package_name": "com.redtea.minddrift"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz4wlVm7HZ5BqIcFlFsEQ-ju3gXqR03Ug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602508651790:android:bc08e8589cd57c9a4afb5f",
+        "android_client_info": {
+          "package_name": "com.redtea.minddrift"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz4wlVm7HZ5BqIcFlFsEQ-ju3gXqR03Ug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602508651790:android:c202732b989baf054afb5f",
+        "android_client_info": {
+          "package_name": "com.redtea.minddrift"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz4wlVm7HZ5BqIcFlFsEQ-ju3gXqR03Ug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
