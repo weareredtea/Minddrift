@@ -431,4 +431,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get fantasyBundleDescription => '20 فئة سحرية لعشاق الخيال';
   String get selectBundlesForGameplay => 'اختر الحزم للعب';
   String get bundleSelectionSaved => 'تم حفظ اختيار الحزم';
+  String get selectBundleForGame => 'اختر الحزمة للعبة';
+  String get selectBundleDescription => 'اختر الحزمة التي تريد استخدامها في هذه اللعبة. سيكون لدى جميع اللاعبين إمكانية الوصول إلى هذه الفئات.';
+  String get switchToEnglish => 'Switch to English';
+  String get switchToArabic => 'التبديل إلى العربية';
 }

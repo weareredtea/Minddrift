@@ -119,10 +119,10 @@ class _ResultScreenState extends State<ResultScreen> {
                       stream: fb.roomDocRef(widget.roomId).snapshots(),
                       builder: (context, snapshot) {
                         if (snapshot.hasData && snapshot.data!.data() != null) {
-                          final currentCategoryId = snapshot.data!.data()!['currentCategoryId'] as String?;
-                          if (currentCategoryId != null) {
+                          final selectedBundle = snapshot.data!.data()!['selectedBundle'] as String?;
+                          if (selectedBundle != null) {
                             return BundleIndicator(
-                              categoryId: currentCategoryId,
+                              categoryId: selectedBundle,
                               showIcon: true,
                               showLabel: true,
                               size: 14,

@@ -2,10 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../services/firebase_service.dart';
 import '../pigeon/pigeon.dart';
 import 'ready_screen.dart';
+import '../widgets/bundle_indicator.dart';
+import '../widgets/language_toggle.dart';
+import '../services/category_service.dart';
 import '../l10n/app_localizations.dart';
 
 class LobbyScreen extends StatelessWidget {
@@ -13,13 +17,66 @@ class LobbyScreen extends StatelessWidget {
   final String roomId;
   const LobbyScreen({super.key, required this.roomId});
 
+  BundleInfo _getBundleInfo(String bundleId) {
+    switch (bundleId) {
+      case 'bundle.free':
+        return BundleInfo(
+          name: 'Free Bundle',
+          color: Colors.green,
+          icon: Icons.free_breakfast,
+        );
+      case 'bundle.horror':
+        return BundleInfo(
+          name: 'Horror Bundle',
+          color: Colors.red,
+          icon: Icons.psychology,
+        );
+      case 'bundle.kids':
+        return BundleInfo(
+          name: 'Kids Bundle',
+          color: Colors.orange,
+          icon: Icons.child_care,
+        );
+      case 'bundle.food':
+        return BundleInfo(
+          name: 'Food Bundle',
+          color: Colors.brown,
+          icon: Icons.restaurant,
+        );
+      case 'bundle.nature':
+        return BundleInfo(
+          name: 'Nature Bundle',
+          color: Colors.green,
+          icon: Icons.eco,
+        );
+      case 'bundle.fantasy':
+        return BundleInfo(
+          name: 'Fantasy Bundle',
+          color: Colors.purple,
+          icon: Icons.auto_awesome,
+        );
+      default:
+        return BundleInfo(
+          name: 'Unknown Bundle',
+          color: Colors.grey,
+          icon: Icons.help_outline,
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(loc.lobby)),
+      appBar: AppBar(
+        title: Text(loc.lobby),
+        actions: [
+          // Language Toggle Button
+          const LanguageToggle(),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -30,6 +87,50 @@ class LobbyScreen extends StatelessWidget {
             Text(roomId,
                 style:
                     Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 16),
+            
+            // Bundle indicator
+            StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: fb.roomDocRef(roomId).snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data!.data() != null) {
+                  final selectedBundle = snapshot.data!.data()!['selectedBundle'] as String?;
+                  if (selectedBundle != null) {
+                    final bundleInfo = _getBundleInfo(selectedBundle);
+                    final categories = CategoryService.getCategoriesByBundle(selectedBundle);
+                    
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: bundleInfo.color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: bundleInfo.color.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          BundleIndicator(
+                            categoryId: selectedBundle,
+                            showIcon: true,
+                            showLabel: false,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${bundleInfo.name} • ${categories.length} categories',
+                            style: TextStyle(
+                              color: bundleInfo.color,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             const SizedBox(height: 24),
 
             // --- Player List ---

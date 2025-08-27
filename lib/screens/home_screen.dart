@@ -10,6 +10,10 @@ import 'package:wavelength_clone_fresh/screens/settings_screen.dart';
 import '../services/firebase_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/animated_background.dart';
+import '../widgets/bundle_indicator.dart';
+import '../widgets/language_toggle.dart';
+import '../services/category_service.dart';
+import '../providers/purchase_provider.dart';
 import '../l10n/app_localizations.dart';
 
 
@@ -49,6 +53,125 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
+  Future<String?> _showBundleSelectionDialog() async {
+    final loc = AppLocalizations.of(context)!;
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Consumer<PurchaseProvider>(
+          builder: (context, purchaseProvider, child) {
+            final ownedBundles = purchaseProvider.ownedBundles;
+            
+            return AlertDialog(
+              title: Text(
+                loc.selectBundleForGame,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              backgroundColor: Colors.grey[900],
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      loc.selectBundleDescription,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white70,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ...ownedBundles.map((bundleId) {
+                      final bundleInfo = _getBundleInfo(bundleId);
+                      final categories = CategoryService.getCategoriesByBundle(bundleId);
+                      
+                      return ListTile(
+                        leading: BundleIndicator(
+                          categoryId: bundleId,
+                          showIcon: true,
+                          showLabel: false,
+                          size: 20,
+                        ),
+                        title: Text(
+                          bundleInfo.name,
+                          style: TextStyle(
+                            color: bundleInfo.color,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          '${categories.length} categories',
+                          style: TextStyle(color: Colors.grey[400]),
+                        ),
+                        onTap: () => Navigator.of(context).pop(bundleId),
+                      );
+                    }).toList(),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  BundleInfo _getBundleInfo(String bundleId) {
+    switch (bundleId) {
+      case 'bundle.free':
+        return BundleInfo(
+          name: 'Free Bundle',
+          color: Colors.green,
+          icon: Icons.free_breakfast,
+        );
+      case 'bundle.horror':
+        return BundleInfo(
+          name: 'Horror Bundle',
+          color: Colors.red,
+          icon: Icons.psychology,
+        );
+      case 'bundle.kids':
+        return BundleInfo(
+          name: 'Kids Bundle',
+          color: Colors.orange,
+          icon: Icons.child_care,
+        );
+      case 'bundle.food':
+        return BundleInfo(
+          name: 'Food Bundle',
+          color: Colors.brown,
+          icon: Icons.restaurant,
+        );
+      case 'bundle.nature':
+        return BundleInfo(
+          name: 'Nature Bundle',
+          color: Colors.green,
+          icon: Icons.eco,
+        );
+      case 'bundle.fantasy':
+        return BundleInfo(
+          name: 'Fantasy Bundle',
+          color: Colors.purple,
+          icon: Icons.auto_awesome,
+        );
+      default:
+        return BundleInfo(
+          name: 'Unknown Bundle',
+          color: Colors.grey,
+          icon: Icons.help_outline,
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -86,6 +209,8 @@ class _HomeScreenState extends State<HomeScreen>
           ],
         ),
         actions: [
+          // Language Toggle Button
+          const LanguageToggle(),
           IconButton(
             icon: const Icon(Icons.store_rounded, color: Colors.white),
             onPressed: () =>
@@ -147,14 +272,20 @@ class _HomeScreenState extends State<HomeScreen>
                                       : () async {
                                           setState(() => _loading = true);
                                           try {
-                                            final settings = await fb
-                                                .fetchRoomCreationSettings();
-                                            await fb.createRoom(
-                                              settings['saboteurEnabled'] ??
-                                                  false,
-                                              settings['diceRollEnabled'] ??
-                                                  false,
-                                            );
+                                            final selectedBundle = await _showBundleSelectionDialog();
+                                            if (selectedBundle != null) {
+                                              final settings = await fb
+                                                  .fetchRoomCreationSettings();
+                                              await fb.createRoom(
+                                                settings['saboteurEnabled'] ??
+                                                    false,
+                                                settings['diceRollEnabled'] ??
+                                                    false,
+                                                selectedBundle,
+                                              );
+                                            } else {
+                                              setState(() => _loading = false);
+                                            }
                                           } catch (e) {
                                             setState(() {
                                               _error =

@@ -971,6 +971,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bundle selection saved'**
   String get bundleSelectionSaved;
+
+  /// No description provided for @selectBundleForGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Bundle for Game'**
+  String get selectBundleForGame;
+
+  /// No description provided for @selectBundleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which bundle to use for this game. All players will have access to these categories.'**
+  String get selectBundleDescription;
+
+  /// No description provided for @switchToEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to English'**
+  String get switchToEnglish;
+
+  /// No description provided for @switchToArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'التبديل إلى العربية'**
+  String get switchToArabic;
 }
 
 class _AppLocalizationsDelegate

@@ -433,4 +433,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fantasyBundleDescription => '20 magical categories for fantasy lovers';
   String get selectBundlesForGameplay => 'Select Bundles for Gameplay';
   String get bundleSelectionSaved => 'Bundle selection saved';
+  String get selectBundleForGame => 'Select Bundle for Game';
+  String get selectBundleDescription => 'Choose which bundle to use for this game. All players will have access to these categories.';
+  String get switchToEnglish => 'Switch to English';
+  String get switchToArabic => 'التبديل إلى العربية';
 }

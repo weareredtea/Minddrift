@@ -144,6 +144,21 @@ class FirebaseService with ChangeNotifier {
 
   String get currentUserUid => _auth.currentUser?.uid ?? '';
 
+  Future<bool> _validateBundleOwnership(String bundleId) async {
+    try {
+      // For now, we'll assume the user owns the bundle if it's the free bundle
+      // In a real implementation, this would check against the user's owned bundles
+      if (bundleId == 'bundle.free') return true;
+      
+      // TODO: Implement proper bundle ownership validation
+      // This would check against the user's purchased bundles in Firestore
+      return true; // Temporary: assume user owns the bundle
+    } catch (e) {
+      print('Error validating bundle ownership: $e');
+      return false;
+    }
+  }
+
   String _randomCode(int n) =>
       List.generate(n, (_) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[_rnd.nextInt(36)])
           .join();
@@ -151,9 +166,14 @@ class FirebaseService with ChangeNotifier {
   Future<bool> roomExists(String roomId) async =>
       (await _db.collection('rooms').doc(roomId).get()).exists;
 
-  Future<String> createRoom(bool saboteurEnabled, bool diceRollEnabled) async {
+  Future<String> createRoom(bool saboteurEnabled, bool diceRollEnabled, String selectedBundle) async {
     if (currentUserUid.isEmpty) {
       throw Exception("User is not authenticated. Cannot create a room.");
+    }
+
+    // Validate bundle ownership
+    if (!await _validateBundleOwnership(selectedBundle)) {
+      throw Exception("You must own this bundle to host a game with it.");
     }
 
     String roomId;
@@ -170,6 +190,7 @@ class FirebaseService with ChangeNotifier {
       'status': 'lobby',
       'saboteurEnabled': saboteurEnabled,
       'diceRollEnabled': diceRollEnabled,
+      'selectedBundle': selectedBundle, // Store bundle at room level
       'currentRoundNumber': 0,
       'navigatorRotationIndex': 0,
       'playerOrder': [currentUserUid],
@@ -394,10 +415,10 @@ class FirebaseService with ChangeNotifier {
         });
       }
 
-      // Use CategoryService for efficient client-side category selection with real bundle filtering
-      // Get user's selected bundles from Firestore
-      final selectedBundles = await loadBundleSelections();
-      final allAvailableCategories = CategoryService.getAvailableCategories(selectedBundles);
+      // Use CategoryService for efficient client-side category selection with room bundle
+      // Get the bundle selected for this room
+      final roomBundle = roomData['selectedBundle'] as String? ?? 'bundle.free';
+      final allAvailableCategories = CategoryService.getCategoriesByBundle(roomBundle);
       final availableCategories = allAvailableCategories
           .where((category) => !usedCategoryIds.contains(category.id))
           .toList();

@@ -1,4 +1,4 @@
-q// lib/screens/bundle_preview_screen.dart
+// lib/screens/bundle_preview_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -11,6 +11,7 @@ import '../models/player_status.dart';
 import '../screens/dialog_helpers.dart';
 import '../services/firebase_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/language_toggle.dart';
 import '../l10n/app_localizations.dart';
 
 // *** CONVERTED TO STATEFULWIDGET to track player count for sounds ***
@@ -102,6 +103,8 @@ class _ReadyScreenState extends State<ReadyScreen> {
         title: Text(loc.gameLobby),
         automaticallyImplyLeading: false,
         actions: [
+          // Language Toggle Button
+          const LanguageToggle(),
           TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.white),
             icon: const Icon(Icons.smart_toy_outlined),
