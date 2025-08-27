@@ -144,9 +144,9 @@ class _GaugePainter extends CustomPainter {
   static final List<double> _stops = [0.0, 0.25, 0.5, 0.75, 1.0];
   
   // Performance optimization: Cache paint objects
-  static final Paint _fillPaint = Paint()..color = Colors.white.withOpacity(0.05);
+  static final Paint _fillPaint = Paint()..color = Colors.white.withValues(alpha: 0.05);
   static final Paint _centerCirclePaint = Paint()..color = Colors.grey[800]!;
-  static final Paint _innerCirclePaint = Paint()..color = Colors.white.withOpacity(0.7);
+  static final Paint _innerCirclePaint = Paint()..color = Colors.white.withValues(alpha: 0.7);
 
   _GaugePainter({
     required this.value,
@@ -184,7 +184,7 @@ class _GaugePainter extends CustomPainter {
     if (secretValue != null) {
       final secretAngle = startAngle + (secretValue! / 100.0) * sweepAngle;
       final markerPaint = Paint()
-        ..color = Colors.black.withOpacity(0.7)
+        ..color = Colors.black.withValues(alpha: 0.7)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 10;
       
@@ -222,8 +222,8 @@ class _GaugePainter extends CustomPainter {
       canvas.drawLine(innerArcPoint, outerArcPoint, markerPaint);
     } else {
       // Performance optimization: Cache paint objects for needle
-      final needleBodyPaint = Paint()..color = Colors.white.withOpacity(0.6);
-      final needleTipPaint = Paint()..color = Colors.white.withOpacity(0.9);
+          final needleBodyPaint = Paint()..color = Colors.white.withValues(alpha: 0.6);
+    final needleTipPaint = Paint()..color = Colors.white.withValues(alpha: 0.9);
       const needleWidth = 10.0;
       const gap = 1.5;
 

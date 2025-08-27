@@ -21,7 +21,7 @@ class SpectrumCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF2A2D3E).withOpacity(0.8),
+              color: const Color(0xFF2A2D3E).withValues(alpha: 0.8),
       elevation: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -116,7 +116,7 @@ class UnderlinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withOpacity(0.8)
+                ..color = color.withValues(alpha: 0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round;

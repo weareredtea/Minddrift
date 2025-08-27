@@ -20,7 +20,7 @@ class SkeletonLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: AppColors.surface,
-      highlightColor: AppColors.surface.withOpacity(0.5),
+              highlightColor: AppColors.surface.withValues(alpha: 0.5),
       child: Container(
         width: width,
         height: height,

@@ -86,7 +86,7 @@ class _WaitingClueScreenState extends State<WaitingClueScreen> {
                       PulsatingAvatar(avatarId: navigator.avatarId),
                     const SizedBox(height: 24),
                     Shimmer.fromColors(
-                      baseColor: AppColors.onSurface.withOpacity(0.6),
+                      baseColor: AppColors.onSurface.withValues(alpha: 0.6),
                       highlightColor: AppColors.onSurface,
                       child: Text(
                         navigator != null

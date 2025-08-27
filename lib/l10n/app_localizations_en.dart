@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Mind Drift';
+  String get appTitle => 'spectrum';
 
   @override
   String get homeSubtitle =>
@@ -437,4 +437,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectBundleDescription => 'Choose which bundle to use for this game. All players will have access to these categories.';
   String get switchToEnglish => 'Switch to English';
   String get switchToArabic => 'التبديل إلى العربية';
+  String get billingUnavailable => 'In-App Purchases Unavailable';
+  String get billingUnavailableDescription => 'This device does not support in-app purchases. You can still view available bundles, but purchases will not work.';
+  String get copyRoomCode => 'Copy room code';
+  String get roomCodeCopied => 'Room code copied to clipboard!';
 }

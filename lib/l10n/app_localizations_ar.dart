@@ -9,10 +9,10 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'تلاعب العقول';
+  String get appTitle => 'نفس الموجة';
 
   @override
-  String get homeSubtitle => 'أنشئ غرفة أو انضم إليها لبدء لعبة تلاعب العقول!';
+  String get homeSubtitle => 'أنشئ غرفة أو انضم إليها لبدء اللعبة!';
 
   @override
   String get createRoom => 'إنشاء غرفة';
@@ -435,4 +435,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get selectBundleDescription => 'اختر الحزمة التي تريد استخدامها في هذه اللعبة. سيكون لدى جميع اللاعبين إمكانية الوصول إلى هذه الفئات.';
   String get switchToEnglish => 'Switch to English';
   String get switchToArabic => 'التبديل إلى العربية';
+  String get billingUnavailable => 'المشتريات داخل التطبيق غير متاحة';
+  String get billingUnavailableDescription => 'هذا الجهاز لا يدعم المشتريات داخل التطبيق. يمكنك عرض الحزم المتاحة، لكن المشتريات لن تعمل.';
+  String get copyRoomCode => 'نسخ رمز الغرفة';
+  String get roomCodeCopied => 'تم نسخ رمز الغرفة إلى الحافظة!';
 }

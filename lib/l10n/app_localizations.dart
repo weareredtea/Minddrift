@@ -995,6 +995,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'التبديل إلى العربية'**
   String get switchToArabic;
+
+  /// No description provided for @billingUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'In-App Purchases Unavailable'**
+  String get billingUnavailable;
+
+  /// No description provided for @billingUnavailableDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This device does not support in-app purchases. You can still view available bundles, but purchases will not work.'**
+  String get billingUnavailableDescription;
+
+  /// No description provided for @copyRoomCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy room code'**
+  String get copyRoomCode;
+
+  /// No description provided for @roomCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Room code copied to clipboard!'**
+  String get roomCodeCopied;
 }
 
 class _AppLocalizationsDelegate

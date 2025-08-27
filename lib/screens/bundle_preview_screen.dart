@@ -46,8 +46,8 @@ class BundlePreviewScreen extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  bundleInfo.color.withOpacity(0.3),
-                  bundleInfo.color.withOpacity(0.1),
+                                          bundleInfo.color.withValues(alpha: 0.3),
+                        bundleInfo.color.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -80,7 +80,7 @@ class BundlePreviewScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.2),
+                      color: Colors.green.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: Colors.green, width: 1),
                     ),

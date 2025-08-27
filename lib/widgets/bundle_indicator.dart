@@ -25,9 +25,9 @@ class BundleIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: bundleInfo.color.withOpacity(0.2),
+        color: bundleInfo.color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: bundleInfo.color.withOpacity(0.5), width: 1),
+        border: Border.all(color: bundleInfo.color.withValues(alpha: 0.5), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -104,7 +104,7 @@ class EffectCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: _getEffectColor().withOpacity(0.3),
+                              color: _getEffectColor().withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -115,8 +115,8 @@ class EffectCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              _getEffectColor().withOpacity(0.1),
-              _getEffectColor().withOpacity(0.05),
+                                _getEffectColor().withValues(alpha: 0.1),
+                  _getEffectColor().withValues(alpha: 0.05),
             ],
           ),
         ),

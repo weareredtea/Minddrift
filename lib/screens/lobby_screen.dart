@@ -1,6 +1,7 @@
 // lib/screens/lobby_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -84,9 +85,34 @@ class LobbyScreen extends StatelessWidget {
             Text(loc.roomCode,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).hintColor)),
             const SizedBox(height: 4),
-            Text(roomId,
-                style:
-                    Theme.of(context).textTheme.headlineMedium),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  roomId,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: roomId));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(loc.roomCodeCopied),
+                        duration: const Duration(seconds: 2),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.copy, color: Colors.white70),
+                  tooltip: loc.copyRoomCode,
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white12,
+                    padding: const EdgeInsets.all(8),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             
             // Bundle indicator
@@ -102,9 +128,9 @@ class LobbyScreen extends StatelessWidget {
                     return Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: bundleInfo.color.withOpacity(0.1),
+                        color: bundleInfo.color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: bundleInfo.color.withOpacity(0.3)),
+                        border: Border.all(color: bundleInfo.color.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

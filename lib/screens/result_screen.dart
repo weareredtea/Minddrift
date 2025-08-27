@@ -286,7 +286,7 @@ class _NextRoundControlsState extends State<NextRoundControls> {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryVariant,
-                        disabledBackgroundColor: AppColors.surface.withOpacity(0.5),
+                        disabledBackgroundColor: AppColors.surface.withValues(alpha: 0.5),
                         disabledForegroundColor: Colors.grey,
                       ),
                       child: Text(allReady ? (isMatchEnd ? loc.showMatchSummary : loc.startNextRound) : loc.waitingForPlayers),

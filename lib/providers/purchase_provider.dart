@@ -17,7 +17,11 @@ class PurchaseProvider extends ChangeNotifier {
 
   // --- NEW: Firestore listener subscription ---
   StreamSubscription? _firestoreSubscription;
-  late StreamSubscription<List<PurchaseDetails>> _purchaseStreamSubscription;
+  StreamSubscription<List<PurchaseDetails>>? _purchaseStreamSubscription;
+  
+  // --- NEW: Billing availability tracking ---
+  bool _isBillingAvailable = false;
+  String? _billingError;
 
   static const _kProductIds = <String>[
     'bundle.horror',
@@ -32,11 +36,25 @@ class PurchaseProvider extends ChangeNotifier {
   final Set<String> _owned = {'bundle.free'};
 
   PurchaseProvider() {
-    _purchaseStreamSubscription = _iap.purchaseStream.listen(_onPurchaseUpdated);
     _init();
   }
 
   Future<void> _init() async {
+    // Check if billing is available on this device
+    try {
+      _isBillingAvailable = await _iap.isAvailable();
+      if (_isBillingAvailable) {
+        _purchaseStreamSubscription = _iap.purchaseStream.listen(_onPurchaseUpdated);
+      } else {
+        _billingError = 'In-app billing is not available on this device';
+        print('⚠️ In-app billing not available: $_billingError');
+      }
+    } catch (e) {
+      _isBillingAvailable = false;
+      _billingError = 'Failed to initialize billing: $e';
+      print('❌ Billing initialization failed: $_billingError');
+    }
+
     // Listen to auth changes to set up the Firestore listener for the current user
     _auth.authStateChanges().listen((user) {
       _firestoreSubscription?.cancel(); // Cancel any previous listener
@@ -50,9 +68,18 @@ class PurchaseProvider extends ChangeNotifier {
       }
     });
 
-    final response = await _iap.queryProductDetails(_kProductIds.toSet());
-    products = response.productDetails;
-    await _iap.restorePurchases();
+    // Only try to query products if billing is available
+    if (_isBillingAvailable) {
+      try {
+        final response = await _iap.queryProductDetails(_kProductIds.toSet());
+        products = response.productDetails;
+        await _iap.restorePurchases();
+      } catch (e) {
+        print('❌ Failed to query product details: $e');
+        _billingError = 'Failed to load products: $e';
+      }
+    }
+    
     notifyListeners();
   }
 
@@ -80,12 +107,29 @@ class PurchaseProvider extends ChangeNotifier {
 
   bool isOwned(String sku) => _owned.contains(sku) || _owned.contains('all_access');
   Set<String> get ownedBundles => _owned;
+  
+  // --- NEW: Billing status getters ---
+  bool get isBillingAvailable => _isBillingAvailable;
+  String? get billingError => _billingError;
 
   Future<void> buy(String sku) async {
+    if (!_isBillingAvailable) {
+      print('❌ Cannot purchase $sku: Billing not available');
+      return;
+    }
+    
     final product = products.firstWhereOrNull((p) => p.id == sku);
-    if (product == null) return;
-    final purchaseParam = PurchaseParam(productDetails: product);
-    await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+    if (product == null) {
+      print('❌ Product $sku not found');
+      return;
+    }
+    
+    try {
+      final purchaseParam = PurchaseParam(productDetails: product);
+      await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+    } catch (e) {
+      print('❌ Purchase failed for $sku: $e');
+    }
   }
 
   void _onPurchaseUpdated(List<PurchaseDetails> updates) async {
@@ -113,7 +157,7 @@ class PurchaseProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _purchaseStreamSubscription.cancel();
+    _purchaseStreamSubscription?.cancel();
     _firestoreSubscription?.cancel(); // <-- Don't forget to cancel the new listener
     super.dispose();
   }

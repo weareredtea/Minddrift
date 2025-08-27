@@ -137,7 +137,7 @@ class _SliderPainter extends CustomPainter {
     
     // --- Track Paint ---
     final inactiveTrackPaint = Paint()
-      ..color = AppColors.surface.withOpacity(0.8)
+              ..color = AppColors.surface.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
       
     final activeTrackPaint = Paint()
@@ -169,7 +169,7 @@ class _SliderPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final thumbShadowPaint = Paint()
-      ..color = AppColors.accent.withOpacity(0.3)
+              ..color = AppColors.accent.withValues(alpha: 0.3)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8.0);
       
     // --- Draw Thumb ---

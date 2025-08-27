@@ -57,7 +57,7 @@ class GentlePoofAnimation extends StatelessWidget {
       builder: (context, value, child) {
         return Opacity(opacity: 1.0 - value, child: Transform.scale(scale: 1.0 + value * 2, child: child));
       },
-      child: Icon(Icons.cloud_circle_outlined, color: Colors.grey.withOpacity(0.5), size: 150),
+                          child: Icon(Icons.cloud_circle_outlined, color: Colors.grey.withValues(alpha: 0.5), size: 150),
     );
   }
 }

@@ -75,7 +75,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF6a1b9a).withOpacity(0.3),
+                      const Color(0xFF6a1b9a).withValues(alpha: 0.3),
                       Colors.transparent,
                     ],
                   ),
@@ -99,7 +99,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF00BFA5).withOpacity(0.2),
+                      const Color(0xFF00BFA5).withValues(alpha: 0.2),
                       Colors.transparent,
                     ],
                   ),
@@ -123,7 +123,7 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFFF50057).withOpacity(0.2),
+                      const Color(0xFFF50057).withValues(alpha: 0.2),
                       Colors.transparent,
                     ],
                   ),

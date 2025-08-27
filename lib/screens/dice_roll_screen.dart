@@ -135,7 +135,7 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.black.withOpacity(0.7), // Semi-transparent overlay
+              backgroundColor: Colors.black.withValues(alpha: 0.7), // Semi-transparent overlay
       appBar: AppBar( // Added AppBar
         backgroundColor: Colors.transparent, // Transparent to blend with overlay
         elevation: 0, // No shadow
@@ -158,7 +158,7 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
                   const SizedBox(height: 20),
                   Text(
                     loc.rollingTheDice,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white.withOpacity(0.9)),
+                                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white.withValues(alpha: 0.9)),
                   ),
                 ],
               );
@@ -183,7 +183,7 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           spreadRadius: 5,
                           blurRadius: 7,
                           offset: const Offset(0, 3),

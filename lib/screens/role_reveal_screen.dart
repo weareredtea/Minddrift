@@ -179,7 +179,7 @@ class RoleCard extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 description,
-                style: textTheme.titleLarge?.copyWith(color: AppColors.onPrimary.withOpacity(0.8)),
+                                        style: textTheme.titleLarge?.copyWith(color: AppColors.onPrimary.withValues(alpha: 0.8)),
                 textAlign: TextAlign.center,
               ),
             ]

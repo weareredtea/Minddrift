@@ -204,9 +204,9 @@ class AppTheme {
       
       sliderTheme: SliderThemeData(
         activeTrackColor: AppColors.accent,
-        inactiveTrackColor: AppColors.surface.withOpacity(0.5),
+        inactiveTrackColor: AppColors.surface.withValues(alpha: 0.5),
         thumbColor: AppColors.accent,
-        overlayColor: AppColors.accent.withOpacity(0.2),
+        overlayColor: AppColors.accent.withValues(alpha: 0.2),
         valueIndicatorColor: AppColors.primary,
         valueIndicatorTextStyle: textTheme.bodyMedium?.copyWith(color: AppColors.onPrimary),
       )
@@ -280,9 +280,9 @@ class AppTheme {
     
     sliderTheme: SliderThemeData(
       activeTrackColor: AppColors.accent,
-      inactiveTrackColor: AppColors.surface.withOpacity(0.5),
+      inactiveTrackColor: AppColors.surface.withValues(alpha: 0.5),
       thumbColor: AppColors.accent,
-      overlayColor: AppColors.accent.withOpacity(0.2),
+      overlayColor: AppColors.accent.withValues(alpha: 0.2),
       valueIndicatorColor: AppColors.primary,
       valueIndicatorTextStyle: AppTypography.textTheme.bodyMedium?.copyWith(color: AppColors.onPrimary),
     )

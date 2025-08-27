@@ -149,7 +149,31 @@ class _ReadyScreenState extends State<ReadyScreen> {
               children: [
                 Text(loc.roomCode, style: textTheme.bodyMedium),
                 const SizedBox(height: 4),
-                SelectableText(widget.roomId, style: textTheme.displayMedium),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SelectableText(widget.roomId, style: textTheme.displayMedium),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: widget.roomId));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(loc.roomCodeCopied),
+                            duration: const Duration(seconds: 2),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.copy, color: Colors.white70),
+                      tooltip: loc.copyRoomCode,
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white12,
+                        padding: const EdgeInsets.all(8),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 24),
                 
                 // --- MODIFIED: The AnimatedList now works correctly ---
@@ -200,7 +224,7 @@ class _ReadyScreenState extends State<ReadyScreen> {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.accentVariant,
-                        disabledBackgroundColor: AppColors.surface.withOpacity(0.5),
+                        disabledBackgroundColor: AppColors.surface.withValues(alpha: 0.5),
                         disabledForegroundColor: Colors.grey,
                       ),
                       child: Text(viewModel.allPlayersReady ? loc.allReadyStartRound : loc.waitingForPlayers),
@@ -261,7 +285,7 @@ class PlayerLobbyCard extends StatelessWidget {
                 child: player.ready
                     ? Container(
                         key: const ValueKey('ready'),
-                        decoration: BoxDecoration(color: AppColors.success.withOpacity(0.8), shape: BoxShape.circle),
+                        decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.8), shape: BoxShape.circle),
                         child: const Icon(Icons.check_rounded, color: Colors.white),
                       )
                     : const SizedBox(key: ValueKey('not_ready')),

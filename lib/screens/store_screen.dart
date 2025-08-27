@@ -27,6 +27,41 @@ class StoreScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Billing availability warning
+          if (!purchase.isBillingAvailable) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.warning, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      Text(
+                        loc.billingUnavailable,
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    loc.billingUnavailableDescription,
+                    style: TextStyle(color: Colors.orange.shade200),
+                  ),
+                ],
+              ),
+            ),
+          ],
           _buildTile(
             context,
             sku: 'all_access',
@@ -100,7 +135,9 @@ class StoreScreen extends StatelessWidget {
       trailing: owned
           ? Text('Owned', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.greenAccent))
           : ElevatedButton(
-              onPressed: product == null ? null : () => purchase.buy(product.id),
+              onPressed: (product == null || !purchase.isBillingAvailable) 
+                  ? null 
+                  : () => purchase.buy(product.id),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
               ),

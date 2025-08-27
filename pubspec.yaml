@@ -99,6 +99,7 @@ flutter:
     - assets/images/endpoint_right.png
     - assets/avatars/
     - assets/audio/
+    - assets/animations/
 
 
 flutter_launcher_icons:
