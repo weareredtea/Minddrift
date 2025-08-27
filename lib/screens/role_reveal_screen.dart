@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../services/firebase_service.dart';
 import '../models/round.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 
 class RoleRevealScreen extends StatefulWidget {
   final String roomId;
@@ -58,6 +59,7 @@ void initState() {
   @override
   Widget build(BuildContext context) {
     final fb = context.watch<FirebaseService>();
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: Center(
@@ -100,10 +102,10 @@ void initState() {
                   if (isHost) {
                     return ElevatedButton(
                       onPressed: () => fb.transitionAfterRoleReveal(widget.roomId),
-                      child: const Text('Continue'),
+                      child: Text(loc.continueButton),
                     );
                   } else {
-                    return const Text('Waiting for host to continue...');
+                    return Text(loc.waitingForHostToContinue);
                   }
                 },
               )
@@ -128,33 +130,34 @@ class RoleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final loc = AppLocalizations.of(context)!;
     String title;
     String description;
     IconData icon;
     Color color;
 
     if (isFront) {
-      title = 'Your Role Is...';
+      title = loc.roleRevealTitle;
       description = '';
       icon = Icons.help_outline_rounded;
       color = AppColors.surface;
     } else {
       switch (role) {
         case Role.Navigator:
-          title = 'Navigator';
-          description = 'Give a clever clue to guide your team!';
+          title = loc.youAreNavigator;
+          description = loc.navigatorDescription;
           icon = Icons.explore_rounded;
           color = AppColors.accent;
           break;
         case Role.Saboteur:
-          title = 'Saboteur';
-          description = 'Subtly mislead the team to make them miss!';
+          title = loc.youAreSaboteur;
+          description = loc.saboteurDescription;
           icon = Icons.remove_red_eye_rounded;
           color = AppColors.accentVariant;
           break;
         default:
-          title = 'Seeker';
-          description = 'Work with your team to guess the position!';
+          title = loc.youAreGuesser;
+          description = loc.seekerDescription;
           icon = Icons.search_rounded;
           color = AppColors.primary;
       }

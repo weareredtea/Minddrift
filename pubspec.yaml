@@ -50,6 +50,15 @@ dependencies:
   firebase_analytics: ^11.5.0
   simple_animations: ^5.0.2
   flutter_launcher_icons: ^0.13.1
+  liquid_swipe: ^3.1.0
+  smooth_page_indicator: ^1.1.0
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  in_app_purchase: ^3.1.13
+  cloud_functions: ^5.5.2
+  collection: ^1.18.0
+  lottie: ^3.1.2
 
 
 dev_dependencies:
@@ -74,6 +83,17 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  
+  fonts:
+    - family: Beiruti
+      fonts:
+        - asset: assets/fonts/Beiruti-VariableFont_wght.ttf
+          weight: 100
+        - asset: assets/fonts/Beiruti-VariableFont_wght.ttf
+          weight: 400
+        - asset: assets/fonts/Beiruti-VariableFont_wght.ttf
+          weight: 700
+  
   assets:
     - assets/images/endpoint_left.png
     - assets/images/endpoint_right.png

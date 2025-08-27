@@ -27,24 +27,114 @@ class AppColors {
 
 // --- 2. Create the Typography Hierarchy ---
 class AppTypography {
-  static final TextTheme textTheme = TextTheme(
-    displayLarge: GoogleFonts.poppins(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.onBackground),
-    displayMedium: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.onBackground),
-    headlineMedium: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.onBackground),
-    headlineSmall: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.onBackground),
-    titleLarge: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onBackground),
+  static TextTheme getTextTheme(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    final isArabic = locale.languageCode == 'ar';
     
-    bodyLarge: GoogleFonts.lato(fontSize: 16, color: AppColors.onSurface),
-    bodyMedium: GoogleFonts.lato(fontSize: 14, color: AppColors.onSurface),
+    // Single debug print for theme generation
+    print('DEBUG: Generating theme for locale: ${locale.languageCode}, isArabic: $isArabic');
     
-    labelLarge: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.onPrimary), // For buttons
-    labelMedium: GoogleFonts.lato(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.grey[400]),
+    if (isArabic) {
+      // Arabic Typography - Playpen Sans Arabic for headers/titles/buttons, Harmattan for body
+      return TextTheme(
+        // Headers and Titles - Arabic fonts
+        displayLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 32, color: AppColors.onBackground),
+        displayMedium: const TextStyle(fontFamily: 'Beiruti', fontSize: 28, color: AppColors.onBackground),
+        headlineLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 26, color: AppColors.onBackground),
+        headlineMedium: const TextStyle(fontFamily: 'Beiruti', fontSize: 24, color: AppColors.onBackground),
+        headlineSmall: const TextStyle(fontFamily: 'Beiruti', fontSize: 20, color: AppColors.onBackground),
+        titleLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 18, color: AppColors.onBackground),
+        titleMedium: const TextStyle(fontFamily: 'Beiruti', fontSize: 16, color: AppColors.onBackground),
+        titleSmall: const TextStyle(fontFamily: 'Beiruti', fontSize: 14, color: AppColors.onBackground),
+        
+        // Body Text - Harmattan
+        bodyLarge: GoogleFonts.harmattan(fontSize: 16, color: AppColors.onSurface),
+        bodyMedium: GoogleFonts.harmattan(fontSize: 14, color: AppColors.onSurface),
+        bodySmall: GoogleFonts.harmattan(fontSize: 12, color: AppColors.onSurface),
+        
+        // Labels and Buttons - Beiruti
+        labelLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 16, color: AppColors.onPrimary), // For buttons
+        labelMedium: GoogleFonts.harmattan(fontSize: 14, color: Colors.grey[400]),
+        labelSmall: GoogleFonts.harmattan(fontSize: 12, color: Colors.grey[400]),
+      );
+    } else {
+      // English Typography - Luckiest Guy for headers/titles/buttons, Chewy for body
+      return TextTheme(
+        // Headers and Titles - Luckiest Guy
+        displayLarge: GoogleFonts.luckiestGuy(fontSize: 32, color: AppColors.onBackground),
+        displayMedium: GoogleFonts.luckiestGuy(fontSize: 28, color: AppColors.onBackground),
+        headlineLarge: GoogleFonts.luckiestGuy(fontSize: 26, color: AppColors.onBackground),
+        headlineMedium: GoogleFonts.luckiestGuy(fontSize: 24, color: AppColors.onBackground),
+        headlineSmall: GoogleFonts.luckiestGuy(fontSize: 20, color: AppColors.onBackground),
+        titleLarge: GoogleFonts.luckiestGuy(fontSize: 18, color: AppColors.onBackground),
+        titleMedium: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onBackground),
+        titleSmall: GoogleFonts.luckiestGuy(fontSize: 14, color: AppColors.onBackground),
+        
+        // Body Text - Chewy
+        bodyLarge: GoogleFonts.chewy(fontSize: 16, color: AppColors.onSurface),
+        bodyMedium: GoogleFonts.chewy(fontSize: 14, color: AppColors.onSurface),
+        bodySmall: GoogleFonts.chewy(fontSize: 12, color: AppColors.onSurface),
+        
+        // Labels and Buttons - Luckiest Guy
+        labelLarge: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onPrimary), // For buttons
+        labelMedium: GoogleFonts.chewy(fontSize: 14, color: Colors.grey[400]),
+        labelSmall: GoogleFonts.chewy(fontSize: 12, color: Colors.grey[400]),
+      );
+    }
+  }
+
+  // Legacy static getter for backward compatibility
+  static TextTheme get textTheme => TextTheme(
+    // Headers and Titles - Luckiest Guy (default English)
+    displayLarge: GoogleFonts.luckiestGuy(fontSize: 32, color: AppColors.onBackground),
+    displayMedium: GoogleFonts.luckiestGuy(fontSize: 28, color: AppColors.onBackground),
+    headlineLarge: GoogleFonts.luckiestGuy(fontSize: 26, color: AppColors.onBackground),
+    headlineMedium: GoogleFonts.luckiestGuy(fontSize: 24, color: AppColors.onBackground),
+    headlineSmall: GoogleFonts.luckiestGuy(fontSize: 20, color: AppColors.onBackground),
+    titleLarge: GoogleFonts.luckiestGuy(fontSize: 18, color: AppColors.onBackground),
+    titleMedium: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onBackground),
+    titleSmall: GoogleFonts.luckiestGuy(fontSize: 14, color: AppColors.onBackground),
+    
+    // Body Text - Chewy
+    bodyLarge: GoogleFonts.chewy(fontSize: 16, color: AppColors.onSurface),
+    bodyMedium: GoogleFonts.chewy(fontSize: 14, color: AppColors.onSurface),
+    bodySmall: GoogleFonts.chewy(fontSize: 12, color: AppColors.onSurface),
+    
+    // Labels and Buttons - Luckiest Guy
+    labelLarge: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onPrimary), // For buttons
+    labelMedium: GoogleFonts.chewy(fontSize: 14, color: Colors.grey[400]),
+    labelSmall: GoogleFonts.chewy(fontSize: 12, color: Colors.grey[400]),
   );
+  
+  // Helper method to create TextStyle with correct font family
+  static TextStyle createTextStyle(BuildContext context, {
+    double? fontSize,
+    Color? color,
+    FontWeight? fontWeight,
+    bool isHeader = false,
+  }) {
+    final locale = Localizations.localeOf(context);
+    final isArabic = locale.languageCode == 'ar';
+    final fontFamily = isHeader 
+        ? (isArabic ? 'Beiruti' : 'Luckiest Guy')
+        : (isArabic ? 'Harmattan' : 'Chewy');
+    
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      color: color,
+      fontWeight: fontWeight,
+    );
+  }
 }
 
 // --- 3. Build the Master ThemeData ---
 class AppTheme {
-  static ThemeData get darkTheme {
+  static ThemeData getDarkTheme(BuildContext context) {
+    final textTheme = AppTypography.getTextTheme(context);
+    final locale = Localizations.localeOf(context);
+    final isArabic = locale.languageCode == 'ar';
+    
     return ThemeData.dark().copyWith(
       colorScheme: const ColorScheme.dark().copyWith(
         primary: AppColors.primary,
@@ -56,12 +146,15 @@ class AppTheme {
         error: AppColors.error,
       ),
       scaffoldBackgroundColor: AppColors.background,
-      textTheme: AppTypography.textTheme,
+      textTheme: textTheme,
+      
+      // Override default text styles to ensure font family inheritance
+      primaryTextTheme: textTheme,
       
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.surface,
         foregroundColor: AppColors.onSurface,
-        titleTextStyle: AppTypography.textTheme.headlineSmall,
+        titleTextStyle: textTheme.headlineSmall,
         elevation: 0,
         centerTitle: true,
       ),
@@ -74,14 +167,14 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: AppTypography.textTheme.labelLarge,
+          textStyle: textTheme.labelLarge,
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.accent,
-          textStyle: AppTypography.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+          textStyle: textTheme.labelLarge,
         )
       ),
       
@@ -93,11 +186,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
-        labelStyle: AppTypography.textTheme.bodyMedium?.copyWith(color: Colors.grey[400]),
-        hintStyle: AppTypography.textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+        labelStyle: textTheme.bodyMedium?.copyWith(color: Colors.grey[400]),
+        hintStyle: textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
       ),
 
-      // *** FIX: Use CardThemeData instead of CardTheme ***
       cardTheme: CardThemeData(
         elevation: 2,
         color: AppColors.surface,
@@ -116,8 +208,83 @@ class AppTheme {
         thumbColor: AppColors.accent,
         overlayColor: AppColors.accent.withOpacity(0.2),
         valueIndicatorColor: AppColors.primary,
-        valueIndicatorTextStyle: AppTypography.textTheme.bodyMedium?.copyWith(color: AppColors.onPrimary),
+        valueIndicatorTextStyle: textTheme.bodyMedium?.copyWith(color: AppColors.onPrimary),
       )
     );
   }
+
+  // Legacy static getter for backward compatibility
+  static ThemeData get darkTheme => ThemeData.dark().copyWith(
+    colorScheme: const ColorScheme.dark().copyWith(
+      primary: AppColors.primary,
+      secondary: AppColors.accent,
+      surface: AppColors.surface,
+      onPrimary: AppColors.onPrimary,
+      onSecondary: AppColors.onPrimary,
+      onSurface: AppColors.onSurface,
+      error: AppColors.error,
+    ),
+    scaffoldBackgroundColor: AppColors.background,
+    textTheme: AppTypography.textTheme,
+    
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppColors.surface,
+      foregroundColor: AppColors.onSurface,
+      titleTextStyle: AppTypography.textTheme.headlineSmall,
+      elevation: 0,
+      centerTitle: true,
+    ),
+    
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.accent,
+        foregroundColor: AppColors.onPrimary,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        textStyle: AppTypography.textTheme.labelLarge,
+      ),
+    ),
+
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.accent,
+        textStyle: AppTypography.textTheme.labelLarge,
+      )
+    ),
+    
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.surface,
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      labelStyle: AppTypography.textTheme.bodyMedium?.copyWith(color: Colors.grey[400]),
+      hintStyle: AppTypography.textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+    ),
+
+    cardTheme: CardThemeData(
+      elevation: 2,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.0),
+      ),
+    ),
+    
+    iconTheme: const IconThemeData(
+      color: AppColors.onSurface,
+    ),
+    
+    sliderTheme: SliderThemeData(
+      activeTrackColor: AppColors.accent,
+      inactiveTrackColor: AppColors.surface.withOpacity(0.5),
+      thumbColor: AppColors.accent,
+      overlayColor: AppColors.accent.withOpacity(0.2),
+      valueIndicatorColor: AppColors.primary,
+      valueIndicatorTextStyle: AppTypography.textTheme.bodyMedium?.copyWith(color: AppColors.onPrimary),
+    )
+  );
 }

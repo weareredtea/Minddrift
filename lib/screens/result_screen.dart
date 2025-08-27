@@ -7,74 +7,14 @@ import 'package:rxdart/rxdart.dart';
 import 'package:wavelength_clone_fresh/screens/dialog_helpers.dart';
 import 'package:wavelength_clone_fresh/services/audio_service.dart';
 import 'package:wavelength_clone_fresh/widgets/result_animations.dart';
+import 'package:wavelength_clone_fresh/widgets/radial_spectrum.dart';
+import 'package:wavelength_clone_fresh/widgets/spectrum_card.dart';
+import 'package:wavelength_clone_fresh/widgets/bundle_indicator.dart';
 import '../theme/app_theme.dart';
 import '../services/firebase_service.dart';
 import '../models/player_status.dart';
 import '../models/round.dart';
-
-// This is the corrected slider widget from our previous conversations.
-class ResultVisualizer extends StatelessWidget {
-  final int secretPosition;
-  final int guessPosition;
-
-  const ResultVisualizer({
-    super.key,
-    required this.secretPosition,
-    required this.guessPosition,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 60,
-      width: double.infinity,
-      child: CustomPaint(
-        painter: ResultVisualizerPainter(
-          secretValue: secretPosition.toDouble(),
-          guessValue: guessPosition.toDouble(),
-        ),
-        child: Container(),
-      ),
-    );
-  }
-}
-
-class ResultVisualizerPainter extends CustomPainter {
-  final double secretValue;
-  final double guessValue;
-
-  ResultVisualizerPainter({required this.secretValue, required this.guessValue});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double trackY = size.height / 2;
-    const double trackHeight = 12.0;
-
-    final trackPaint = Paint()
-      ..color = AppColors.surface
-      ..style = PaintingStyle.fill;
-    final trackRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(0, trackY - (trackHeight / 2), size.width, trackHeight),
-      const Radius.circular(6),
-    );
-    canvas.drawRRect(trackRect, trackPaint);
-
-    final secretX = (secretValue / 100).clamp(0.0, 1.0) * size.width;
-    final secretPaint = Paint()..color = AppColors.accent;
-    canvas.drawCircle(Offset(secretX, trackY), 10, secretPaint);
-
-    final guessX = (guessValue / 100).clamp(0.0, 1.0) * size.width;
-    final guessPaint = Paint()
-      ..color = AppColors.accentVariant
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-    canvas.drawCircle(Offset(guessX, trackY), 10, guessPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
+import '../l10n/app_localizations.dart';
 
 class ResultScreen extends StatefulWidget {
   static const routeName = '/result';
@@ -92,12 +32,30 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Round Results'),
+        title: Text(loc.roundResultTitle),
         automaticallyImplyLeading: false,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(loc.howScoringWorks),
+                  content: Text(loc.scoringExplanation),
+                  actions: [
+                    TextButton(
+                        child: Text(loc.gotIt),
+                        onPressed: () => Navigator.of(ctx).pop()),
+                  ],
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.exit_to_app_rounded),
             onPressed: () => showExitConfirmationDialog(context, widget.roomId),
@@ -105,96 +63,98 @@ class _ResultScreenState extends State<ResultScreen> {
         ],
       ),
       body: StreamBuilder<List<dynamic>>(
-        stream: Rx.combineLatest2(
+        stream: Rx.combineLatest3(
           fb.listenCurrentRound(widget.roomId),
           fb.roomDocRef(widget.roomId).snapshots(),
-          (Round currentRound, DocumentSnapshot<Map<String, dynamic>> roomSnap) {
-            final roomData = roomSnap.data() ?? {};
-            return [currentRound, roomData];
-          },
+          fb.listenNavigator(widget.roomId),
+          (Round r, DocumentSnapshot<Map<String, dynamic>> rs, PlayerStatus? nav) => [r, rs.data() ?? {}, nav],
         ),
         builder: (ctx, snap) {
-          // --- MODIFIED: More robust data checks to prevent flicker ---
           if (snap.connectionState == ConnectionState.waiting || !snap.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
           final currentRound = snap.data![0] as Round;
           final roomData = snap.data![1] as Map<String, dynamic>;
+          final navigator = snap.data![2] as PlayerStatus?;
 
-          // Check for the specific data needed to build this screen.
-          // If it's not ready yet, keep showing the loader.
-          if (currentRound.secretPosition == null || currentRound.groupGuessPosition == null) {
+          if (currentRound.secretPosition == null || currentRound.groupGuessPosition == null || navigator == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          // --- END OF MODIFICATION ---
 
-          // It is now safe to access the data.
           final secret = currentRound.secretPosition!;
           final guess = currentRound.groupGuessPosition!;
           final score = currentRound.score ?? 0;
-          final effect = currentRound.effect;
           final currentRoundNumber = roomData['currentRoundNumber'] as int? ?? 0;
-          
-          // --- MODIFIED: Sound logic ---
+
           if (!_hasPlayedScoreSound) {
-            if (score == 6) {
-              _audioService.playCheerSound(); // Play cheer for bullseye
-            } else {
-              _audioService.playScoreSound(score); // Play normal score sound
-            }
+            if (score >= 4) { _audioService.playCheerSound(); } 
+            else { _audioService.playScoreSound(score); }
             _hasPlayedScoreSound = true;
           }
-          // --- END OF MODIFICATION ---
 
-          String effectDescription = _getEffectDescription(effect);
-
-          // --- MODIFIED: Wrap body in a Stack to show animations ---
           return Stack(
             alignment: Alignment.center,
             children: [
-              // Your existing content
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Spacer(),
                     Text(
-                      'Round $currentRoundNumber Results',
-                      style: Theme.of(context).textTheme.displaySmall,
+                      loc.roundResults(currentRoundNumber),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 26,
+                      ),
                       textAlign: TextAlign.center,
                     ),
-                    if (effect != Effect.none)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0, bottom: 24.0),
-                        child: Text(
-                          'Effect: $effectDescription',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.accentVariant),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                    const SizedBox(height: 8),
+                    Text(
+                      loc.navigatorWas(navigator.displayName),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
                     
-                    const SizedBox(height: 32),
+                    // Bundle indicator
+                    StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                      stream: fb.roomDocRef(widget.roomId).snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data!.data() != null) {
+                          final currentCategoryId = snapshot.data!.data()!['currentCategoryId'] as String?;
+                          if (currentCategoryId != null) {
+                            return BundleIndicator(
+                              categoryId: currentCategoryId,
+                              showIcon: true,
+                              showLabel: true,
+                              size: 14,
+                            );
+                          }
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    
+                    const Spacer(),
 
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          children: [
-                            Text('Secret was: $secret', style: Theme.of(context).textTheme.headlineSmall),
-                            const SizedBox(height: 8),
-                            Text('Group Guess: $guess', style: Theme.of(context).textTheme.headlineSmall),
-                          ],
-                        ),
+                    SpectrumCard(
+                      startLabel: currentRound.categoryLeft ?? 'LEFT',
+                      endLabel: currentRound.categoryRight ?? 'RIGHT',
+                      child: RadialSpectrumWidget(
+                        value: guess.toDouble(),
+                        secretValue: secret.toDouble(), // Pass the secret as the second value
+                        onChanged: (_) {},
+                        isReadOnly: true,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
 
-                    const SizedBox(height: 16),
-                    ResultVisualizer(secretPosition: secret, guessPosition: guess),
-                    const SizedBox(height: 32),
-
+                    const Spacer(flex: 2),
+                    
                     TweenAnimationBuilder<double>(
                       tween: Tween(begin: 0.0, end: 1.0),
                       duration: const Duration(milliseconds: 800),
@@ -202,29 +162,25 @@ class _ResultScreenState extends State<ResultScreen> {
                       builder: (context, value, child) {
                         return Transform.scale(
                           scale: value,
-                          child: Opacity(
-                            opacity: value.clamp(0.0, 1.0),
-                            child: child,
-                          ),
+                          child: Opacity(opacity: value.clamp(0.0, 1.0), child: child),
                         );
                       },
                       child: Column(
                         children: [
-                           Text('SCORE', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey)),
-                           const SizedBox(height: 4),
-                           Text(
+                            Text(loc.score, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey)),
+                            const SizedBox(height: 4),
+                            Text(
                             '$score',
                             style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColors.accent, fontSize: 64),
                           ),
                         ],
                       ),
                     ),
-                    const Spacer(flex: 2),
+                    const Spacer(),
                   ],
                 ),
               ),
-
-              // --- MODIFIED: Conditionally render animations based on new score tiers ---
+              
               if (score == 6)
                 const BullseyeAnimation(),
               if (score == 3 || score == 4)
@@ -239,18 +195,6 @@ class _ResultScreenState extends State<ResultScreen> {
       ),
       bottomNavigationBar: NextRoundControls(roomId: widget.roomId),
     );
-  }
-
-  String _getEffectDescription(Effect? effect) {
-    switch (effect) {
-      case Effect.doubleScore: return 'Double Score!';
-      case Effect.halfScore: return 'Half Score!';
-      case Effect.token: return 'Navigator gets a Token!';
-      case Effect.reverseSlider: return 'Reverse Slider!';
-      case Effect.noClue: return 'No Clue!';
-      case Effect.blindGuess: return 'Blind Guess!';
-      default: return '';
-    }
   }
 }
 
@@ -270,6 +214,7 @@ class _NextRoundControlsState extends State<NextRoundControls> {
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
     final myUid = fb.currentUserUid;
+    final loc = AppLocalizations.of(context)!;
 
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: fb.roomDocRef(widget.roomId).snapshots(),
@@ -313,8 +258,18 @@ class _NextRoundControlsState extends State<NextRoundControls> {
                     style: me.ready 
                         ? ElevatedButton.styleFrom(backgroundColor: AppColors.surface) 
                         : null,
-                    child: Text(me.ready ? 'Ready!' : (isMatchEnd ? 'Ready for Summary' : 'Ready for Next Round')),
+                    child: Text(me.ready ? loc.ready : (isMatchEnd ? loc.readyForSummary : loc.readyForNextRound)),
                   ),
+
+                    if (me.ready && !allReady)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12.0),
+                        child: Text(
+                          loc.waitingForOtherPlayersToGetReady,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ),
 
                   if (myUid == hostUid) ...[
                     const SizedBox(height: 12),
@@ -330,11 +285,11 @@ class _NextRoundControlsState extends State<NextRoundControls> {
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accentVariant,
+                        backgroundColor: AppColors.primaryVariant,
                         disabledBackgroundColor: AppColors.surface.withOpacity(0.5),
                         disabledForegroundColor: Colors.grey,
                       ),
-                      child: Text(allReady ? (isMatchEnd ? 'Show Match Summary' : 'Start Next Round') : 'Waiting for players...'),
+                      child: Text(allReady ? (isMatchEnd ? loc.showMatchSummary : loc.startNextRound) : loc.waitingForPlayers),
                     ),
                   ],
 

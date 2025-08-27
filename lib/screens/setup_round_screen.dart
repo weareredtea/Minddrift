@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wavelength_clone_fresh/widgets/custom_slider_dial.dart';
+import 'package:wavelength_clone_fresh/widgets/radial_spectrum.dart';
+import 'package:wavelength_clone_fresh/widgets/spectrum_card.dart';
+import 'package:wavelength_clone_fresh/widgets/effect_card.dart';
 // Import for DocumentSnapshot
 
 import '../services/firebase_service.dart';
 import '../models/round.dart'; // Import Round model for category data
+import '../theme/app_theme.dart'; // Import for AppColors
 // Import for PlayerStatus
 import 'home_screen.dart'; // Import for navigating back to home
 import 'scoreboard_screen.dart'; // Import for navigating to scoreboard
+import '../l10n/app_localizations.dart';
 
 class SetupRoundScreen extends StatefulWidget {
   static const routeName = '/setup';
@@ -33,12 +37,15 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
     // Listen for player departures to show toast messages
     context.read<FirebaseService>().listenForPlayerDepartures(widget.roomId).listen((playerName) {
       if (playerName != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$playerName has exited the room.'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        final loc = AppLocalizations.of(context);
+        if (loc != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(loc.playerExited(playerName)),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       }
     });
 
@@ -82,22 +89,23 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         final fb = dialogContext.read<FirebaseService>();
+        final loc = AppLocalizations.of(dialogContext)!;
         return AlertDialog(
-          title: const Text('You are the Last Player!'),
-          content: Text('All other players have exited the room. You can invite other players, view the total score, or exit.'),
+          title: Text(loc.youAreLastPlayer),
+          content: Text(loc.lastPlayerMessage),
           actions: <Widget>[
             TextButton(
-              child: const Text('Invite Friends'),
+              child: Text(loc.inviteFriends),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 setState(() { _showingLastPlayerDialog = false; });
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Share room ID: $roomId')),
+                  SnackBar(content: Text(loc.shareRoomId(roomId))),
                 );
               },
             ),
             TextButton(
-              child: const Text('View Scoreboard'),
+              child: Text(loc.viewScoreboard),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
                 setState(() { _showingLastPlayerDialog = false; });
@@ -105,7 +113,7 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
               },
             ),
             TextButton(
-              child: const Text('Exit to Home'),
+              child: Text(loc.exitToHome),
               onPressed: () async {
                 await fb.leaveRoom(roomId);
                 Navigator.of(dialogContext).pop();
@@ -129,18 +137,19 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
+        final loc = AppLocalizations.of(dialogContext)!;
         return AlertDialog(
-          title: const Text('Exit Game?'),
-          content: const Text('Are you sure you want to exit this room? Other players will be notified.'),
+          title: Text(loc.exitGame),
+          content: Text(loc.exitGameConfirmation),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(loc.cancel),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
               },
             ),
             TextButton(
-              child: const Text('Exit'),
+              child: Text(loc.exit),
               onPressed: () async {
                 await fb.leaveRoom(roomId);
                 Navigator.of(dialogContext).pop();
@@ -157,30 +166,17 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
     );
   }
 
-  // Helper to get a string representation of the effect
-  String _getEffectDescription(Effect? effect) {
-    if (effect == null || effect == Effect.none) {
-      return '';
-    }
-    switch (effect) {
-      case Effect.doubleScore: return 'Double Score!';
-      case Effect.halfScore: return 'Half Score!';
-      case Effect.token: return 'Navigator gets a Token!';
-      case Effect.reverseSlider: return 'Reverse Slider!';
-      case Effect.noClue: return 'No Clue!';
-      case Effect.blindGuess: return 'Blind Guess!';
-      default: return ''; // Should not happen with exhaustive switch
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
+    final loc = AppLocalizations.of(context)!;
     final roomId = widget.roomId;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Navigator: Set Your Clue'),
+        title: Text(loc.setupRoundTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app),
@@ -199,7 +195,6 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
           final categoryLeft = currentRound.categoryLeft!;
           final categoryRight = currentRound.categoryRight!;
           final effect = currentRound.effect; // Get the effect
-          final effectDescription = _getEffectDescription(effect);
 
           // Apply 'No Clue' effect if active
           final isNoClueEffect = effect == Effect.noClue;
@@ -209,10 +204,30 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Your secret position is set — enter your clue',
+                // Role explanation card
+                Card(
+                  child: ListTile(
+                    leading: Icon(Icons.explore_rounded, color: AppColors.accent, size: 32),
+                    title: Text(
+                      loc.youAreNavigator,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    subtitle: Text(
+                      loc.navigatorDescription,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                Text(
+                  loc.secretPositionSet,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),
 
@@ -220,43 +235,28 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                 if (effect != null && effect != Effect.none)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
-                    child: Text(
-                      'Effect: $effectDescription',
-                      style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic, color: Colors.deepOrange.shade700, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
+                    child: EffectCard(effect: effect),
                   ),
 
-                // Display category
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      categoryLeft,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      categoryRight,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                // *** REPLACE SliderDial WITH CustomSliderDial ***
+                // *** REPLACE WITH RadialSpectrum ***
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 24.0),
-                  child: CustomSliderDial(
-                    value: secretPos,
-                    onChanged: (_) {}, // No-op, it's read-only
-                    isReadOnly: true,
+                  child: SpectrumCard(
+                    startLabel: categoryLeft,
+                    endLabel: categoryRight,
+                    child: RadialSpectrumWidget(
+                      value: secretPos,
+                      secretValue: secretPos, // Show the secret position
+                      onChanged: (_) {}, // No-op, it's read-only
+                      isReadOnly: true,
+                    ),
                   ),
                 ),
 
                 // Clue input (disabled if 'No Clue' effect)
                 TextField(
                   decoration: InputDecoration(
-                    labelText: isNoClueEffect ? 'Clue disabled by effect' : 'One-word clue',
+                    labelText: isNoClueEffect ? loc.clueDisabledByEffect : loc.oneWordClue,
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(12)),
                     ),
@@ -271,7 +271,7 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       'Effect active: "No Clue!" - You cannot enter a clue this round.',
-                      style: TextStyle(color: Colors.red[700], fontStyle: FontStyle.italic),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red[700]),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -300,9 +300,9 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                               CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
                       : Text(
-                          isNoClueEffect ? 'Confirm No Clue' : 'Lock In Clue',
-                          style: const TextStyle(fontSize: 18),
-                        ),
+                        isNoClueEffect ? loc.confirmNoClue : loc.submitClue,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
                 ),
               ],
             ),

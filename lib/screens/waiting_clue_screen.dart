@@ -1,17 +1,16 @@
 // lib/screens/waiting_clue_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:wavelength_clone_fresh/widgets/pulsating_avatar.dart';
-import '../models/avatar.dart';
 import '../models/player_status.dart';
 import '../services/audio_service.dart';
 import '../services/firebase_service.dart';
 import '../models/round.dart';
 import 'dialog_helpers.dart';
 import '../theme/app_theme.dart';
-import 'guess_round_screen.dart';
+import '../l10n/app_localizations.dart';
+
 
 class WaitingClueScreen extends StatefulWidget {
   static const routeName = '/waiting';
@@ -41,10 +40,11 @@ class _WaitingClueScreenState extends State<WaitingClueScreen> {
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
     final roomId = widget.roomId;
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Waiting for Clue'),
+        title: Text(loc.waitingClueTitle),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -66,16 +66,8 @@ class _WaitingClueScreenState extends State<WaitingClueScreen> {
           final clue = roundSnap.data?.clue ?? '';
 
           if (clue.isNotEmpty) {
-            // Auto-navigate to the Guessing Screen once the clue is available.
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) { // Check if the widget is still in the tree
-                Navigator.pushReplacementNamed(
-                  context,
-                  GuessRoundScreen.routeName,
-                  arguments: roomId,
-                );
-              }
-            });
+            // The room status will automatically change to 'guessing' when the clue is submitted
+            // The RoomStatusNavigator will handle the transition to GuessRoundScreen
             // Show a loader while the transition happens.
             return const Center(child: CircularProgressIndicator());
           }
@@ -98,8 +90,8 @@ class _WaitingClueScreenState extends State<WaitingClueScreen> {
                       highlightColor: AppColors.onSurface,
                       child: Text(
                         navigator != null
-                            ? '${navigator.displayName} is thinking...'
-                            : 'Waiting for Navigator...',
+                            ? loc.navigatorThinking(navigator.displayName)
+                            : loc.waitingForNavigator,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                     ),

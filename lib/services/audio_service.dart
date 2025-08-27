@@ -67,4 +67,18 @@ class AudioService {
   Future<void> stopMusic() async {
     await _musicPlayer.stop();
   }
+
+  // --- Music Settings ---
+  bool _musicEnabled = true;
+
+  bool isMusicEnabled() => _musicEnabled;
+
+  void setMusicEnabled(bool enabled) {
+    _musicEnabled = enabled;
+    if (enabled) {
+      startMusic();
+    } else {
+      stopMusic();
+    }
+  }
 }

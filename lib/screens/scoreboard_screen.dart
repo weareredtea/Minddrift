@@ -5,6 +5,8 @@ import 'package:wavelength_clone_fresh/models/round_history_entry.dart';
 import 'package:wavelength_clone_fresh/screens/dialog_helpers.dart';
 import '../services/firebase_service.dart';
 import '../models/round.dart'; // Import for Effect enum
+import '../widgets/effect_card.dart';
+import '../l10n/app_localizations.dart';
 // Import for PlayerStatus
 // Import for navigating back to home
 
@@ -26,12 +28,15 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
     // Listen for player departures to show toast messages
     context.read<FirebaseService>().listenForPlayerDepartures(widget.roomId).listen((playerName) {
       if (playerName != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$playerName has exited the room.'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        final loc = AppLocalizations.of(context);
+        if (loc != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(loc.playerExited(playerName)),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       }
     });
 
@@ -54,30 +59,17 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
 
  
   
-  // Helper to get effect description
-  String _getEffectDescription(String? effectString) {
-    if (effectString == null || effectString == Effect.none.toString().split('.').last) {
-      return 'No Effect';
-    }
-    switch (effectString) {
-      case 'doubleScore': return 'Double Score!';
-      case 'halfScore': return 'Half Score!';
-      case 'token': return 'Navigator gets a Token!';
-      case 'reverseSlider': return 'Reverse Slider!';
-      case 'noClue': return 'No Clue!';
-      case 'blindGuess': return 'Blind Guess!';
-      default: return 'Unknown Effect';
-    }
-  }
+
 
 
   @override
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scoreboard'),
+        title: Text(loc.scoreboard),
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app),
@@ -93,7 +85,7 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
           }
           final history = snap.data ?? [];
           if (history.isEmpty) {
-            return const Center(child: Text('No rounds played yet.'));
+            return Center(child: Text(loc.noRoundsPlayed));
           }
 
           return ListView.builder(
@@ -111,27 +103,31 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Round ${entry.roundNumber}',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        loc.roundNumber(entry.roundNumber),
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 8),
-                      Text('Secret: ${entry.secret ?? 'N/A'}'),
-                      Text('Group Guess: ${entry.guess ?? 'N/A'}'),
+                      Text(loc.secret(entry.secret?.toString() ?? 'N/A')),
+                      Text(loc.groupGuess(entry.guess?.toString() ?? 'N/A')),
                       if (entry.effect != null && entry.effect != Effect.none.toString().split('.').last)
-                        Text('Effect: ${_getEffectDescription(entry.effect)}', style: TextStyle(fontStyle: FontStyle.italic, color: Colors.deepOrange)),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: EffectCard(
+                            effect: Round.effectFromString(entry.effect),
+                            showIcon: false,
+                          ),
+                        ),
                       const SizedBox(height: 8),
                       Text(
-                        'Score: ${entry.score ?? 0} points',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                        loc.scorePoints(entry.score ?? 0),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           color: entry.score! > 0 ? Colors.green[700] : Colors.red[700],
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Time: ${entry.timestamp.toLocal().toString().split('.')[0]}',
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        loc.time(entry.timestamp.toLocal().toString().split('.')[0]),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
                       ),
                     ],
                   ),

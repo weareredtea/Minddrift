@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'package:simple_animations/simple_animations.dart';
+import '../l10n/app_localizations.dart';
 
 // 1. "Bullseye!" Text Animation (Unchanged)
 class BullseyeAnimation extends StatelessWidget {
@@ -20,7 +21,7 @@ class BullseyeAnimation extends StatelessWidget {
           child: Opacity(opacity: 1.0 - value, child: child),
         );
       },
-      child: Text('Bullseye!', style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: Colors.amber.shade700, shadows: const [Shadow(blurRadius: 10, color: Colors.black54)])));
+      child: Text(AppLocalizations.of(context)?.bullseye ?? 'Bullseye!', style: Theme.of(context).textTheme.displayLarge?.copyWith(color: Colors.amber.shade700, shadows: const [Shadow(blurRadius: 10, color: Colors.black54)])));
   }
 }
 

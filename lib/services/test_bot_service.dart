@@ -3,8 +3,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:wavelength_clone_fresh/models/round.dart';
 import 'package:wavelength_clone_fresh/services/firebase_service.dart';
 

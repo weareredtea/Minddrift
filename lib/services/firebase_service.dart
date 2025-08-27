@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -10,7 +11,74 @@ import '../models/player_status.dart';
 import '../models/round.dart';
 import '../models/round_history_entry.dart';
 import '../pigeon/pigeon.dart';
+import '../services/category_service.dart';
 
+// Performance optimization: Cache for expensive operations
+class _RoundCache {
+  static final Map<String, Round> _cache = {};
+  static final Map<String, DateTime> _cacheTimestamps = {};
+  static const Duration _cacheExpiry = Duration(seconds: 5);
+
+  // Note: Cache get method is available for future use if needed
+  static Round? get(String roomId) {
+    final timestamp = _cacheTimestamps[roomId];
+    if (timestamp == null) return null;
+    
+    if (DateTime.now().difference(timestamp) > _cacheExpiry) {
+      _cache.remove(roomId);
+      _cacheTimestamps.remove(roomId);
+      return null;
+    }
+    
+    return _cache[roomId];
+  }
+
+  static void set(String roomId, Round round) {
+    _cache[roomId] = round;
+    _cacheTimestamps[roomId] = DateTime.now();
+  }
+
+  static void clear(String roomId) {
+    _cache.remove(roomId);
+    _cacheTimestamps.remove(roomId);
+  }
+
+  static void clearAll() {
+    _cache.clear();
+    _cacheTimestamps.clear();
+  }
+}
+
+// Performance optimization: Memoized player status cache
+class _PlayerStatusCache {
+  static final Map<String, List<PlayerStatus>> _cache = {};
+  static final Map<String, DateTime> _cacheTimestamps = {};
+  static const Duration _cacheExpiry = Duration(seconds: 3);
+
+  // Note: Cache get method is available for future use if needed
+  static List<PlayerStatus>? get(String roomId) {
+    final timestamp = _cacheTimestamps[roomId];
+    if (timestamp == null) return null;
+    
+    if (DateTime.now().difference(timestamp) > _cacheExpiry) {
+      _cache.remove(roomId);
+      _cacheTimestamps.remove(roomId);
+      return null;
+    }
+    
+    return _cache[roomId];
+  }
+
+  static void set(String roomId, List<PlayerStatus> players) {
+    _cache[roomId] = players;
+    _cacheTimestamps[roomId] = DateTime.now();
+  }
+
+  static void clear(String roomId) {
+    _cache.remove(roomId);
+    _cacheTimestamps.remove(roomId);
+  }
+}
 
 class ReadyScreenViewModel {
   final bool isHost;
@@ -30,12 +98,26 @@ class FirebaseService with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final Random _rnd = Random();
+  
+  // We'll get PurchaseProvider from context when needed for real bundle filtering
 
   final String _canvasAppId = const String.fromEnvironment('app_id', defaultValue: 'default-app-id');
   final String _canvasInitialAuthToken = const String.fromEnvironment('initial_auth_token');
 
   FirebaseService() {
     _initializeFirebaseAndAuth();
+  }
+
+  // Performance optimization: Clean up caches when leaving room
+  void _cleanupCaches(String roomId) {
+    // Clear caches
+    _RoundCache.clear(roomId);
+    _PlayerStatusCache.clear(roomId);
+    
+    // Clear debounced update timers
+    _updateTimers[roomId]?.cancel();
+    _updateTimers.remove(roomId);
+    _pendingUpdates.remove(roomId);
   }
 
   Future<void> _initializeFirebaseAndAuth() async {
@@ -106,7 +188,6 @@ class FirebaseService with ChangeNotifier {
       'avatarId': randomAvatarId,
     });
 
-    await _seedCategories(roomId);
     await saveCurrentRoomId(roomId);
 
     notifyListeners();
@@ -222,21 +303,13 @@ class FirebaseService with ChangeNotifier {
 
     await saveCurrentRoomId(null);
 
+    // Performance optimization: Clean up caches
+    _cleanupCaches(roomId);
+
     print('$currentUserDisplayName has left room $roomId');
   }
 
-  Future<void> _seedCategories(String roomId) async {
-    final cats = [
-      {'id':'hot_cold','left':'HOT','right':'COLD'},
-      {'id':'calm_noisy','left':'CALM','right':'NOISY'},
-      // ... and all other categories
-      {'id':'young_old','left':'YOUNG','right':'OLD'},
-    ];
-    final col = _db.collection('rooms').doc(roomId).collection('categories');
-    for (var c in cats) {
-      await col.doc(c['id']!).set(c);
-    }
-  }
+  // Removed _seedCategories method - now using CategoryService for efficient client-side filtering
 
   DocumentReference<Map<String,dynamic>> roomDocRef(String roomId) =>
       _db.collection('rooms').doc(roomId);
@@ -264,10 +337,13 @@ class FirebaseService with ChangeNotifier {
     .doc(uid ?? currentUserUid)
     .update({'isReady': ready});
 
-  Stream<List<PlayerStatus>> listenToReady(String roomId) =>
-      playersColRef(roomId).snapshots().map((snap) {
-        return snap.docs.map((d) => PlayerStatus.fromSnapshot(d)).toList();
-      });
+  Stream<List<PlayerStatus>> listenToReady(String roomId) {
+    return playersColRef(roomId).snapshots().map((snap) {
+      final players = snap.docs.map((d) => PlayerStatus.fromSnapshot(d)).toList();
+      _PlayerStatusCache.set(roomId, players); // Cache the result
+      return players;
+    });
+  }
 
   Future<void> _setupNewRoundState(String roomId, {required bool isFirstRound}) async {
     print('DEBUG: _setupNewRoundState function started.');
@@ -318,23 +394,26 @@ class FirebaseService with ChangeNotifier {
         });
       }
 
-      final allCategoriesSnap = await _db.collection('rooms').doc(roomId).collection('categories').get();
-      final availableCategories = allCategoriesSnap.docs
-          .where((doc) => !usedCategoryIds.contains(doc.id))
+      // Use CategoryService for efficient client-side category selection with real bundle filtering
+      // Get user's selected bundles from Firestore
+      final selectedBundles = await loadBundleSelections();
+      final allAvailableCategories = CategoryService.getAvailableCategories(selectedBundles);
+      final availableCategories = allAvailableCategories
+          .where((category) => !usedCategoryIds.contains(category.id))
           .toList();
-
+      
       String selectedCategoryId;
       Map<String, dynamic> selectedCategoryData;
 
       if (availableCategories.isEmpty) {
         usedCategoryIds = [];
-        final randomCategoryDoc = allCategoriesSnap.docs[_rnd.nextInt(allCategoriesSnap.docs.length)];
-        selectedCategoryId = randomCategoryDoc.id;
-        selectedCategoryData = randomCategoryDoc.data();
+        final randomCategory = allAvailableCategories[_rnd.nextInt(allAvailableCategories.length)];
+        selectedCategoryId = randomCategory.id;
+        selectedCategoryData = randomCategory.toMap();
       } else {
-        final randomCategoryDoc = availableCategories[_rnd.nextInt(availableCategories.length)];
-        selectedCategoryId = randomCategoryDoc.id;
-        selectedCategoryData = randomCategoryDoc.data();
+        final randomCategory = availableCategories[_rnd.nextInt(availableCategories.length)];
+        selectedCategoryId = randomCategory.id;
+        selectedCategoryData = randomCategory.toMap();
       }
       usedCategoryIds.add(selectedCategoryId);
 
@@ -444,20 +523,36 @@ class FirebaseService with ChangeNotifier {
 
   Stream<Round> listenCurrentRound(String roomId) {
     return roundDocRef(roomId).snapshots().map((snap) {
-      return Round.fromMap(snap.data() ?? {});
+      final round = Round.fromMap(snap.data() ?? {});
+      _RoundCache.set(roomId, round); // Cache the result
+      return round;
     });
   }
 
-  Future<void> updateGroupGuess(String roomId, double pos) {
-    return roundDocRef(roomId)
-        .update({'groupGuessPosition': pos.round()});
+  // Performance optimization: Cache for debounced updates
+  static final Map<String, Timer> _updateTimers = {};
+  static final Map<String, double> _pendingUpdates = {};
+
+  Future<void> updateGroupGuess(String roomId, double pos) async {
+    // Performance optimization: Debounce rapid updates to reduce Firebase writes
+    _updateTimers[roomId]?.cancel();
+    _pendingUpdates[roomId] = pos;
+    
+    _updateTimers[roomId] = Timer(const Duration(milliseconds: 100), () {
+      final finalPos = _pendingUpdates[roomId];
+      if (finalPos != null) {
+        roundDocRef(roomId).update({'groupGuessPosition': finalPos.round()});
+        _pendingUpdates.remove(roomId);
+      }
+    });
   }
 
-  Stream<int> listenGroupGuess(String roomId) =>
-      roundDocRef(roomId).snapshots().map((snap) {
-        final data = snap.data();
-        return (data?['groupGuessPosition'] as num?)?.toInt() ?? 50;
-      });
+  Stream<int> listenGroupGuess(String roomId) {
+    return roundDocRef(roomId).snapshots().map((snap) {
+      final data = snap.data();
+      return (data?['groupGuessPosition'] as num?)?.toInt() ?? 50;
+    });
+  }
 
   Future<void> setGuessReady(String roomId, bool ready, {String? uid}) => playersColRef(roomId)
     .doc(uid ?? currentUserUid)
@@ -483,12 +578,10 @@ class FirebaseService with ChangeNotifier {
     print('🤖 TestBot added to room $roomId');
 }
 
-  Stream<List<PlayerStatus>> listenGuessReady(String roomId) =>
-      playersColRef(roomId).snapshots().map((snap) {
-        return snap.docs
-            .map((d) => PlayerStatus.fromSnapshot(d))
-            .toList();
-      });
+  Stream<List<PlayerStatus>> listenGuessReady(String roomId) {
+    // Performance optimization: Reuse the same stream as listenToReady since they listen to the same data
+    return listenToReady(roomId);
+  }
 
   Stream<bool> listenAllSeekersReady(String roomId) {
     return Rx.combineLatest2(
@@ -700,19 +793,54 @@ class FirebaseService with ChangeNotifier {
     };
   }
 
-  Future<void> saveRoomCreationSettings(bool saboteurEnabled, bool diceRollEnabled) async {
+  Future<void> saveRoomCreationSettings(bool saboteurEnabled, bool diceRollEnabled, [int numRounds = 5, Set<String>? bundleSelections]) async {
+    try {
+      final data = {
+        'saboteurEnabled': saboteurEnabled,
+        'diceRollEnabled': diceRollEnabled,
+        'numRounds': numRounds,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      };
+      
+      if (bundleSelections != null) {
+        data['bundleSelections'] = bundleSelections.toList();
+      }
+      
+      await _userSettingsDocRef().set(data, SetOptions(merge: true));
+    } catch (e) {
+      print('Error saving room creation settings: $e');
+    }
+  }
+
+  Future<void> saveBundleSelections(Set<String> selectedBundles) async {
     try {
       await _userSettingsDocRef().set(
         {
-          'saboteurEnabled': saboteurEnabled,
-          'diceRollEnabled': diceRollEnabled,
+          'bundleSelections': selectedBundles.toList(),
           'lastUpdated': FieldValue.serverTimestamp(),
         },
         SetOptions(merge: true),
       );
     } catch (e) {
-      print('Error saving room creation settings: $e');
+      print('Error saving bundle selections: $e');
     }
+  }
+
+  Future<Set<String>> loadBundleSelections() async {
+    try {
+      final docSnap = await _userSettingsDocRef().get();
+      if (docSnap.exists) {
+        final data = docSnap.data();
+        final bundleSelections = data?['bundleSelections'] as List<dynamic>?;
+        if (bundleSelections != null && bundleSelections.isNotEmpty) {
+          return Set<String>.from(bundleSelections);
+        }
+      }
+    } catch (e) {
+      print('Error loading bundle selections: $e');
+    }
+    
+    return {'bundle.free'};
   }
 
   DocumentReference<Map<String, dynamic>> _userCurrentRoomIdDocRef() {

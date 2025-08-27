@@ -7,6 +7,8 @@ import 'dart:async'; // For Timer
 
 import '../services/firebase_service.dart';
 import '../models/round.dart'; // Import Round and Effect enum
+import '../widgets/effect_card.dart';
+import '../l10n/app_localizations.dart';
 // Import for PlayerStatus
 // Import for navigating back to home
 // Import for navigating to scoreboard
@@ -58,12 +60,15 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
     // Listen for player departures to show toast messages
     context.read<FirebaseService>().listenForPlayerDepartures(widget.roomId).listen((playerName) {
       if (playerName != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$playerName has exited the room.'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        final loc = AppLocalizations.of(context);
+        if (loc != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(loc.playerExited(playerName)),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
       }
     });
 
@@ -127,6 +132,7 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
   @override
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: Colors.black.withOpacity(0.7), // Semi-transparent overlay
@@ -151,8 +157,8 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
                   const CircularProgressIndicator(color: Colors.white),
                   const SizedBox(height: 20),
                   Text(
-                    'Rolling the dice...',
-                    style: TextStyle(fontSize: 24, color: Colors.white.withOpacity(0.9)),
+                    loc.rollingTheDice,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white.withOpacity(0.9)),
                   ),
                 ],
               );
@@ -165,9 +171,9 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (!_animationComplete) // Simple animation placeholder
-                  const Text(
+                  Text(
                     '🎲', // Dice emoji as a placeholder for animation
-                    style: TextStyle(fontSize: 100),
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 100),
                   ),
                 if (_animationComplete) // Show final effect after "animation"
                   Container(
@@ -189,19 +195,17 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
                       children: [
                         const Icon(Icons.casino, size: 60, color: Colors.deepOrange),
                         const SizedBox(height: 16),
-                        Text(
-                          effectDescription,
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepOrange,
+                        SizedBox(
+                          width: 300,
+                          child: EffectCard(
+                            effect: rolledEffect,
+                            customDescription: effectDescription,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           rolledEffect == Effect.none ? '' : '(Round Score will be affected)',
-                          style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic, color: Colors.grey),
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey),
                         ),
                       ],
                     ),

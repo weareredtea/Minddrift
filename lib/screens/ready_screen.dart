@@ -11,6 +11,7 @@ import '../models/player_status.dart';
 import '../screens/dialog_helpers.dart';
 import '../services/firebase_service.dart';
 import '../theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 
 // *** CONVERTED TO STATEFULWIDGET to track player count for sounds ***
 class ReadyScreen extends StatefulWidget {
@@ -94,16 +95,17 @@ class _ReadyScreenState extends State<ReadyScreen> {
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
     final textTheme = Theme.of(context).textTheme;
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Game Lobby'),
+        title: Text(loc.gameLobby),
         automaticallyImplyLeading: false,
         actions: [
           TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.white),
             icon: const Icon(Icons.smart_toy_outlined),
-            label: const Text('Add Bot'),
+            label: Text(loc.addBot),
             onPressed: () {
               fb.addBotToRoom(widget.roomId);
               TestBotService.start(widget.roomId, fb);
@@ -142,7 +144,7 @@ class _ReadyScreenState extends State<ReadyScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Text('Room Code:', style: textTheme.bodyMedium),
+                Text(loc.roomCode, style: textTheme.bodyMedium),
                 const SizedBox(height: 4),
                 SelectableText(widget.roomId, style: textTheme.displayMedium),
                 const SizedBox(height: 24),
@@ -178,7 +180,7 @@ class _ReadyScreenState extends State<ReadyScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: me.ready ? AppColors.surface : AppColors.accent,
                       ),
-                      child: Text(me.ready ? 'Cancel Ready' : 'I\'m Ready'),
+                      child: Text(me.ready ? loc.cancelReady : loc.imReady),
                     ),
                   ),
                 const SizedBox(height: 16),
@@ -198,18 +200,18 @@ class _ReadyScreenState extends State<ReadyScreen> {
                         disabledBackgroundColor: AppColors.surface.withOpacity(0.5),
                         disabledForegroundColor: Colors.grey,
                       ),
-                      child: Text(viewModel.allPlayersReady ? 'All Ready — Start Round' : 'Waiting For Players...'),
+                      child: Text(viewModel.allPlayersReady ? loc.allReadyStartRound : loc.waitingForPlayers),
                     ),
                   ),
                 if (!viewModel.isHost && !viewModel.allPlayersReady)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text('Waiting for players to get ready...', style: textTheme.labelMedium),
+                    child: Text(loc.waitingForPlayersToGetReady, style: textTheme.labelMedium),
                   ),
                 if (!viewModel.isHost && viewModel.allPlayersReady)
                    Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text('All ready! Waiting for host to start...', style: textTheme.labelMedium?.copyWith(color: AppColors.accent)),
+                    child: Text(loc.allReadyWaitingForHost, style: textTheme.labelMedium?.copyWith(color: AppColors.accent)),
                   ),
               ],
             ),

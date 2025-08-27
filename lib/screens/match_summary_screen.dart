@@ -10,6 +10,7 @@ import '../pigeon/pigeon.dart';
 import 'home_screen.dart';
 import '../theme/app_theme.dart';
 import '../widgets/skeleton_loader.dart';
+import '../l10n/app_localizations.dart';
 
 class MatchSummaryScreen extends StatefulWidget {
   static const routeName = '/summary';
@@ -47,10 +48,11 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Match Summary'),
+        title: Text(loc.matchSummaryTitle),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -76,7 +78,7 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
           final roomData = roomSnap.data() ?? {};
 
           if (players.isEmpty) {
-            return const Center(child: Text('No players found.'));
+            return Center(child: Text(loc.noRoundsPlayed));
           }
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -93,25 +95,25 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Text('Final Score!', style: Theme.of(context).textTheme.displayMedium),
+                    Text(loc.finalScore, style: Theme.of(context).textTheme.displayMedium),
                     const SizedBox(height: 24),
                     Card(
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(32.0),
                         child: Column(
                           children: [
-                            Text('Group Total Score', style: Theme.of(context).textTheme.labelMedium),
                             Text('$totalGroupScore', style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColors.accent)),
-                            Text(groupPerformance, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.accentVariant)),
+                            Text(groupPerformance, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.accent)),
                           ],
                         ),
                       ),
+                      
                     ),
                     const SizedBox(height: 24),
                     
                     // --- MODIFIED: Replaced leaderboard with a simple player list ---
                     Text(
-                      "Players in this Game",
+                      loc.playersInThisGame,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
@@ -146,7 +148,7 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
                             (Route<dynamic> route) => false,
                           );
                         },
-                        child: const Text('Return to Home'),
+                        child: Text(loc.returnToHome),
                       ),
                     ),
                   ],
@@ -159,7 +161,7 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
                 shouldLoop: false,
                 colors: const [
                   AppColors.accent,
-                  AppColors.accentVariant,
+                  AppColors.primary,
                   AppColors.primary,
                   Colors.white,
                 ],

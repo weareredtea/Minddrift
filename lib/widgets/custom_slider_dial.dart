@@ -25,6 +25,12 @@ class CustomSliderDial extends StatefulWidget {
 class _CustomSliderDialState extends State<CustomSliderDial> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  
+  // Performance optimization: Track previous values to avoid unnecessary repaints
+  // Note: These are used in didUpdateWidget for optimization
+  double _lastValue = 0.0;
+  bool _lastShowValue = true;
+  bool _lastIsReadOnly = false;
 
   @override
   void initState() {
@@ -36,6 +42,27 @@ class _CustomSliderDialState extends State<CustomSliderDial> with SingleTickerPr
     _animation = Tween<double>(begin: 1.0, end: 1.2).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+    
+    // Initialize tracking values
+    _lastValue = widget.value;
+    _lastShowValue = widget.showValue;
+    _lastIsReadOnly = widget.isReadOnly;
+  }
+
+  @override
+  void didUpdateWidget(CustomSliderDial oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Performance optimization: Only update if values actually changed
+    if (oldWidget.value != widget.value) {
+      _lastValue = widget.value;
+    }
+    if (oldWidget.showValue != widget.showValue) {
+      _lastShowValue = widget.showValue;
+    }
+    if (oldWidget.isReadOnly != widget.isReadOnly) {
+      _lastIsReadOnly = widget.isReadOnly;
+    }
   }
   
   void _onPanStart(DragStartDetails details) {
@@ -48,7 +75,11 @@ class _CustomSliderDialState extends State<CustomSliderDial> with SingleTickerPr
     final RenderBox box = context.findRenderObject() as RenderBox;
     final position = box.globalToLocal(details.globalPosition);
     final newValue = (position.dx / box.size.width).clamp(0.0, 1.0) * 100;
-    widget.onChanged(newValue);
+    
+    // Performance optimization: Only call onChanged if value actually changed significantly
+    if ((newValue - widget.value).abs() > 0.5) {
+      widget.onChanged(newValue);
+    }
   }
 
   void _onPanEnd(DragEndDetails details) {
@@ -98,6 +129,12 @@ class _SliderPainter extends CustomPainter {
     final double trackHeight = 12.0;
     final double trackY = size.height / 2 - trackHeight / 2;
     
+    // Performance optimization: Pre-calculate values
+    final double activeWidth = (value / 100) * size.width;
+    final double thumbRadius = 18.0 * thumbScale;
+    final double thumbCenterX = activeWidth.clamp(thumbRadius, size.width - thumbRadius);
+    final double thumbCenterY = size.height / 2;
+    
     // --- Track Paint ---
     final inactiveTrackPaint = Paint()
       ..color = AppColors.surface.withOpacity(0.8)
@@ -119,7 +156,6 @@ class _SliderPainter extends CustomPainter {
     );
     canvas.drawRRect(trackRect, inactiveTrackPaint);
     
-    final double activeWidth = (value / 100) * size.width;
     final activeTrackRect = RRect.fromLTRBAndCorners(
       0, trackY, activeWidth, trackY + trackHeight,
       topLeft: const Radius.circular(6),
@@ -128,10 +164,6 @@ class _SliderPainter extends CustomPainter {
     canvas.drawRRect(activeTrackRect, activeTrackPaint);
     
     // --- Thumb Paint ---
-    final double thumbRadius = 18.0 * thumbScale;
-    final double thumbCenterX = activeWidth.clamp(thumbRadius, size.width - thumbRadius);
-    final double thumbCenterY = size.height / 2;
-    
     final thumbPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
@@ -146,14 +178,13 @@ class _SliderPainter extends CustomPainter {
     
     // --- Draw Value Text ---
     if (showValue) {
-      final textSpan = TextSpan(
-        text: value.round().toString(),
-        style: TextStyle(
-          color: AppColors.primary,
-          fontWeight: FontWeight.bold,
-          fontSize: 16 * thumbScale,
-        ),
-      );
+              final textSpan = TextSpan(
+          text: value.round().toString(),
+          style: TextStyle(
+            color: AppColors.primary,
+            fontSize: 16 * thumbScale,
+          ),
+        );
       final textPainter = TextPainter(
         text: textSpan,
         textAlign: TextAlign.center,
@@ -170,6 +201,9 @@ class _SliderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _SliderPainter oldDelegate) {
-    return oldDelegate.value != value || oldDelegate.thumbScale != thumbScale;
+    // Performance optimization: More granular repaint conditions
+    return (oldDelegate.value - value).abs() > 0.5 || 
+           (oldDelegate.thumbScale - thumbScale).abs() > 0.01 ||
+           oldDelegate.showValue != showValue;
   }
 }

@@ -3,26 +3,28 @@ import 'package:provider/provider.dart';
 import '../services/firebase_service.dart';
 import '../screens/home_screen.dart';
 import '../screens/scoreboard_screen.dart';
+import '../l10n/app_localizations.dart';
 
 /// Shows a confirmation dialog for exiting the current room.
 Future<void> showExitConfirmationDialog(BuildContext context, String roomId) async {
   final fb = context.read<FirebaseService>();
+  final loc = AppLocalizations.of(context)!;
   return showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext dialogContext) {
       return AlertDialog(
-        title: const Text('Exit Game?'),
-        content: const Text('Are you sure you want to exit this room? Other players will be notified.'),
+        title: Text(loc.exitGame),
+        content: Text(loc.exitGameConfirmation),
         actions: <Widget>[
           TextButton(
-            child: const Text('Cancel'),
+            child: Text(loc.cancel),
             onPressed: () {
               Navigator.of(dialogContext).pop();
             },
           ),
           TextButton(
-            child: const Text('Exit'),
+            child: Text(loc.exit),
             onPressed: () async {
               await fb.leaveRoom(roomId);
               // Safely pop the dialog before navigating
@@ -42,33 +44,34 @@ Future<void> showExitConfirmationDialog(BuildContext context, String roomId) asy
 
 /// Shows a dialog informing the user they are the last one left in the room.
 Future<void> showLastPlayerDialog(BuildContext context, String displayName, String roomId) async {
+  final loc = AppLocalizations.of(context)!;
   return showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext dialogContext) {
       final fb = context.read<FirebaseService>();
       return AlertDialog(
-        title: const Text('You are the Last Player!'),
-        content: Text('All other players have exited the room. You can invite other players, view the total score, or exit.'),
+        title: Text(loc.youAreLastPlayer),
+        content: Text(loc.lastPlayerMessage),
         actions: <Widget>[
           TextButton(
-            child: const Text('Invite Friends'),
+            child: Text(loc.inviteFriends),
             onPressed: () {
               Navigator.of(dialogContext).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Share room ID: $roomId')),
+                SnackBar(content: Text(loc.shareRoomId(roomId))),
               );
             },
           ),
           TextButton(
-            child: const Text('View Scoreboard'),
+            child: Text(loc.viewScoreboard),
             onPressed: () {
               Navigator.of(dialogContext).pop();
               Navigator.pushNamed(context, ScoreboardScreen.routeName, arguments: roomId);
             },
           ),
           TextButton(
-            child: const Text('Exit to Home'),
+            child: Text(loc.exitToHome),
             onPressed: () async {
               await fb.leaveRoom(roomId);
               Navigator.of(dialogContext).pop();

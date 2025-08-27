@@ -4,9 +4,7 @@ import 'dart:io';
 
 import 'package:animations/animations.dart'; // *** NEW: Import animations package ***
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -24,7 +22,12 @@ import 'screens/result_screen.dart';
 import 'screens/match_summary_screen.dart';
 import 'screens/dice_roll_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/tutorial_screen.dart';
+import 'screens/store_screen.dart';
 import 'theme/app_theme.dart';
+import 'providers/locale_provider.dart';
+import 'providers/purchase_provider.dart';
+import 'l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart'; // Import this to check for debug mode
 
 
@@ -67,15 +70,48 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => FirebaseService(),
-      child: MaterialApp(
-        title: 'Mind Drift',
-        theme: AppTheme.darkTheme,
-        debugShowCheckedModeBanner: false,
-        home: const RoomNavigator(),
-        routes: {
-          SettingsScreen.routeName: (_) => const SettingsScreen(),
+    return MultiProvider(
+            providers: [
+        ChangeNotifierProvider(create: (_) => FirebaseService()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => PurchaseProvider()),
+      ],
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProvider, child) {
+          return MaterialApp(
+            title: 'Mind Drift',
+            theme: AppTheme.darkTheme, // Use static theme initially
+            debugShowCheckedModeBanner: false,
+            locale: localeProvider.locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (context) => Theme(
+                data: AppTheme.getDarkTheme(context),
+                child: const RoomNavigator(),
+              ),
+            ),
+            routes: {
+              SettingsScreen.routeName: (_) => Builder(
+                builder: (context) => Theme(
+                  data: AppTheme.getDarkTheme(context),
+                  child: const SettingsScreen(),
+                ),
+              ),
+              '/tutorial': (_) => Builder(
+                builder: (context) => Theme(
+                  data: AppTheme.getDarkTheme(context),
+                  child: const TutorialScreen(),
+                ),
+              ),
+              StoreScreen.routeName: (_) => Builder(
+                builder: (context) => Theme(
+                  data: AppTheme.getDarkTheme(context),
+                  child: const StoreScreen(),
+                ),
+              ),
+            },
+          );
         },
       ),
     );
@@ -103,7 +139,12 @@ class RoomNavigator extends StatelessWidget {
             );
           },
           child: !authSnapshot.hasData
-              ? const HomeScreen(key: ValueKey('home')) // Use ValueKey for switcher
+              ? Builder(
+                  builder: (context) => Theme(
+                    data: AppTheme.getDarkTheme(context),
+                    child: const HomeScreen(key: ValueKey('home')),
+                  ),
+                )
               : RoomStatusNavigator(key: const ValueKey('room_navigator'), firebaseService: fb),
         );
       },
@@ -129,14 +170,24 @@ class RoomStatusNavigator extends StatelessWidget {
         if (roomId == null) {
           // If user leaves a room, they will see the HomeScreen.
           // PageTransitionSwitcher will handle the animation.
-          return const HomeScreen(); 
+          return Builder(
+            builder: (context) => Theme(
+              data: AppTheme.getDarkTheme(context),
+              child: const HomeScreen(),
+            ),
+          );
         }
 
         return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
           stream: firebaseService.roomDocRef(roomId).snapshots(),
           builder: (context, gameSnapshot) {
             if (!gameSnapshot.hasData || !gameSnapshot.data!.exists) {
-              return const HomeScreen();
+              return Builder(
+                builder: (context) => Theme(
+                  data: AppTheme.getDarkTheme(context),
+                  child: const HomeScreen(),
+                ),
+              );
             }
 
             final roomStatus = gameSnapshot.data!.data()?['status'] as String? ?? 'lobby';
@@ -152,7 +203,12 @@ class RoomStatusNavigator extends StatelessWidget {
                 );
               },
               // The child is determined by the roomStatus
-              child: _buildScreenForStatus(roomStatus, roomId),
+              child: Builder(
+                builder: (context) => Theme(
+                  data: AppTheme.getDarkTheme(context),
+                  child: _buildScreenForStatus(roomStatus, roomId),
+                ),
+              ),
             );
           },
         );

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../services/firebase_service.dart';
 import '../pigeon/pigeon.dart';
 import 'ready_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class LobbyScreen extends StatelessWidget {
   static const routeName = '/lobby';
@@ -15,20 +16,20 @@ class LobbyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fb = context.read<FirebaseService>();
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Lobby')),
+      appBar: AppBar(title: Text(loc.lobby)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text('Room Code:',
-                style:
-                    TextStyle(fontSize: 18, color: Theme.of(context).hintColor)),
+            Text(loc.roomCode,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).hintColor)),
             const SizedBox(height: 4),
             Text(roomId,
                 style:
-                    const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                    Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 24),
 
             // --- Player List ---
@@ -39,11 +40,11 @@ class LobbyScreen extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (snap.hasError) {
-                  return Text('Error: ${snap.error}');
+                  return Text(loc.error(snap.error.toString()));
                 }
                 final players = snap.data!;
                 if (players.isEmpty) {
-                  return const Text('Waiting for players to join…');
+                  return Text(loc.waitingForPlayersToJoin);
                 }
                 return Expanded(
                   child: ListView.builder(
@@ -53,7 +54,7 @@ class LobbyScreen extends StatelessWidget {
                       return ListTile(
                         leading: const Icon(Icons.person),
                         title: Text(u.displayName),
-                        subtitle: Text('UID: ${u.uid}'),
+                        subtitle: Text(loc.uid(u.uid)),
                       );
                     },
                   ),
@@ -75,7 +76,7 @@ class LobbyScreen extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Text('I\'m Here—Let’s Get Ready'),
+                child: Text(loc.imHereLetsGetReady),
               ),
             ),
           ],
