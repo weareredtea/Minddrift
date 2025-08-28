@@ -1,6 +1,7 @@
 // lib/screens/home_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wavelength_clone_fresh/screens/store_screen.dart';
@@ -221,6 +222,14 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () =>
                 Navigator.pushNamed(context, SettingsScreen.routeName),
           ),
+          // Test button - only show in debug mode
+          if (kDebugMode)
+            IconButton(
+              icon: const Icon(Icons.science, color: Colors.orange),
+              onPressed: () =>
+                  Navigator.pushNamed(context, '/wave-spectrum-test'),
+              tooltip: 'Test Wave Spectrum (Debug Only)',
+            ),
         ],
       ),
       body: Stack(

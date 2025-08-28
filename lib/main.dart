@@ -24,11 +24,13 @@ import 'screens/dice_roll_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/tutorial_screen.dart';
 import 'screens/store_screen.dart';
+import 'screens/wave_spectrum_test.dart';
 import 'theme/app_theme.dart';
 import 'providers/locale_provider.dart';
 import 'providers/purchase_provider.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart'; // Import this to check for debug mode
+import 'package:flutter/services.dart'; // Import for edge-to-edge support
 
 
 void main() async {
@@ -70,6 +72,17 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+    // Configure edge-to-edge display
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+    );
+    
     return MultiProvider(
             providers: [
         ChangeNotifierProvider(create: (_) => FirebaseService()),
@@ -110,6 +123,14 @@ class MyApp extends StatelessWidget {
                   child: const StoreScreen(),
                 ),
               ),
+              // Only register test route in debug mode
+              if (kDebugMode)
+                WaveSpectrumTestScreen.routeName: (_) => Builder(
+                  builder: (context) => Theme(
+                    data: AppTheme.getDarkTheme(context),
+                    child: const WaveSpectrumTestScreen(),
+                  ),
+                ),
             },
           );
         },
