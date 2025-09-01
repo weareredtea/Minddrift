@@ -27,12 +27,18 @@ class _WaitingClueScreenState extends State<WaitingClueScreen> {
   @override
   void initState() {
     super.initState();
-    _audioService.startMusic();
+    // Only start music if it's enabled in settings
+    if (_audioService.isMusicEnabled()) {
+      _audioService.startMusic();
+    }
   }
 
   @override
   void dispose() {
-    _audioService.stopMusic();
+    // Only stop music if it's actually playing
+    if (_audioService.isMusicPlaying()) {
+      _audioService.stopMusic();
+    }
     super.dispose();
   }
 

@@ -15,12 +15,16 @@ import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
 import '../services/category_service.dart';
 import '../providers/purchase_provider.dart';
+import '../utils/responsive_helper.dart';
+import '../widgets/keyboard_aware_scroll_view.dart';
+// import '../providers/premium_provider.dart'; // Temporarily disabled
+// import '../screens/premium_screen.dart'; // Temporarily disabled
 import '../l10n/app_localizations.dart';
 
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/';
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -84,7 +88,33 @@ class _HomeScreenState extends State<HomeScreen>
                         color: Colors.white70,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context)),
+                    if (ownedBundles.length <= 1) ...[
+                      Container(
+                        padding: ResponsiveHelper.getResponsivePadding(context, mobile: 12, tablet: 16, desktop: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.store, color: Colors.purple, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                loc.getMoreBundlesMessage,
+                                style: TextStyle(
+                                  color: Colors.purple.shade200,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context)),
+                    ],
                     ...ownedBundles.map((bundleId) {
                       final bundleInfo = _getBundleInfo(bundleId);
                       final categories = CategoryService.getCategoriesByBundle(bundleId);
@@ -109,14 +139,25 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         onTap: () => Navigator.of(context).pop(bundleId),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  child: Text(loc.cancel),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                    Navigator.pushNamed(context, StoreScreen.routeName); // Navigate to store
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(loc.getBundles),
                 ),
               ],
             );
@@ -222,6 +263,19 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () =>
                 Navigator.pushNamed(context, SettingsScreen.routeName),
           ),
+          // Premium button temporarily hidden
+          // Consumer<PremiumProvider>(
+          //   builder: (context, premium, child) {
+          //     return IconButton(
+          //       icon: Icon(
+          //         premium.isPremium ? Icons.star : Icons.star_border,
+          //         color: premium.isPremium ? Colors.amber : Colors.white,
+          //       ),
+          //       onPressed: () => Navigator.pushNamed(context, PremiumScreen.routeName),
+          //       tooltip: premium.isPremium ? 'Premium Active' : 'Upgrade to Premium',
+          //     );
+          //   },
+          // ),
           // Test button - only show in debug mode
           if (kDebugMode)
             IconButton(
@@ -236,15 +290,17 @@ class _HomeScreenState extends State<HomeScreen>
         children: [
           const AnimatedBackground(),
           SafeArea(
+            bottom: false, // Don't add bottom safe area, we'll handle it manually
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final maxH = constraints.maxHeight;
-                return SingleChildScrollView(
+                return KeyboardAwareScrollView(
+                  padding: ResponsiveHelper.getResponsivePadding(context, mobile: 24, tablet: 32, desktop: 48),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: maxH),
                     child: IntrinsicHeight(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        padding: EdgeInsets.zero,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -260,7 +316,13 @@ class _HomeScreenState extends State<HomeScreen>
                             Text(
                               loc.appTitle,
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.displayLarge?.copyWith(color: Colors.white),
+                              style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                                color: Colors.white, fontSize: 38,
+                                // Use Oi font for Arabic title only
+                                fontFamily: Localizations.localeOf(context).languageCode == 'ar' 
+                                    ? 'Oi' 
+                                    : null,
+                              ),
                             ),
                             SizedBox(height: maxH * 0.01),
                             Text(
@@ -280,8 +342,9 @@ class _HomeScreenState extends State<HomeScreen>
                                       ? null
                                       : () async {
                                           setState(() => _loading = true);
+                                          String? selectedBundle;
                                           try {
-                                            final selectedBundle = await _showBundleSelectionDialog();
+                                            selectedBundle = await _showBundleSelectionDialog();
                                             if (selectedBundle != null) {
                                               final settings = await fb
                                                   .fetchRoomCreationSettings();
@@ -297,10 +360,16 @@ class _HomeScreenState extends State<HomeScreen>
                                             }
                                           } catch (e) {
                                             setState(() {
-                                              _error =
-                                                  loc.errorCreatingRoom(e.toString());
+                                              _error = ExceptionHandler.getUserFriendlyMessage(e);
                                               _loading = false;
                                             });
+                                            
+                                            // Log detailed error for developers
+                                            ExceptionHandler.logError('home_screen_create_room', 'Room creation failed in UI', 
+                                              extraData: {
+                                                'error': ExceptionHandler.getDeveloperMessage(e),
+                                                'bundle': selectedBundle ?? 'unknown',
+                                              });
                                           }
                                         },
                                   style: ElevatedButton.styleFrom(
@@ -388,10 +457,16 @@ class _HomeScreenState extends State<HomeScreen>
                                             await fb.joinRoom(code);
                                           } catch (e) {
                                             setState(() {
-                                              _error =
-                                                  loc.errorJoiningRoom(e.toString());
+                                              _error = ExceptionHandler.getUserFriendlyMessage(e);
                                               _loading = false;
                                             });
+                                            
+                                            // Log detailed error for developers
+                                            ExceptionHandler.logError('home_screen_join_room', 'Room join failed in UI', 
+                                              extraData: {
+                                                'error': ExceptionHandler.getDeveloperMessage(e),
+                                                'roomCode': code,
+                                              });
                                           }
                                         },
                                   style: ElevatedButton.styleFrom(

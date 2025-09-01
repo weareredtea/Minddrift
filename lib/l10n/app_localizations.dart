@@ -1019,6 +1019,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Room code copied to clipboard!'**
   String get roomCodeCopied;
+
+  /// No description provided for @premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get premium;
+
+  /// No description provided for @premiumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Premium Features'**
+  String get premiumTitle;
+
+  /// No description provided for @premiumSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get access to exclusive features and enhance your gaming experience'**
+  String get premiumSubtitle;
+
+  /// No description provided for @premiumFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Features'**
+  String get premiumFeatures;
+
+  /// No description provided for @premiumActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Active'**
+  String get premiumActive;
+
+  /// No description provided for @premiumPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime. No commitment.'**
+  String get premiumPrice;
+
+  /// No description provided for @upgradeToPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium'**
+  String get upgradeToPremium;
+
+  /// No description provided for @avatarCustomization.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar Customization'**
+  String get avatarCustomization;
+
+  /// No description provided for @avatarCustomizationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload and use your own custom avatars'**
+  String get avatarCustomizationDesc;
+
+  /// No description provided for @groupChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Chat'**
+  String get groupChat;
+
+  /// No description provided for @groupChatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with other players in the game room'**
+  String get groupChatDesc;
+
+  /// No description provided for @voiceChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice Chat'**
+  String get voiceChat;
+
+  /// No description provided for @voiceChatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Record and send voice messages'**
+  String get voiceChatDesc;
+
+  /// No description provided for @onlineMatchmaking.
+  ///
+  /// In en, this message translates to:
+  /// **'Online Matchmaking'**
+  String get onlineMatchmaking;
+
+  /// No description provided for @onlineMatchmakingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Play with random players online'**
+  String get onlineMatchmakingDesc;
+
+  /// No description provided for @chooseFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get chooseFromGallery;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get takePhoto;
+
+  /// No description provided for @getBundles.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Bundles'**
+  String get getBundles;
+
+  /// No description provided for @getMoreBundlesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Get more bundles to have more variety!'**
+  String get getMoreBundlesMessage;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @deleteAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Avatar'**
+  String get deleteAvatar;
+
+  /// No description provided for @deleteAvatarConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this avatar? This action cannot be undone.'**
+  String get deleteAvatarConfirmation;
 }
 
 class _AppLocalizationsDelegate

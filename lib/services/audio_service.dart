@@ -10,6 +10,10 @@ class AudioService {
 
   final AudioPlayer _sfxPlayer = AudioPlayer();
   final AudioPlayer _musicPlayer = AudioPlayer();
+  
+  // Initialize music setting from Firebase
+  bool _musicEnabled = true;
+  bool _isInitialized = false;
 
   // Pre-load audio files into cache for faster playback
   Future<void> preloadSounds() async {
@@ -59,6 +63,9 @@ class AudioService {
   // --- Background Music (BGM) ---
   
   Future<void> startMusic() async {
+    // Check if music is enabled before starting
+    if (!_musicEnabled) return;
+    
     if (_musicPlayer.state == PlayerState.playing) return;
     await _musicPlayer.setReleaseMode(ReleaseMode.loop);
     await _musicPlayer.play(AssetSource('audio/bg_music.mp3'), volume: 0.3);
@@ -69,7 +76,6 @@ class AudioService {
   }
 
   // --- Music Settings ---
-  bool _musicEnabled = true;
 
   bool isMusicEnabled() => _musicEnabled;
 
@@ -79,6 +85,53 @@ class AudioService {
       startMusic();
     } else {
       stopMusic();
+    }
+    
+    // Persist the setting (will be called from settings screen)
+    print('🎵 Music setting changed to: $_musicEnabled');
+  }
+  
+  // Restart music if enabled (useful when setting changes)
+  Future<void> restartMusicIfEnabled() async {
+    if (_musicEnabled && _musicPlayer.state != PlayerState.playing) {
+      await startMusic();
+    }
+  }
+  
+  // Check if music is currently playing
+  bool isMusicPlaying() => _musicPlayer.state == PlayerState.playing;
+  
+  // Force stop music regardless of setting (useful for cleanup)
+  Future<void> forceStopMusic() async {
+    await _musicPlayer.stop();
+  }
+  
+  // Initialize music setting from Firebase
+  Future<void> initializeMusicSetting(dynamic firebaseService) async {
+    if (_isInitialized) return;
+    
+    try {
+      if (firebaseService != null) {
+        _musicEnabled = await firebaseService.loadMusicSetting();
+        _isInitialized = true;
+        print('🎵 Music setting loaded: $_musicEnabled');
+      }
+    } catch (e) {
+      print('🎵 Error loading music setting: $e');
+      _musicEnabled = true; // Default to true on error
+      _isInitialized = true;
+    }
+  }
+  
+  // Save music setting to Firebase
+  Future<void> persistMusicSetting(dynamic firebaseService) async {
+    try {
+      if (firebaseService != null) {
+        await firebaseService.saveMusicSetting(_musicEnabled);
+        print('🎵 Music setting saved: $_musicEnabled');
+      }
+    } catch (e) {
+      print('🎵 Error saving music setting: $e');
     }
   }
 }

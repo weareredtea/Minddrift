@@ -12,9 +12,9 @@ import '../screens/dialog_helpers.dart';
 import '../services/firebase_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/language_toggle.dart';
+
 import '../l10n/app_localizations.dart';
 
-// *** CONVERTED TO STATEFULWIDGET to track player count for sounds ***
 class ReadyScreen extends StatefulWidget {
   static const routeName = '/ready';
   final String roomId;
@@ -23,73 +23,27 @@ class ReadyScreen extends StatefulWidget {
   @override
   State<ReadyScreen> createState() => _ReadyScreenState();
 }
-  // In lib/screens/ready_screen.dart
 
 class _ReadyScreenState extends State<ReadyScreen> {
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final AudioService _audioService = AudioService();
-  
-  // This list will now be correctly managed to drive the AnimatedList
-  final List<PlayerStatus> _players = [];
+  bool _isAddingBot = false;
 
   @override
   void initState() {
     super.initState();
-    _audioService.startMusic();
+    // Only start music if it's enabled in settings
+    if (_audioService.isMusicEnabled()) {
+      _audioService.startMusic();
+    }
   }
 
   @override
   void dispose() {
-    _audioService.stopMusic();
-    // We no longer manage the bot service here, so its dispose call is removed.
+    // Only stop music if it's actually playing
+    if (_audioService.isMusicPlaying()) {
+      _audioService.stopMusic();
+    }
     super.dispose();
-  }
-
-  // --- NEW: Helper function to build the exit animation ---
-  Widget _buildRemovedItem(PlayerStatus player, Animation<double> animation) {
-    return FadeTransition(
-      opacity: animation,
-      child: SizeTransition(
-        sizeFactor: animation,
-        child: PlayerLobbyCard(player: player),
-      ),
-    );
-  }
-  
-  // --- NEW: Helper function to calculate changes and update the list ---
-  void _updateList(List<PlayerStatus> newList) {
-    // This function runs after the widget tree has been built for the frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-
-      // --- Handle Removals ---
-      // Loop backwards to safely remove items from the list
-      for (int i = _players.length - 1; i >= 0; i--) {
-        final oldPlayer = _players[i];
-        // If an old player is NOT in the new list, remove them
-        if (!newList.any((p) => p.uid == oldPlayer.uid)) {
-          _players.removeAt(i);
-          _listKey.currentState?.removeItem(
-            i,
-            (context, animation) => _buildRemovedItem(oldPlayer, animation),
-            duration: const Duration(milliseconds: 400),
-          );
-        }
-      }
-
-      // --- Handle Additions ---
-      for (int i = 0; i < newList.length; i++) {
-        final newPlayer = newList[i];
-        // If a new player is NOT in the old list, add them
-        if (!_players.any((p) => p.uid == newPlayer.uid)) {
-          _players.insert(i, newPlayer);
-          _listKey.currentState?.insertItem(
-            i,
-            duration: const Duration(milliseconds: 400),
-          );
-        }
-      }
-    });
   }
 
   @override
@@ -107,17 +61,50 @@ class _ReadyScreenState extends State<ReadyScreen> {
           const LanguageToggle(),
           TextButton.icon(
             style: TextButton.styleFrom(foregroundColor: Colors.white),
-            icon: const Icon(Icons.smart_toy_outlined),
-            label: Text(loc.addBot),
-            onPressed: () {
-              fb.addBotToRoom(widget.roomId);
-              TestBotService.start(widget.roomId, fb);
+            icon: _isAddingBot 
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Icon(Icons.smart_toy_outlined),
+            label: Text(_isAddingBot ? 'Adding...' : loc.addBot),
+            onPressed: _isAddingBot ? null : () async {
+              setState(() {
+                _isAddingBot = true;
+              });
+              
+              try {
+                await fb.addBotToRoom(widget.roomId);
+                TestBotService.start(widget.roomId, fb);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('🤖 Bot added successfully!'),
+                    duration: const Duration(seconds: 2),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('❌ Failed to add bot: $e'),
+                    duration: const Duration(seconds: 3),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } finally {
+                setState(() {
+                  _isAddingBot = false;
+                });
+              }
             },
           ),
           IconButton(
             icon: const Icon(Icons.exit_to_app_rounded),
             onPressed: () {
-              _audioService.playTapSound();
               showExitConfirmationDialog(context, widget.roomId);
             },
           ),
@@ -130,18 +117,8 @@ class _ReadyScreenState extends State<ReadyScreen> {
             return const _ReadySkeleton();
           }
           final viewModel = vmSnap.data!;
-          final newPlayerList = viewModel.players;
+          final players = viewModel.players;
           final me = viewModel.me;
-
-          // Play sounds based on count change
-          if (newPlayerList.length > _players.length) {
-            _audioService.playPlayerJoinSound();
-          } else if (newPlayerList.length < _players.length) {
-            _audioService.playPlayerLeaveSound();
-          }
-
-          // --- MODIFIED: Call the new update function ---
-          _updateList(newPlayerList);
 
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -175,22 +152,11 @@ class _ReadyScreenState extends State<ReadyScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                
-                // --- MODIFIED: The AnimatedList now works correctly ---
                 Expanded(
-                  child: AnimatedList(
-                    key: _listKey,
-                    initialItemCount: _players.length,
-                    itemBuilder: (context, index, animation) {
-                      final player = _players[index];
-                      // Build the entrance animation
-                      return SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(1, 0),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut)),
-                        child: PlayerLobbyCard(player: player),
-                      );
+                  child: ListView.builder(
+                    itemCount: players.length,
+                    itemBuilder: (context, index) {
+                      return PlayerLobbyCard(player: players[index]);
                     },
                   ),
                 ),
@@ -200,7 +166,6 @@ class _ReadyScreenState extends State<ReadyScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        _audioService.playTapSound();
                         HapticFeedback.lightImpact();
                         fb.setReady(widget.roomId, !me.ready);
                       },
@@ -217,14 +182,13 @@ class _ReadyScreenState extends State<ReadyScreen> {
                     child: ElevatedButton(
                       onPressed: viewModel.allPlayersReady
                           ? () {
-                              _audioService.playTapSound();
                               HapticFeedback.heavyImpact();
                               fb.startRound(widget.roomId);
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.accentVariant,
-                        disabledBackgroundColor: AppColors.surface.withValues(alpha: 0.5),
+                        backgroundColor: AppColors.primary,
+                        disabledBackgroundColor: AppColors.surface.withOpacity(0.5),
                         disabledForegroundColor: Colors.grey,
                       ),
                       child: Text(viewModel.allPlayersReady ? loc.allReadyStartRound : loc.waitingForPlayers),
@@ -236,7 +200,7 @@ class _ReadyScreenState extends State<ReadyScreen> {
                     child: Text(loc.waitingForPlayersToGetReady, style: textTheme.labelMedium),
                   ),
                 if (!viewModel.isHost && viewModel.allPlayersReady)
-                   Padding(
+                  Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(loc.allReadyWaitingForHost, style: textTheme.labelMedium?.copyWith(color: AppColors.accent)),
                   ),

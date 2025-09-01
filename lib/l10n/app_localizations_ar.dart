@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'نفس الموجة';
+  String get appTitle => 'وصلة';
 
   @override
   String get homeSubtitle => 'أنشئ غرفة أو انضم إليها لبدء اللعبة!';
@@ -356,7 +356,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get clueDisabledByEffect => 'التلميح معطل بسبب التأثير';
 
   @override
-  String get oneWordClue => 'تلميح بكلمة واحدة';
+  String get oneWordClue => 'التلميح';
 
   @override
   String get confirmNoClue => 'تأكيد عدم وجود تلميح';
@@ -439,4 +439,70 @@ class AppLocalizationsAr extends AppLocalizations {
   String get billingUnavailableDescription => 'هذا الجهاز لا يدعم المشتريات داخل التطبيق. يمكنك عرض الحزم المتاحة، لكن المشتريات لن تعمل.';
   String get copyRoomCode => 'نسخ رمز الغرفة';
   String get roomCodeCopied => 'تم نسخ رمز الغرفة إلى الحافظة!';
+
+  @override
+  String get premium => 'بريميوم';
+
+  @override
+  String get premiumTitle => 'افتح ميزات بريميوم';
+
+  @override
+  String get premiumSubtitle => 'احصل على ميزات حصرية وحسّن تجربة اللعب الخاصة بك';
+
+  @override
+  String get premiumFeatures => 'ميزات بريميوم';
+
+  @override
+  String get premiumActive => 'بريميوم نشط';
+
+  @override
+  String get premiumPrice => 'شراء لمرة واحدة. بدون رسوم متكررة.';
+
+  @override
+  String get upgradeToPremium => 'ترقية إلى بريميوم';
+
+  @override
+  String get avatarCustomization => 'تخصيص الصورة الرمزية';
+
+  @override
+  String get avatarCustomizationDesc => 'رفع واستخدام صور رمزية مخصصة';
+
+  @override
+  String get groupChat => 'الدردشة الجماعية';
+
+  @override
+  String get groupChatDesc => 'الدردشة مع اللاعبين الآخرين في غرفة اللعبة';
+
+  @override
+  String get voiceChat => 'الدردشة الصوتية';
+
+  @override
+  String get voiceChatDesc => 'تسجيل وإرسال رسائل صوتية';
+
+  @override
+  String get onlineMatchmaking => 'المطابقة عبر الإنترنت';
+
+  @override
+  String get onlineMatchmakingDesc => 'اللعب مع لاعبين عشوائيين عبر الإنترنت';
+
+  @override
+  String get chooseFromGallery => 'المعرض';
+
+  @override
+  String get takePhoto => 'الكاميرا';
+
+  @override
+  String get getBundles => 'احصل على الحزم';
+
+  @override
+  String get getMoreBundlesMessage => 'احصل على المزيد من الحزم للحصول على تنوع أكبر!';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get deleteAvatar => 'حذف الصورة الرمزية';
+
+  @override
+  String get deleteAvatarConfirmation => 'هل أنت متأكد من أنك تريد حذف هذه الصورة الرمزية؟ لا يمكن التراجع عن هذا الإجراء.';
 }

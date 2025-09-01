@@ -55,16 +55,41 @@ class TestBotService {
       // If the round doesn't exist yet (e.g., in lobby), we might not need to act.
       final round = roundSnap.exists ? Round.fromMap(roundSnap.data()!) : null;
       final myRole = round?.roles?[botUid];
+      
+      print('🤖 Bot debug info:');
+      print('🤖 Round exists: ${roundSnap.exists}');
+      print('🤖 Round data: ${roundSnap.data()}');
+      print('🤖 Bot UID: $botUid');
+      print('🤖 All roles: ${round?.roles}');
+      print('🤖 My role: $myRole');
 
       // Schedule a new action based on the current state.
       _actionTimer = Timer(Duration(seconds: _random.nextInt(3) + 3), () async {
+        print('🤖 Bot executing action for status: $roomStatus');
+        print('🤖 Bot role: $myRole');
+        print('🤖 Round clue: ${round?.clue}');
+        
         switch (roomStatus) {
           case 'clue_submission':
+            print('🤖 Bot checking clue submission conditions...');
+            print('🤖 Is Navigator? ${myRole == Role.Navigator}');
+            print('🤖 Clue is null? ${round?.clue == null}');
+            
+            // Debug: Check bot's role
+            await debugCheckRole();
+            
             if (myRole == Role.Navigator && round?.clue == null) {
               final clue = _generateRandomClue();
-               final secret = round?.secretPosition ?? 50;
-              await _firebaseService.submitClue(roomId, secret, clue);
-              print('🤖 Bot (Navigator) submitted clue: "$clue"');
+              final secret = round?.secretPosition ?? 50;
+              print('🤖 Bot (Navigator) attempting to submit clue: "$clue" with secret: $secret');
+              try {
+                await _firebaseService.submitClue(roomId, secret, clue);
+                print('🤖 Bot (Navigator) successfully submitted clue: "$clue"');
+              } catch (e) {
+                print('🤖 Bot failed to submit clue: $e');
+              }
+            } else {
+              print('🤖 Bot cannot submit clue - Role: $myRole, Clue exists: ${round?.clue != null}');
             }
             break;
 
@@ -114,5 +139,24 @@ class TestBotService {
     _actionTimer?.cancel();
     _roomSubscription?.cancel();
     _instance = null;
+  }
+  
+  // Debug method to check bot's current role
+  Future<void> debugCheckRole() async {
+    try {
+      final roundSnap = await _firebaseService.roundDocRef(roomId).get();
+      if (roundSnap.exists) {
+        final round = Round.fromMap(roundSnap.data()!);
+        final myRole = round.roles?[botUid];
+        print('🤖 DEBUG: Bot UID: $botUid');
+        print('🤖 DEBUG: All roles: ${round.roles}');
+        print('🤖 DEBUG: My role: $myRole');
+        print('🤖 DEBUG: Is Navigator? ${myRole == Role.Navigator}');
+      } else {
+        print('🤖 DEBUG: No round document found');
+      }
+    } catch (e) {
+      print('🤖 DEBUG: Error checking role: $e');
+    }
   }
 }

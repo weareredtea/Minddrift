@@ -8,6 +8,7 @@ import 'package:wavelength_clone_fresh/widgets/spectrum_card.dart';
 import 'package:wavelength_clone_fresh/widgets/effect_card.dart';
 import '../theme/app_theme.dart';
 import '../services/firebase_service.dart';
+import '../services/category_service.dart'; // Import CategoryService for localization
 import '../models/player_status.dart';
 import '../models/round.dart';
 import 'dialog_helpers.dart';
@@ -76,8 +77,9 @@ class _GuessRoundScreenState extends State<GuessRoundScreen> {
           _cachedRound = snap.data!;
           final currentRound = _cachedRound!;
           final clue = currentRound.clue!;
-          final categoryLeft = currentRound.categoryLeft!;
-          final categoryRight = currentRound.categoryRight!;
+          final categoryId = currentRound.categoryId ?? '';
+          final categoryLeft = CategoryService.getLocalizedCategoryText(context, categoryId, true);
+          final categoryRight = CategoryService.getLocalizedCategoryText(context, categoryId, false);
           final effect = currentRound.effect;
 
           return Padding(
@@ -120,7 +122,7 @@ class _GuessRoundScreenState extends State<GuessRoundScreen> {
                 // Effect display
                 if (effect != null && effect != Effect.none)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
+                    padding: const EdgeInsets.only(bottom: 8.0),
                     child: EffectCard(effect: effect),
                   ),
 
@@ -167,7 +169,7 @@ class _GuessRoundScreenState extends State<GuessRoundScreen> {
                         children: [
                           // Shared radial spectrum
                           Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 24.0),
+                            padding: const EdgeInsets.symmetric(vertical: 12.0),
                             child: SpectrumCard(
                               clue: clue,
                               startLabel: categoryLeft,
@@ -252,6 +254,8 @@ class _GuessRoundScreenState extends State<GuessRoundScreen> {
                                     );
                                   },
                                 ),
+                                // Add bottom padding to ensure buttons are above system navigation
+                                SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
                               ],
                             ),
                           ),

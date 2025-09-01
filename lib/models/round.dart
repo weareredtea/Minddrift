@@ -19,6 +19,7 @@ class Round {
   final Effect? effect; // Current round's special effect
   final String? categoryLeft; // Left side of the category (e.g., "HOT")
   final String? categoryRight; // Right side of the category (e.g., "COLD")
+  final String? categoryId; // Category ID for localization
   final DateTime? effectRolledAt; // Timestamp for effect activation (to control display duration)
   final int? groupGuessPosition; // The final group's submitted position (0-100)
   final int? score; // Score for the current round
@@ -32,6 +33,7 @@ class Round {
     this.effect,
     this.categoryLeft,
     this.categoryRight,
+    this.categoryId,
     this.effectRolledAt,
     this.groupGuessPosition,
     this.score,
@@ -50,10 +52,17 @@ class Round {
   /// Public converter: parse Role from its lowercase name.
   static Role roleFromString(String? s) {
     if (s == null) return Role.Seeker; // Default to Seeker if role is not explicitly set
-    return Role.values.firstWhere(
+    
+    print('🔍 Parsing role string: "$s"');
+    print('🔍 Available roles: ${Role.values.map((r) => r.toString().split('.').last)}');
+    
+    final role = Role.values.firstWhere(
       (e) => e.toString().split('.').last.toLowerCase() == s.toLowerCase(),
       orElse: () => Role.Seeker, // Default to Seeker if not found
     );
+    
+    print('🔍 Parsed role: $role');
+    return role;
   }
 
   factory Round.fromMap(Map<String, dynamic> m) {
@@ -68,6 +77,7 @@ class Round {
       effect: effectFromString(m['effect'] as String?),
       categoryLeft: m['categoryLeft'] as String?,
       categoryRight: m['categoryRight'] as String?,
+      categoryId: m['categoryId'] as String?,
       effectRolledAt: (m['effectRolledAt'] as Timestamp?)?.toDate(),
       groupGuessPosition: (m['groupGuessPosition'] as num?)?.toInt(),
       score: (m['score'] as num?)?.toInt(),

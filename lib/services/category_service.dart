@@ -71,13 +71,13 @@ class CategoryService {
   
   /// Get localized category text
   static String getLocalizedCategoryText(BuildContext context, String categoryId, bool isLeft) {
+    final locale = Localizations.localeOf(context).languageCode;
     final category = allCategories.firstWhere(
       (cat) => cat.id == categoryId,
       orElse: () => CategoryItem(id: '', left: '', right: '', bundleId: 'bundle.free'),
     );
     
-    // For now, return the English text. This can be expanded with localization later
-    return isLeft ? category.left : category.right;
+    return isLeft ? category.getLeftText(locale) : category.getRightText(locale);
   }
 }
 

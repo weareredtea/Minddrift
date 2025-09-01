@@ -37,22 +37,22 @@ class AppTypography {
     if (isArabic) {
       // Arabic Typography - Playpen Sans Arabic for headers/titles/buttons, Harmattan for body
       return TextTheme(
-        // Headers and Titles - Arabic fonts
-        displayLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 32, color: AppColors.onBackground),
-        displayMedium: const TextStyle(fontFamily: 'Beiruti', fontSize: 28, color: AppColors.onBackground),
+        // Headers and Titles - Arabic fonts (ORIGINAL font sizes and weights)
+        displayLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 24, color: AppColors.onBackground),
+        displayMedium: const TextStyle(fontFamily: 'Beiruti', fontSize: 20, color: AppColors.onBackground),
         headlineLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 26, color: AppColors.onBackground),
         headlineMedium: const TextStyle(fontFamily: 'Beiruti', fontSize: 24, color: AppColors.onBackground),
         headlineSmall: const TextStyle(fontFamily: 'Beiruti', fontSize: 20, color: AppColors.onBackground),
-        titleLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 18, color: AppColors.onBackground),
+        titleLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 16, color: AppColors.onBackground),
         titleMedium: const TextStyle(fontFamily: 'Beiruti', fontSize: 16, color: AppColors.onBackground),
         titleSmall: const TextStyle(fontFamily: 'Beiruti', fontSize: 14, color: AppColors.onBackground),
         
-        // Body Text - Harmattan
+        // Body Text - Harmattan (ORIGINAL)
         bodyLarge: GoogleFonts.harmattan(fontSize: 16, color: AppColors.onSurface),
         bodyMedium: GoogleFonts.harmattan(fontSize: 14, color: AppColors.onSurface),
         bodySmall: GoogleFonts.harmattan(fontSize: 12, color: AppColors.onSurface),
         
-        // Labels and Buttons - Beiruti
+        // Labels and Buttons - Beiruti (ORIGINAL font sizes and weights)
         labelLarge: const TextStyle(fontFamily: 'Beiruti', fontSize: 16, color: AppColors.onPrimary), // For buttons
         labelMedium: GoogleFonts.harmattan(fontSize: 14, color: Colors.grey[400]),
         labelSmall: GoogleFonts.harmattan(fontSize: 12, color: Colors.grey[400]),
@@ -60,22 +60,22 @@ class AppTypography {
     } else {
       // English Typography - Luckiest Guy for headers/titles/buttons, Chewy for body
       return TextTheme(
-        // Headers and Titles - Luckiest Guy
-        displayLarge: GoogleFonts.luckiestGuy(fontSize: 32, color: AppColors.onBackground),
-        displayMedium: GoogleFonts.luckiestGuy(fontSize: 28, color: AppColors.onBackground),
+        // Headers and Titles - Luckiest Guy (ORIGINAL font sizes and weights)
+        displayLarge: GoogleFonts.luckiestGuy(fontSize: 24, color: AppColors.onBackground),
+        displayMedium: GoogleFonts.luckiestGuy(fontSize: 20, color: AppColors.onBackground),
         headlineLarge: GoogleFonts.luckiestGuy(fontSize: 26, color: AppColors.onBackground),
         headlineMedium: GoogleFonts.luckiestGuy(fontSize: 24, color: AppColors.onBackground),
         headlineSmall: GoogleFonts.luckiestGuy(fontSize: 20, color: AppColors.onBackground),
-        titleLarge: GoogleFonts.luckiestGuy(fontSize: 18, color: AppColors.onBackground),
+        titleLarge: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onBackground),
         titleMedium: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onBackground),
         titleSmall: GoogleFonts.luckiestGuy(fontSize: 14, color: AppColors.onBackground),
         
-        // Body Text - Chewy
+        // Body Text - Chewy (ORIGINAL)
         bodyLarge: GoogleFonts.chewy(fontSize: 16, color: AppColors.onSurface),
         bodyMedium: GoogleFonts.chewy(fontSize: 14, color: AppColors.onSurface),
         bodySmall: GoogleFonts.chewy(fontSize: 12, color: AppColors.onSurface),
         
-        // Labels and Buttons - Luckiest Guy
+        // Labels and Buttons - Luckiest Guy (ORIGINAL font sizes and weights)
         labelLarge: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onPrimary), // For buttons
         labelMedium: GoogleFonts.chewy(fontSize: 14, color: Colors.grey[400]),
         labelSmall: GoogleFonts.chewy(fontSize: 12, color: Colors.grey[400]),
@@ -85,23 +85,23 @@ class AppTypography {
 
   // Legacy static getter for backward compatibility
   static TextTheme get textTheme => TextTheme(
-    // Headers and Titles - Luckiest Guy (default English)
-    displayLarge: GoogleFonts.luckiestGuy(fontSize: 32, color: AppColors.onBackground),
-    displayMedium: GoogleFonts.luckiestGuy(fontSize: 28, color: AppColors.onBackground),
+    // Headers and Titles - Luckiest Guy (default English) - ORIGINAL font sizes and weights
+    displayLarge: GoogleFonts.luckiestGuy(fontSize: 24, color: AppColors.onBackground),
+    displayMedium: GoogleFonts.luckiestGuy(fontSize: 20, color: AppColors.onBackground),
     headlineLarge: GoogleFonts.luckiestGuy(fontSize: 26, color: AppColors.onBackground),
     headlineMedium: GoogleFonts.luckiestGuy(fontSize: 24, color: AppColors.onBackground),
     headlineSmall: GoogleFonts.luckiestGuy(fontSize: 20, color: AppColors.onBackground),
-    titleLarge: GoogleFonts.luckiestGuy(fontSize: 18, color: AppColors.onBackground),
+    titleLarge: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onBackground),
     titleMedium: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onBackground),
     titleSmall: GoogleFonts.luckiestGuy(fontSize: 14, color: AppColors.onBackground),
     
-    // Body Text - Chewy
+    // Body Text - Chewy (ORIGINAL)
     bodyLarge: GoogleFonts.chewy(fontSize: 16, color: AppColors.onSurface),
     bodyMedium: GoogleFonts.chewy(fontSize: 14, color: AppColors.onSurface),
     bodySmall: GoogleFonts.chewy(fontSize: 12, color: AppColors.onSurface),
     
-    // Labels and Buttons - Luckiest Guy
-    labelLarge: GoogleFonts.luckiestGuy(fontSize: 16, color: AppColors.onPrimary), // For buttons
+    // Labels and Buttons - Luckiest Guy (DOUBLED font sizes and weights)
+    labelLarge: GoogleFonts.luckiestGuy(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.onPrimary), // For buttons
     labelMedium: GoogleFonts.chewy(fontSize: 14, color: Colors.grey[400]),
     labelSmall: GoogleFonts.chewy(fontSize: 12, color: Colors.grey[400]),
   );

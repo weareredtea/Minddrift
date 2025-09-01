@@ -11,7 +11,7 @@ import '../l10n/app_localizations.dart';
 class StoreScreen extends StatelessWidget {
   static const routeName = '/store';
 
-  const StoreScreen({Key? key}) : super(key: key);
+  const StoreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

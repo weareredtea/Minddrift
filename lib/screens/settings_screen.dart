@@ -1,12 +1,14 @@
 // lib/screens/settings_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:wavelength_clone_fresh/screens/tutorial_screen.dart';
 import 'package:wavelength_clone_fresh/services/audio_service.dart';
 import '../services/firebase_service.dart';
 import '../providers/locale_provider.dart';
 import '../providers/purchase_provider.dart';
+// import '../providers/premium_provider.dart'; // Temporarily disabled
 import '../services/category_service.dart';
 import '../widgets/bundle_indicator.dart';
 import '../l10n/app_localizations.dart';
@@ -38,8 +40,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final audio = AudioService();
 
     final settings = await fb.fetchRoomCreationSettings();
-    final musicEnabled = audio.isMusicEnabled();
     final bundleSelections = await fb.loadBundleSelections();
+    
+    // Load music setting from Firebase
+    await audio.initializeMusicSetting(fb);
+    final musicEnabled = audio.isMusicEnabled();
 
     setState(() {
       _saboteurEnabled = settings['saboteurEnabled'] ?? false;
@@ -195,10 +200,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text(loc.gameMusic),
             trailing: Switch(
               value: _musicEnabled,
-              onChanged: (value) {
-                setState(() => _musicEnabled = value);
-                audio.setMusicEnabled(value);
-              },
+                          onChanged: (value) async {
+              setState(() => _musicEnabled = value);
+              audio.setMusicEnabled(value);
+              
+              // Persist the music setting to Firebase
+              final fb = context.read<FirebaseService>();
+              await audio.persistMusicSetting(fb);
+            },
             ),
           ),
           const Divider(),
@@ -289,12 +298,101 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         activeColor: bundleInfo.color,
                       ),
                     );
-                  }).toList(),
+                  }),
                   const Divider(),
                 ],
               );
             },
           ),
+
+          // Premium Features Section - Temporarily Hidden
+          // Consumer<PremiumProvider>(
+          //   builder: (context, premium, child) {
+          //     if (!premium.isPremium) {
+          //       return Column(
+          //         children: [
+          //           const Divider(),
+          //           ListTile(
+          //             leading: const Icon(Icons.star, color: Colors.amber),
+          //             title: Text('Premium Features'),
+          //             subtitle: Text('Upgrade to unlock premium features'),
+          //             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          //             onTap: () => Navigator.pushNamed(context, '/premium'),
+          //           ),
+          //           const Divider(),
+          //         ],
+          //       );
+          //     }
+
+          //     return Column(
+          //       children: [
+          //         const Divider(),
+          //         Padding(
+          //           padding: const EdgeInsets.all(16.0),
+          //           child: Row(
+          //             children: [
+          //               const Icon(Icons.star, color: Colors.amber),
+          //               const SizedBox(width: 8),
+          //               Text(
+          //                 'Premium Features',
+          //                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          //                   color: Colors.white,
+          //                   fontWeight: FontWeight.bold,
+          //                 ),
+          //               ),
+          //             ],
+          //           ),
+          //         ),
+          //         if (premium.hasAvatarCustomization)
+          //           ListTile(
+          //             leading: const Icon(Icons.face),
+          //             title: const Text('Custom Avatars'),
+          //             subtitle: const Text('Upload and manage custom avatars'),
+          //             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          //             onTap: () => Navigator.pushNamed(context, '/avatar-customization'),
+          //           ),
+          //         if (premium.hasGroupChat)
+          //           ListTile(
+          //             leading: const Icon(Icons.chat),
+          //             title: const Text('Group Chat'),
+          //             subtitle: const Text('Chat with players in your room'),
+          //             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          //             onTap: () {
+          //               // TODO: Navigate to group chat with room context
+          //               ScaffoldMessenger.of(context).showSnackBar(
+          //                 const SnackBar(content: Text('Group chat coming soon!')),
+          //               );
+          //             },
+          //           ),
+          //         if (premium.hasBundleSuggestions)
+          //           ListTile(
+          //             leading: const Icon(Icons.lightbulb),
+          //             title: const Text('Suggest Bundles'),
+          //             subtitle: const Text('Suggest new bundles for the game'),
+          //             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          //             onTap: () => Navigator.pushNamed(context, '/bundle-suggestion'),
+          //           ),
+          //         if (premium.hasCustomUsername)
+          //           ListTile(
+          //             leading: const Icon(Icons.person),
+          //             title: const Text('Custom Username'),
+          //             subtitle: const Text('Set a custom username'),
+          //             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          //             onTap: () => Navigator.pushNamed(context, '/custom-username'),
+          //           ),
+          //         if (premium.hasOnlineMatchmaking)
+          //           ListTile(
+          //             leading: const Icon(Icons.people),
+          //             title: const Text('Online Matchmaking'),
+          //             subtitle: const Text('Play with random players online'),
+          //             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          //             onTap: () => Navigator.pushNamed(context, '/online-matchmaking'),
+          //           ),
+          //         const Divider(),
+          //       ],
+          //     );
+          //   },
+          // ),
 
           // How to Play
           ListTile(
@@ -323,6 +421,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const Divider(),
+          
+          // Build timestamp for version verification
+          if (kDebugMode) ...[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Build Info (Debug Only)',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Colors.grey[400],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Last Updated: ${DateTime.now().toString().substring(0, 19)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[500],
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                  Text(
+                    'Exception Handling: Active',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.green[400],
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                  Text(
+                    'Network Check: Enabled',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.blue[400],
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

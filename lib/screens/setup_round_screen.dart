@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:wavelength_clone_fresh/widgets/radial_spectrum.dart';
 import 'package:wavelength_clone_fresh/widgets/spectrum_card.dart';
 import 'package:wavelength_clone_fresh/widgets/effect_card.dart';
+import 'package:wavelength_clone_fresh/widgets/keyboard_aware_scroll_view.dart';
 // Import for DocumentSnapshot
 
 import '../services/firebase_service.dart';
+import '../services/category_service.dart'; // Import CategoryService for localization
 import '../models/round.dart'; // Import Round model for category data
 import '../theme/app_theme.dart'; // Import for AppColors
 // Import for PlayerStatus
@@ -184,7 +186,9 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<Round>(
+      body: SafeArea(
+        bottom: false, // Don't add bottom safe area, we'll handle it manually
+        child: StreamBuilder<Round>(
         stream: fb.listenCurrentRound(roomId),
         builder: (ctx, snap) {
           if (!snap.hasData || snap.data!.secretPosition == null || snap.data!.categoryLeft == null) {
@@ -192,18 +196,18 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
           }
           final currentRound = snap.data!;
           final secretPos = currentRound.secretPosition!.toDouble();
-          final categoryLeft = currentRound.categoryLeft!;
-          final categoryRight = currentRound.categoryRight!;
+                          final categoryId = currentRound.categoryId ?? '';
+                final categoryLeft = CategoryService.getLocalizedCategoryText(context, categoryId, true);
+                final categoryRight = CategoryService.getLocalizedCategoryText(context, categoryId, false);
           final effect = currentRound.effect; // Get the effect
 
           // Apply 'No Clue' effect if active
           final isNoClueEffect = effect == Effect.noClue;
 
-          return Padding(
+          return KeyboardAwareColumn(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
                 // Role explanation card
                 Card(
                   child: ListTile(
@@ -229,18 +233,18 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
                 // Display active effect if any
                 if (effect != null && effect != Effect.none)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
+                    padding: const EdgeInsets.only(bottom: 8.0),
                     child: EffectCard(effect: effect),
                   ),
 
                 // *** REPLACE WITH RadialSpectrum ***
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24.0),
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: SpectrumCard(
                     startLabel: categoryLeft,
                     endLabel: categoryRight,
@@ -271,12 +275,12 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
                       'Effect active: "No Clue!" - You cannot enter a clue this round.',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.red[700]),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.purpleAccent[700]),
                       textAlign: TextAlign.center,
                     ),
                   ),
 
-                const Spacer(),
+                const SizedBox(height: 16),
 
                 ElevatedButton(
                   onPressed: (_clue.isEmpty && !isNoClueEffect) || _submitting
@@ -305,10 +309,10 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                       ),
                 ),
               ],
-            ),
-          );
+            );
         },
       ),
+    ),
     );
   }
 }

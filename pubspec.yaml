@@ -59,6 +59,10 @@ dependencies:
   cloud_functions: ^5.5.2
   collection: ^1.18.0
   lottie: ^3.1.2
+  image_picker: ^1.0.7
+  firebase_storage: ^12.4.7
+  just_audio: ^0.9.36
+  connectivity_plus: ^6.1.5
 
 
 dev_dependencies:
@@ -93,6 +97,16 @@ flutter:
           weight: 400
         - asset: assets/fonts/Beiruti-VariableFont_wght.ttf
           weight: 700
+    - family: ArefRuqaaInk
+      fonts:
+        - asset: assets/fonts/ArefRuqaaInk-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ArefRuqaaInk-Bold.ttf
+          weight: 700
+    - family: Oi
+      fonts:
+        - asset: assets/fonts/Oi-Regular.ttf
+          weight: 400
   
   assets:
     - assets/images/endpoint_left.png

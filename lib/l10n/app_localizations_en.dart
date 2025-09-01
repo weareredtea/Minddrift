@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'spectrum';
+  String get appTitle => 'wave';
 
   @override
   String get homeSubtitle =>
@@ -358,7 +358,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clueDisabledByEffect => 'Clue disabled by effect';
 
   @override
-  String get oneWordClue => 'One-word clue';
+  String get oneWordClue => 'clue';
 
   @override
   String get confirmNoClue => 'Confirm No Clue';
@@ -441,4 +441,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String get billingUnavailableDescription => 'This device does not support in-app purchases. You can still view available bundles, but purchases will not work.';
   String get copyRoomCode => 'Copy room code';
   String get roomCodeCopied => 'Room code copied to clipboard!';
+
+  @override
+  String get premium => 'Premium';
+
+  @override
+  String get premiumTitle => 'Unlock Premium Features';
+
+  @override
+  String get premiumSubtitle => 'Get access to exclusive features and enhance your gaming experience';
+
+  @override
+  String get premiumFeatures => 'Premium Features';
+
+  @override
+  String get premiumActive => 'Premium Active';
+
+  @override
+  String get premiumPrice => 'One-time purchase. No recurring charges.';
+
+  @override
+  String get upgradeToPremium => 'Upgrade to Premium';
+
+  @override
+  String get avatarCustomization => 'Avatar Customization';
+
+  @override
+  String get avatarCustomizationDesc => 'Upload and use your own custom avatars';
+
+  @override
+  String get groupChat => 'Group Chat';
+
+  @override
+  String get groupChatDesc => 'Chat with other players in the game room';
+
+  @override
+  String get voiceChat => 'Voice Chat';
+
+  @override
+  String get voiceChatDesc => 'Record and send voice messages';
+
+  @override
+  String get onlineMatchmaking => 'Online Matchmaking';
+
+  @override
+  String get onlineMatchmakingDesc => 'Play with random players online';
+
+  @override
+  String get chooseFromGallery => 'Gallery';
+
+  @override
+  String get takePhoto => 'Camera';
+
+  @override
+  String get getBundles => 'Get Bundles';
+
+  @override
+  String get getMoreBundlesMessage => 'Get more bundles to have more variety!';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get deleteAvatar => 'Delete Avatar';
+
+  @override
+  String get deleteAvatarConfirmation => 'Are you sure you want to delete this avatar? This action cannot be undone.';
 }

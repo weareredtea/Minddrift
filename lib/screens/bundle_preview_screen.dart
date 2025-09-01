@@ -5,15 +5,16 @@ import 'package:provider/provider.dart';
 import '../services/category_service.dart';
 import '../providers/purchase_provider.dart';
 import '../widgets/bundle_indicator.dart';
+import '../utils/responsive_helper.dart';
 import '../l10n/app_localizations.dart';
 
 class BundlePreviewScreen extends StatelessWidget {
   final String bundleId;
   
   const BundlePreviewScreen({
-    Key? key,
+    super.key,
     required this.bundleId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +66,7 @@ class BundlePreviewScreen extends StatelessWidget {
                   bundleInfo.name,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: bundleInfo.color,
-                    fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -100,7 +101,7 @@ class BundlePreviewScreen extends StatelessWidget {
           // Categories list
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
+              padding: ResponsiveHelper.getResponsivePadding(context),
               itemCount: categories.length,
               itemBuilder: (context, index) {
                 final category = categories[index];
@@ -115,7 +116,7 @@ class BundlePreviewScreen extends StatelessWidget {
                       size: 20,
                     ),
                     title: Text(
-                      '${category.left} ↔ ${category.right}',
+                      '${CategoryService.getLocalizedCategoryText(context, category.id, true)} ↔ ${CategoryService.getLocalizedCategoryText(context, category.id, false)}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                       ),

@@ -1,6 +1,5 @@
 // lib/main.dart
 
-import 'dart:io';
 
 import 'package:animations/animations.dart'; // *** NEW: Import animations package ***
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,10 +23,17 @@ import 'screens/dice_roll_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/tutorial_screen.dart';
 import 'screens/store_screen.dart';
+// import 'screens/premium_screen.dart'; // Temporarily disabled
+// import 'screens/avatar_customization_screen.dart'; // Temporarily disabled
+// import 'screens/group_chat_screen.dart'; // Temporarily disabled
+// import 'screens/bundle_suggestion_screen.dart'; // Temporarily disabled
+// import 'screens/custom_username_screen.dart'; // Temporarily disabled
+// import 'screens/online_matchmaking_screen.dart'; // Temporarily disabled
 import 'screens/wave_spectrum_test.dart';
 import 'theme/app_theme.dart';
 import 'providers/locale_provider.dart';
 import 'providers/purchase_provider.dart';
+// import 'providers/premium_provider.dart'; // Temporarily disabled
 import 'l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart'; // Import this to check for debug mode
 import 'package:flutter/services.dart'; // Import for edge-to-edge support
@@ -41,29 +47,17 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Initialize music setting from Firebase (after Firebase is initialized)
+  final audioService = AudioService();
+  final firebaseService = FirebaseService();
+  await audioService.initializeMusicSetting(firebaseService);
 
-  // --- FINAL EMULATOR CONFIGURATION BLOCK ---
-  if (kDebugMode) {
-    try {
-      print('DEBUG MODE: Forcing sign out to clear cached token...');
-      // THIS IS THE NEW, CRUCIAL LINE:
-      await FirebaseAuth.instance.signOut();
-      
-      print('DEBUG MODE: Connecting to local Firebase Emulators...');
-      final String host = Platform.isAndroid ? '10.0.2.2' : 'localhost';
+  // Initialize premium provider - temporarily disabled
+  // final premiumProvider = PremiumProvider();
+  // await premiumProvider.initialize();
 
-      // Point Auth to the local emulator
-      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
 
-      // Point Firestore to the local emulator
-      FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
-      
-      print('Successfully connected to local emulators on host: $host');
-    } catch (e) {
-      print('Error connecting to local emulators: $e');
-    }
-  }
-  // --- END OF EMULATOR CONFIGURATION BLOCK ---
   
   runApp(const MyApp());
 }
@@ -72,7 +66,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    // Configure edge-to-edge display
+    // Configure edge-to-edge display with proper safe area handling
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -83,11 +77,17 @@ class MyApp extends StatelessWidget {
       ),
     );
     
+    // Enable edge-to-edge display
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+    );
+    
     return MultiProvider(
             providers: [
         ChangeNotifierProvider(create: (_) => FirebaseService()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => PurchaseProvider()),
+        // ChangeNotifierProvider(create: (_) => PremiumProvider()), // Temporarily disabled
       ],
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, child) {
@@ -123,6 +123,37 @@ class MyApp extends StatelessWidget {
                   child: const StoreScreen(),
                 ),
               ),
+              // Premium routes temporarily disabled
+              // PremiumScreen.routeName: (_) => Builder(
+              //   builder: (context) => Theme(
+              //     data: AppTheme.getDarkTheme(context),
+              //     child: const PremiumScreen(),
+              //   ),
+              // ),
+              // AvatarCustomizationScreen.routeName: (_) => Builder(
+              //   builder: (context) => Theme(
+              //         data: AppTheme.getDarkTheme(context),
+              //         child: const AvatarCustomizationScreen(),
+              //       ),
+              // ),
+              // BundleSuggestionScreen.routeName: (_) => Builder(
+              //   builder: (context) => Theme(
+              //         data: AppTheme.getDarkTheme(context),
+              //         child: const BundleSuggestionScreen(),
+              //       ),
+              // ),
+              // CustomUsernameScreen.routeName: (_) => Builder(
+              //   builder: (context) => Theme(
+              //         data: AppTheme.getDarkTheme(context),
+              //         child: const CustomUsernameScreen(),
+              //       ),
+              // ),
+              // OnlineMatchmakingScreen.routeName: (_) => Builder(
+              //   builder: (context) => Theme(
+              //         data: AppTheme.getDarkTheme(context),
+              //         child: const OnlineMatchmakingScreen(),
+              //       ),
+              // ),
               // Only register test route in debug mode
               if (kDebugMode)
                 WaveSpectrumTestScreen.routeName: (_) => Builder(

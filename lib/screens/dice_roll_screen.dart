@@ -171,10 +171,10 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (!_animationComplete) // Simple animation placeholder
-                  Text(
-                    '🎲', // Dice emoji as a placeholder for animation
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 100),
-                  ),
+                                      Text(
+                      '🎲', // Dice emoji as a placeholder for animation
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 100),
+                    ),
                 if (_animationComplete) // Show final effect after "animation"
                   Container(
                     padding: const EdgeInsets.all(24),

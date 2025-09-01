@@ -9,7 +9,7 @@ class TutorialScreen extends StatefulWidget {
   static const String routeName = '/tutorial';
   final VoidCallback? onDone;
 
-  const TutorialScreen({Key? key, this.onDone}) : super(key: key);
+  const TutorialScreen({super.key, this.onDone});
 
   @override
   _TutorialScreenState createState() => _TutorialScreenState();
@@ -18,8 +18,6 @@ class TutorialScreen extends StatefulWidget {
 class _TutorialScreenState extends State<TutorialScreen> {
   final LiquidController _liquidController = LiquidController();
   int _currentPage = 0;
-
-
 
   void _onSkipOrDone() {
     if (widget.onDone != null) {
@@ -32,6 +30,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final isRTL = Directionality.of(context) == TextDirection.rtl;
     final pages = <_PageData>[
       _PageData(
         title: loc.tutorialTitle1,
@@ -78,14 +77,18 @@ class _TutorialScreenState extends State<TutorialScreen> {
             pages: pages.map((p) => _buildPage(p)).toList(),
             liquidController: _liquidController,
             enableLoop: false,
-            enableSideReveal: true,
-            slideIconWidget: Icon(Icons.arrow_back_ios, color: Colors.white70),
+            enableSideReveal: false, // Keep disabled to prevent RTL issues
+            slideIconWidget: Icon(
+              isRTL ? Icons.arrow_forward_ios : Icons.arrow_back_ios, 
+              color: Colors.white70
+            ),
             positionSlideIcon: 0.8,
             onPageChangeCallback: (index) => setState(() => _currentPage = index),
           ),
           Positioned(
             top: 40,
-            right: 20,
+            right: isRTL ? null : 20,
+            left: isRTL ? 20 : null,
             child: TextButton(
               onPressed: _onSkipOrDone,
               child: Text(
@@ -113,6 +116,8 @@ class _TutorialScreenState extends State<TutorialScreen> {
               ),
             ),
           ),
+
+
           // Get Started button - only shown on last page
           if (_currentPage == pages.length - 1)
             Positioned(
@@ -143,12 +148,16 @@ class _TutorialScreenState extends State<TutorialScreen> {
   }
 
   Widget _buildPage(_PageData data) {
+    final isRTL = Directionality.of(context) == TextDirection.rtl;
+    
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: data.gradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: isRTL ? Alignment.topRight : Alignment.topLeft,
+          end: isRTL ? Alignment.bottomLeft : Alignment.bottomRight,
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 64),

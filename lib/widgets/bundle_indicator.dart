@@ -10,12 +10,12 @@ class BundleIndicator extends StatelessWidget {
   final double size;
 
   const BundleIndicator({
-    Key? key,
+    super.key,
     required this.categoryId,
     this.showIcon = true,
     this.showLabel = false,
     this.size = 16,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
