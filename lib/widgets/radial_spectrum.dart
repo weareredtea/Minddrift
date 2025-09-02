@@ -29,9 +29,9 @@ class _RadialSpectrumWidgetState extends State<RadialSpectrumWidget> {
   double? _lastSecretValue;
   bool _lastIsReadOnly = false;
   
-  // Performance optimization: Debounce rapid updates
+  // Performance optimization: Reduced threshold for smoother movement
   double _lastReportedValue = 0.0;
-  static const double _valueChangeThreshold = 1.0; // Only update if value changes by 1.0 or more
+  static const double _valueChangeThreshold = 0.1; // Reduced from 1.0 to 0.1 for smooth movement
 
   @override
   void initState() {
@@ -58,13 +58,31 @@ class _RadialSpectrumWidgetState extends State<RadialSpectrumWidget> {
     }
   }
 
-  void _onPanUpdate(DragUpdateDetails details, BuildContext context) {
+  void _onPanStart(DragStartDetails details) {
+    if (widget.isReadOnly) return;
+    
+    // Immediately respond to touch start for better responsiveness
+    final box = context.findRenderObject() as RenderBox;
+    final center = Offset(box.size.width / 2, box.size.height * 0.9);
+    final position = box.globalToLocal(details.globalPosition);
+    
+    final newValue = _calculateValueFromPosition(position, center);
+    _updateValueIfNeeded(newValue);
+  }
+
+  void _onPanUpdate(DragUpdateDetails details) {
     if (widget.isReadOnly) return;
     
     final box = context.findRenderObject() as RenderBox;
     final center = Offset(box.size.width / 2, box.size.height * 0.9);
     final position = box.globalToLocal(details.globalPosition);
 
+    final newValue = _calculateValueFromPosition(position, center);
+    _updateValueIfNeeded(newValue);
+  }
+
+  // Performance optimization: Extract value calculation to avoid code duplication
+  double _calculateValueFromPosition(Offset position, Offset center) {
     final angle = atan2(position.dy - center.dy, position.dx - center.dx);
 
     const startAngle = -pi;
@@ -75,18 +93,14 @@ class _RadialSpectrumWidgetState extends State<RadialSpectrumWidget> {
 
     if (position.dy > center.dy) {
       if (position.dx < center.dx) {
-        _updateValueIfNeeded(0);
-        return;
+        return 0.0;
       } else {
-        _updateValueIfNeeded(100);
-        return;
+        return 100.0;
       }
     }
 
     final clampedAngle = correctedAngle.clamp(0.0, sweepAngle);
-    final value = (clampedAngle / sweepAngle) * 100.0;
-
-    _updateValueIfNeeded(value);
+    return (clampedAngle / sweepAngle) * 100.0;
   }
 
   // Performance optimization: Only call onChanged if value changed significantly
@@ -112,10 +126,13 @@ class _RadialSpectrumWidgetState extends State<RadialSpectrumWidget> {
   Widget build(BuildContext context) {
     return IgnorePointer(
       ignoring: widget.isReadOnly,
-      child: GestureDetector(
-        onPanUpdate: (details) => _onPanUpdate(details, context),
-        onPanEnd: _onPanEnd,
-        child: CustomPaint(
+              child: GestureDetector(
+          onPanStart: _onPanStart,
+          onPanUpdate: _onPanUpdate,
+          onPanEnd: _onPanEnd,
+          // Performance optimization: Expand touch area for better responsiveness
+          behavior: HitTestBehavior.opaque,
+          child: CustomPaint(
           size: const Size(double.infinity, 180),
           painter: _GaugePainter(
             value: widget.value,
@@ -258,7 +275,7 @@ class _GaugePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _GaugePainter oldDelegate) {
     // Performance optimization: Only repaint when values actually change significantly
-    return (oldDelegate.value - value).abs() > 0.5 || 
+    return (oldDelegate.value - value).abs() > 0.1 || // Reduced from 0.5 to 0.1 for smoother updates 
            (oldDelegate.secretValue ?? 0) != (secretValue ?? 0) ||
            oldDelegate.isReadOnly != isReadOnly;
   }

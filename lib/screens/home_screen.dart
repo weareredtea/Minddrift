@@ -304,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            SizedBox(height: maxH * 0.10),
+                            //SizedBox(height: maxH * 0.10),
                             SizedBox(
                               height: maxH * 0.25,
                               child: Lottie.asset(
@@ -330,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen>
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
                             ),
-                            SizedBox(height: maxH * 0.12),
+                            SizedBox(height: maxH * 0.1),
 
                             // Create Room button with glow
                             AnimatedBuilder(

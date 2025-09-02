@@ -189,7 +189,7 @@ class LobbyScreen extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
 
             // --- Proceed to Ready phase ---
             SizedBox(

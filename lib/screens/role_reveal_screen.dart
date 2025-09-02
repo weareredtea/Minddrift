@@ -95,18 +95,42 @@ void initState() {
             const SizedBox(height: 40),
             // --- MODIFIED: Show Continue button for host after animation ---
             if (_animationComplete)
-              FutureBuilder<DocumentSnapshot<Map<String,dynamic>>>(
-                future: fb.roomDocRef(widget.roomId).get(),
-                builder: (context, roomSnap) {
-                  final isHost = roomSnap.hasData && roomSnap.data?['creator'] == fb.currentUserUid;
-                  if (isHost) {
-                    return ElevatedButton(
-                      onPressed: () => fb.transitionAfterRoleReveal(widget.roomId),
-                      child: Text(loc.continueButton),
-                    );
-                  } else {
-                    return Text(loc.waitingForHostToContinue);
-                  }
+              StreamBuilder<Role>(
+                stream: fb.listenMyRole(widget.roomId),
+                builder: (context, roleSnap) {
+                  final myRole = roleSnap.data ?? Role.Seeker;
+                  
+                  return FutureBuilder<DocumentSnapshot<Map<String,dynamic>>>(
+                    future: fb.roomDocRef(widget.roomId).get(),
+                    builder: (context, roomSnap) {
+                      final isHost = roomSnap.hasData && roomSnap.data?['creator'] == fb.currentUserUid;
+                      if (isHost) {
+                        // Get role-based color for the continue button
+                        Color buttonColor;
+                        switch (myRole) {
+                          case Role.Navigator:
+                            buttonColor = AppColors.accent; // Teal
+                            break;
+                          case Role.Saboteur:
+                            buttonColor = AppColors.accentVariant; // Electric Pink/Magenta
+                            break;
+                          default: // Role.Seeker
+                            buttonColor = AppColors.primary; // Deep Purple
+                        }
+                        
+                        return ElevatedButton(
+                          onPressed: () => fb.transitionAfterRoleReveal(widget.roomId),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: buttonColor,
+                            foregroundColor: AppColors.onPrimary,
+                          ),
+                          child: Text(loc.continueButton),
+                        );
+                      } else {
+                        return Text(loc.waitingForHostToContinue);
+                      }
+                    },
+                  );
                 },
               )
           ],

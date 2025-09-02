@@ -93,65 +93,83 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Text(loc.finalScore, style: Theme.of(context).textTheme.displayMedium),
-                    const SizedBox(height: 24),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Column(
-                          children: [
-                            Text('$totalGroupScore', style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColors.accent)),
-                            Text(groupPerformance, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.accent)),
-                          ],
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height - 
+                              MediaQuery.of(context).padding.top - 
+                              kToolbarHeight - 120, // Account for app bar, bottom controls, and safe areas
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(loc.finalScore, style: Theme.of(context).textTheme.displayMedium),
+                      const SizedBox(height: 24),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: Column(
+                            children: [
+                              Text('$totalGroupScore', style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColors.accent)),
+                              Text(groupPerformance, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.accent)),
+                            ],
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 24),
                       
-                    ),
-                    const SizedBox(height: 24),
-                    
-                    // --- MODIFIED: Replaced leaderboard with a simple player list ---
-                    Text(
-                      loc.playersInThisGame,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: players.length,
-                        itemBuilder: (context, index) {
-                          final player = players[index];
-                          return Card(
-                            child: ListTile(
-                              leading: const Icon(Icons.person_outline, color: AppColors.accent),
-                              title: Text(player.displayName, style: Theme.of(context).textTheme.titleLarge),
-                              trailing: Text(
-                                '💎 ${player.tokens ?? 0}',
-                                style: Theme.of(context).textTheme.titleLarge,
+                      // --- MODIFIED: Replaced leaderboard with a simple player list ---
+                      Text(
+                        loc.playersInThisGame,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: players.length,
+                          itemBuilder: (context, index) {
+                            final player = players[index];
+                            return Card(
+                              child: ListTile(
+                                leading: const Icon(Icons.person_outline, color: AppColors.accent),
+                                title: Text(player.displayName, style: Theme.of(context).textTheme.titleLarge),
+                                trailing: Text(
+                                  '💎 ${player.tokens ?? 0}',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
+                      const Spacer(), // Push content to top
+                    ],
+                  ),
+                ),
+              ),
+
+              // Bottom controls - always accessible
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 32 + MediaQuery.of(context).padding.bottom),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                         // Also leave the room upon returning home
+                         fb.leaveRoom(widget.roomId);
+                         Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const HomeScreen()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
+                      child: Text(loc.returnToHome),
                     ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                           // Also leave the room upon returning home
-                           fb.leaveRoom(widget.roomId);
-                           Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => const HomeScreen()),
-                            (Route<dynamic> route) => false,
-                          );
-                        },
-                        child: Text(loc.returnToHome),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
 

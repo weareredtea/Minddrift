@@ -1195,7 +1195,7 @@ class FirebaseService with ChangeNotifier {
     _updateTimers[roomId]?.cancel();
     _pendingUpdates[roomId] = pos;
     
-    _updateTimers[roomId] = Timer(const Duration(milliseconds: 100), () {
+    _updateTimers[roomId] = Timer(const Duration(milliseconds: 50), () { // Reduced from 100ms to 50ms for better responsiveness
       final finalPos = _pendingUpdates[roomId];
       if (finalPos != null) {
         roundDocRef(roomId).update({'groupGuessPosition': finalPos.round()});

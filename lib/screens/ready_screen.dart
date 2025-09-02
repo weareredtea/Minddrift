@@ -120,95 +120,73 @@ class _ReadyScreenState extends State<ReadyScreen> {
           final players = viewModel.players;
           final me = viewModel.me;
 
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Text(loc.roomCode, style: textTheme.bodyMedium),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SelectableText(widget.roomId, style: textTheme.displayMedium),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: widget.roomId));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(loc.roomCodeCopied),
-                            duration: const Duration(seconds: 2),
-                            backgroundColor: Colors.green,
+          return Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height - 
+                                MediaQuery.of(context).padding.top - 
+                                kToolbarHeight - 120, // Account for app bar, bottom controls, and safe areas
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(loc.roomCode, style: textTheme.bodyMedium),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SelectableText(widget.roomId, style: textTheme.displayMedium),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              onPressed: () {
+                                Clipboard.setData(ClipboardData(text: widget.roomId));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(loc.roomCodeCopied),
+                                    duration: const Duration(seconds: 2),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.copy, color: Colors.white70),
+                              tooltip: loc.copyRoomCode,
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.white12,
+                                padding: const EdgeInsets.all(8),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: players.length,
+                            itemBuilder: (context, index) {
+                              return PlayerLobbyCard(player: players[index]);
+                            },
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.copy, color: Colors.white70),
-                      tooltip: loc.copyRoomCode,
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.white12,
-                        padding: const EdgeInsets.all(8),
-                      ),
+                        ),
+                        const Spacer(), // Push content to top
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: players.length,
-                    itemBuilder: (context, index) {
-                      return PlayerLobbyCard(player: players[index]);
-                    },
                   ),
                 ),
-                const SizedBox(height: 12),
-                if (me != null)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        fb.setReady(widget.roomId, !me.ready);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: me.ready ? AppColors.surface : AppColors.accent,
-                      ),
-                      child: Text(me.ready ? loc.cancelReady : loc.imReady),
-                    ),
-                  ),
-                const SizedBox(height: 16),
-                if (viewModel.isHost)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: viewModel.allPlayersReady
-                          ? () {
-                              HapticFeedback.heavyImpact();
-                              fb.startRound(widget.roomId);
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        disabledBackgroundColor: AppColors.surface.withOpacity(0.5),
-                        disabledForegroundColor: Colors.grey,
-                      ),
-                      child: Text(viewModel.allPlayersReady ? loc.allReadyStartRound : loc.waitingForPlayers),
-                    ),
-                  ),
-                if (!viewModel.isHost && !viewModel.allPlayersReady)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(loc.waitingForPlayersToGetReady, style: textTheme.labelMedium),
-                  ),
-                if (!viewModel.isHost && viewModel.allPlayersReady)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(loc.allReadyWaitingForHost, style: textTheme.labelMedium?.copyWith(color: AppColors.accent)),
-                  ),
-              ],
-            ),
+              ),
+              // Bottom controls - always accessible
+              ReadyScreenControls(
+                roomId: widget.roomId,
+                viewModel: viewModel,
+                fb: fb,
+              ),
+            ],
           );
         },
       ),
+
     );
   }
 }
@@ -288,6 +266,84 @@ class _ReadySkeleton extends StatelessWidget {
           const SkeletonLoader(width: double.infinity, height: 50),
           const SizedBox(height: 16),
           const SkeletonLoader(width: double.infinity, height: 50),
+        ],
+      ),
+    );
+  }
+}
+
+class ReadyScreenControls extends StatefulWidget {
+  final String roomId;
+  final ReadyScreenViewModel viewModel;
+  final FirebaseService fb;
+  
+  const ReadyScreenControls({
+    super.key,
+    required this.roomId,
+    required this.viewModel,
+    required this.fb,
+  });
+
+  @override
+  State<ReadyScreenControls> createState() => _ReadyScreenControlsState();
+}
+
+class _ReadyScreenControlsState extends State<ReadyScreenControls> {
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final loc = AppLocalizations.of(context)!;
+    final me = widget.viewModel.me;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 32 + MediaQuery.of(context).padding.bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (me != null)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  widget.fb.setReady(widget.roomId, !me.ready);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: me.ready ? AppColors.surface : AppColors.accent,
+                ),
+                child: Text(me.ready ? loc.cancelReady : loc.imReady),
+              ),
+            ),
+          const SizedBox(height: 16),
+          if (widget.viewModel.isHost)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: widget.viewModel.allPlayersReady
+                    ? () {
+                        HapticFeedback.heavyImpact();
+                        widget.fb.startRound(widget.roomId);
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.surface.withOpacity(0.5),
+                  disabledForegroundColor: Colors.grey,
+                ),
+                child: Text(widget.viewModel.allPlayersReady ? loc.allReadyStartRound : loc.waitingForPlayers),
+              ),
+            ),
+          if (!widget.viewModel.isHost && !widget.viewModel.allPlayersReady)
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Text(loc.waitingForPlayersToGetReady, style: textTheme.labelMedium),
+            ),
+          if (!widget.viewModel.isHost && widget.viewModel.allPlayersReady)
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Text(loc.allReadyWaitingForHost, style: textTheme.labelMedium?.copyWith(color: AppColors.accent)),
+            ),
         ],
       ),
     );
