@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wavelength_clone_fresh/screens/dialog_helpers.dart';
+import 'package:minddrift/screens/dialog_helpers.dart';
 import 'dart:async'; // For Timer
 
 import '../services/firebase_service.dart';

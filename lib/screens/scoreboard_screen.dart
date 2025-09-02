@@ -1,8 +1,8 @@
 // lib/screens/scoreboard_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wavelength_clone_fresh/models/round_history_entry.dart';
-import 'package:wavelength_clone_fresh/screens/dialog_helpers.dart';
+import 'package:minddrift/models/round_history_entry.dart';
+import 'package:minddrift/screens/dialog_helpers.dart';
 import '../services/firebase_service.dart';
 import '../models/round.dart'; // Import for Effect enum
 import '../widgets/effect_card.dart';

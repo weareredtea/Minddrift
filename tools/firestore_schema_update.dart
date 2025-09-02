@@ -2,7 +2,7 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:wavelength_clone_fresh/firebase_options.dart';  // ← adjust to your package name
+import 'package:minddrift/firebase_options.dart';  // ← adjust to your package name
 
 Future<void> main() async {
   // 1️⃣ Initialize Firebase with your generated options

@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
-import 'package:wavelength_clone_fresh/screens/tutorial_screen.dart';
-import 'package:wavelength_clone_fresh/services/audio_service.dart';
+import 'package:minddrift/screens/tutorial_screen.dart';
+import 'package:minddrift/services/audio_service.dart';
 import '../services/firebase_service.dart';
 import '../providers/locale_provider.dart';
 import '../providers/purchase_provider.dart';

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:wavelength_clone_fresh/widgets/pulsating_avatar.dart';
+import 'package:minddrift/widgets/pulsating_avatar.dart';
 import '../models/player_status.dart';
 import '../services/audio_service.dart';
 import '../services/firebase_service.dart';

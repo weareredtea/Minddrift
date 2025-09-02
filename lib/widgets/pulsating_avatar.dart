@@ -1,8 +1,8 @@
 // ** Create this new widget **
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:wavelength_clone_fresh/models/avatar.dart';
-import 'package:wavelength_clone_fresh/theme/app_theme.dart';
+import 'package:minddrift/models/avatar.dart';
+import 'package:minddrift/theme/app_theme.dart';
 
 class PulsatingAvatar extends StatefulWidget {
   final String avatarId;

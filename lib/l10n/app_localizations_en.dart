@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'wave';
+  String get appTitle => 'Wave';
 
   @override
   String get homeSubtitle =>
@@ -425,12 +425,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kidsBundleDescription => '20 fun categories for kids';
+
+  @override
   String get foodBundle => 'Food Bundle';
+
+  @override
   String get foodBundleDescription => '20 culinary categories for food lovers';
+
+  @override
   String get natureBundle => 'Nature Bundle';
+
+  @override
   String get natureBundleDescription => '20 nature-inspired categories for outdoor enthusiasts';
+
+  @override
   String get fantasyBundle => 'Fantasy Bundle';
+
+  @override
   String get fantasyBundleDescription => '20 magical categories for fantasy lovers';
+
+  @override
+  String get freeBundle => 'Free Bundle';
+
+  @override
+  String get categories => 'categories';
   String get selectBundlesForGameplay => 'Select Bundles for Gameplay';
   String get bundleSelectionSaved => 'Bundle selection saved';
   String get selectBundleForGame => 'Select Bundle for Game';

@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:wavelength_clone_fresh/screens/dialog_helpers.dart';
-import 'package:wavelength_clone_fresh/services/audio_service.dart';
-import 'package:wavelength_clone_fresh/widgets/result_animations.dart';
-import 'package:wavelength_clone_fresh/widgets/radial_spectrum.dart';
-import 'package:wavelength_clone_fresh/widgets/spectrum_card.dart';
-import 'package:wavelength_clone_fresh/widgets/bundle_indicator.dart';
+import 'package:minddrift/screens/dialog_helpers.dart';
+import 'package:minddrift/services/audio_service.dart';
+import 'package:minddrift/widgets/result_animations.dart';
+import 'package:minddrift/widgets/radial_spectrum.dart';
+import 'package:minddrift/widgets/spectrum_card.dart';
+import 'package:minddrift/widgets/bundle_indicator.dart';
 import '../theme/app_theme.dart';
 import '../services/firebase_service.dart';
 import '../services/category_service.dart'; // Import CategoryService for localization

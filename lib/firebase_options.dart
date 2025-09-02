@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '602508651790',
     projectId: 'wavelength-c084c',
     storageBucket: 'wavelength-c084c.firebasestorage.app',
-    iosBundleId: 'com.example.wavelengthCloneFresh',
+    iosBundleId: 'com.redtea.minddrift',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '602508651790',
     projectId: 'wavelength-c084c',
     storageBucket: 'wavelength-c084c.firebasestorage.app',
-    iosBundleId: 'com.example.wavelengthCloneFresh',
+    iosBundleId: 'com.redtea.minddrift',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

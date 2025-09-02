@@ -3,8 +3,8 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:wavelength_clone_fresh/models/round.dart';
-import 'package:wavelength_clone_fresh/services/firebase_service.dart';
+import 'package:minddrift/models/round.dart';
+import 'package:minddrift/services/firebase_service.dart';
 
 class TestBotService {
   static TestBotService? _instance;

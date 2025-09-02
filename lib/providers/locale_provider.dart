@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
-import 'package:wavelength_clone_fresh/l10n/app_localizations.dart';
+import 'package:minddrift/l10n/app_localizations.dart';
 
 class LocaleProvider extends ChangeNotifier {
   Locale? _override;

@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'وصلة';
+  String get appTitle => 'موجة';
 
   @override
   String get homeSubtitle => 'أنشئ غرفة أو انضم إليها لبدء اللعبة!';
@@ -423,12 +423,30 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get kidsBundleDescription => '20 فئة ممتعة للأطفال';
+
+  @override
   String get foodBundle => 'حزمة الطعام';
+
+  @override
   String get foodBundleDescription => '20 فئة طعامية لعشاق الطعام';
+
+  @override
   String get natureBundle => 'حزمة الطبيعة';
+
+  @override
   String get natureBundleDescription => '20 فئة مستوحاة من الطبيعة لعشاق الهواء الطلق';
+
+  @override
   String get fantasyBundle => 'حزمة الخيال';
+
+  @override
   String get fantasyBundleDescription => '20 فئة سحرية لعشاق الخيال';
+
+  @override
+  String get freeBundle => 'الحزمة المجانية';
+
+  @override
+  String get categories => 'فئات';
   String get selectBundlesForGameplay => 'اختر الحزم للعب';
   String get bundleSelectionSaved => 'تم حفظ اختيار الحزم';
   String get selectBundleForGame => 'اختر الحزمة للعبة';

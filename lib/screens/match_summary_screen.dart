@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:confetti/confetti.dart';
-import 'package:wavelength_clone_fresh/screens/dialog_helpers.dart';
+import 'package:minddrift/screens/dialog_helpers.dart';
 import '../services/firebase_service.dart';
 import '../pigeon/pigeon.dart';
 import 'home_screen.dart';

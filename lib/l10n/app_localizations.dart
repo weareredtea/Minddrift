@@ -960,6 +960,18 @@ abstract class AppLocalizations {
   /// **'20 magical categories for fantasy lovers'**
   String get fantasyBundleDescription;
 
+  /// No description provided for @freeBundle.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Bundle'**
+  String get freeBundle;
+
+  /// No description provided for @categories.
+  ///
+  /// In en, this message translates to:
+  /// **'categories'**
+  String get categories;
+
   /// No description provided for @selectBundlesForGameplay.
   ///
   /// In en, this message translates to:

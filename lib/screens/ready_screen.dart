@@ -1,11 +1,13 @@
 // lib/screens/ready_screen.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:wavelength_clone_fresh/services/audio_service.dart';
-import 'package:wavelength_clone_fresh/services/test_bot_service.dart';
-import 'package:wavelength_clone_fresh/widgets/skeleton_loader.dart';
+import 'package:minddrift/services/audio_service.dart';
+import 'package:minddrift/services/test_bot_service.dart';
+import 'package:minddrift/widgets/skeleton_loader.dart';
 import '../models/avatar.dart';
 import '../models/player_status.dart';
 import '../screens/dialog_helpers.dart';
@@ -27,6 +29,59 @@ class ReadyScreen extends StatefulWidget {
 class _ReadyScreenState extends State<ReadyScreen> {
   final AudioService _audioService = AudioService();
   bool _isAddingBot = false;
+
+  /// Check if the add bot button should be shown
+  /// Only show for emulator and debug versions
+  bool get _shouldShowAddBotButton {
+    // Always show in debug mode
+    if (kDebugMode) {
+      print('🔧 Debug mode detected - showing add bot button');
+      return true;
+    }
+    
+    // Check if running on emulator
+    final isEmulator = _isEmulator();
+    print('🤖 Emulator detection: $isEmulator - Add bot button ${isEmulator ? 'visible' : 'hidden'}');
+    return isEmulator;
+  }
+
+  /// Detect if running on emulator
+  bool _isEmulator() {
+    try {
+      // Check for common emulator indicators
+      final androidInfo = Platform.operatingSystemVersion;
+      final deviceInfo = Platform.operatingSystem;
+      
+      print('🔍 Platform detection - OS: $deviceInfo, Version: $androidInfo');
+      
+      // Common emulator indicators
+      if (deviceInfo == 'android') {
+        final isEmulator = androidInfo.contains('sdk') || 
+                           androidInfo.contains('google_sdk') ||
+                           androidInfo.contains('emulator') ||
+                           androidInfo.contains('test-keys') ||
+                           androidInfo.contains('generic');
+        print('🤖 Android emulator detection: $isEmulator');
+        return isEmulator;
+      }
+      
+      // For iOS simulator
+      if (deviceInfo == 'ios') {
+        final isSimulator = androidInfo.contains('simulator') || 
+                           androidInfo.contains('x86_64') ||
+                           androidInfo.contains('Darwin');
+        print('🍎 iOS simulator detection: $isSimulator');
+        return isSimulator;
+      }
+      
+      print('❓ Unknown platform: $deviceInfo');
+      return false;
+    } catch (e) {
+      // If Platform detection fails, assume it's a real device
+      print('⚠️ Platform detection failed: $e - assuming real device');
+      return false;
+    }
+  }
 
   @override
   void initState() {
@@ -59,49 +114,51 @@ class _ReadyScreenState extends State<ReadyScreen> {
         actions: [
           // Language Toggle Button
           const LanguageToggle(),
-          TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
-            icon: _isAddingBot 
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : const Icon(Icons.smart_toy_outlined),
-            label: Text(_isAddingBot ? 'Adding...' : loc.addBot),
-            onPressed: _isAddingBot ? null : () async {
-              setState(() {
-                _isAddingBot = true;
-              });
-              
-              try {
-                await fb.addBotToRoom(widget.roomId);
-                TestBotService.start(widget.roomId, fb);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('🤖 Bot added successfully!'),
-                    duration: const Duration(seconds: 2),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('❌ Failed to add bot: $e'),
-                    duration: const Duration(seconds: 3),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              } finally {
+          // Add Bot Button - Only show for emulator and debug versions
+          if (_shouldShowAddBotButton)
+            TextButton.icon(
+              style: TextButton.styleFrom(foregroundColor: Colors.white),
+              icon: _isAddingBot 
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.smart_toy_outlined),
+              label: Text(_isAddingBot ? 'Adding...' : loc.addBot),
+              onPressed: _isAddingBot ? null : () async {
                 setState(() {
-                  _isAddingBot = false;
+                  _isAddingBot = true;
                 });
-              }
-            },
-          ),
+                
+                try {
+                  await fb.addBotToRoom(widget.roomId);
+                  TestBotService.start(widget.roomId, fb);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('🤖 Bot added successfully!'),
+                      duration: const Duration(seconds: 2),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('❌ Failed to add bot: $e'),
+                      duration: const Duration(seconds: 3),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } finally {
+                  setState(() {
+                    _isAddingBot = false;
+                  });
+                }
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.exit_to_app_rounded),
             onPressed: () {

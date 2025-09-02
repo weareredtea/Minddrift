@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wavelength_clone_fresh/widgets/radial_spectrum.dart';
-import 'package:wavelength_clone_fresh/widgets/spectrum_card.dart';
-import 'package:wavelength_clone_fresh/widgets/effect_card.dart';
-import 'package:wavelength_clone_fresh/widgets/keyboard_aware_scroll_view.dart';
+import 'package:minddrift/widgets/radial_spectrum.dart';
+import 'package:minddrift/widgets/spectrum_card.dart';
+import 'package:minddrift/widgets/effect_card.dart';
+import 'package:minddrift/widgets/keyboard_aware_scroll_view.dart';
 // Import for DocumentSnapshot
 
 import '../services/firebase_service.dart';

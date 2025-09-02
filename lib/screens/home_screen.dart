@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
-import 'package:wavelength_clone_fresh/screens/store_screen.dart';
-import 'package:wavelength_clone_fresh/screens/tutorial_screen.dart';
-import 'package:wavelength_clone_fresh/screens/settings_screen.dart';
+import 'package:minddrift/screens/store_screen.dart';
+import 'package:minddrift/screens/tutorial_screen.dart';
+import 'package:minddrift/screens/settings_screen.dart';
 
 import '../services/firebase_service.dart';
 import '../theme/app_theme.dart';
@@ -75,8 +75,13 @@ class _HomeScreenState extends State<HomeScreen>
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
+                textAlign: TextAlign.center,
               ),
               backgroundColor: Colors.grey[900],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              contentPadding: ResponsiveHelper.getResponsivePadding(context, mobile: 20, tablet: 24, desktop: 28),
               content: SizedBox(
                 width: double.maxFinite,
                 child: Column(
@@ -87,77 +92,119 @@ class _HomeScreenState extends State<HomeScreen>
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.white70,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context)),
+                    SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context) * 1.5),
                     if (ownedBundles.length <= 1) ...[
                       Container(
-                        padding: ResponsiveHelper.getResponsivePadding(context, mobile: 12, tablet: 16, desktop: 20),
+                        padding: ResponsiveHelper.getResponsivePadding(context, mobile: 16, tablet: 20, desktop: 24),
                         decoration: BoxDecoration(
                           color: Colors.purple.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.store, color: Colors.purple, size: 20),
-                            const SizedBox(width: 8),
+                            Icon(Icons.store, color: Colors.purple, size: 24),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 loc.getMoreBundlesMessage,
                                 style: TextStyle(
                                   color: Colors.purple.shade200,
-                                  fontSize: 12,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context)),
+                      SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context) * 1.5),
                     ],
                     ...ownedBundles.map((bundleId) {
                       final bundleInfo = _getBundleInfo(bundleId);
                       final categories = CategoryService.getCategoriesByBundle(bundleId);
                       
-                      return ListTile(
-                        leading: BundleIndicator(
-                          categoryId: bundleId,
-                          showIcon: true,
-                          showLabel: false,
-                          size: 20,
-                        ),
-                        title: Text(
-                          bundleInfo.name,
-                          style: TextStyle(
-                            color: bundleInfo.color,
-                            fontWeight: FontWeight.w600,
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            width: 1,
                           ),
                         ),
-                        subtitle: Text(
-                          '${categories.length} categories',
-                          style: TextStyle(color: Colors.grey[400]),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          leading: BundleIndicator(
+                            categoryId: bundleId,
+                            showIcon: true,
+                            showLabel: false,
+                            size: 24,
+                          ),
+                          title: Text(
+                            bundleInfo.name,
+                            style: TextStyle(
+                              color: bundleInfo.color,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          subtitle: Text(
+                            '${categories.length} ${loc.categories}',
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 14,
+                            ),
+                          ),
+                          trailing: Icon(
+                            Icons.check_circle_outline,
+                            color: Colors.green,
+                            size: 24,
+                          ),
+                          onTap: () => Navigator.of(context).pop(bundleId),
                         ),
-                        onTap: () => Navigator.of(context).pop(bundleId),
                       );
                     }),
                   ],
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(loc.cancel),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                    Navigator.pushNamed(context, StoreScreen.routeName); // Navigate to store
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
-                    foregroundColor: Colors.white,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    child: Text(
+                      loc.cancel,
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ),
-                  child: Text(loc.getBundles),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                      Navigator.pushNamed(context, StoreScreen.routeName); // Navigate to store
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      loc.getBundles,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ),
                 ),
               ],
             );
@@ -168,40 +215,42 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   BundleInfo _getBundleInfo(String bundleId) {
+    final loc = AppLocalizations.of(context)!;
+    
     switch (bundleId) {
       case 'bundle.free':
         return BundleInfo(
-          name: 'Free Bundle',
+          name: loc.freeBundle,
           color: Colors.green,
           icon: Icons.free_breakfast,
         );
       case 'bundle.horror':
         return BundleInfo(
-          name: 'Horror Bundle',
+          name: loc.horrorBundle,
           color: Colors.red,
           icon: Icons.psychology,
         );
       case 'bundle.kids':
         return BundleInfo(
-          name: 'Kids Bundle',
+          name: loc.kidsBundle,
           color: Colors.orange,
           icon: Icons.child_care,
         );
       case 'bundle.food':
         return BundleInfo(
-          name: 'Food Bundle',
+          name: loc.foodBundle,
           color: Colors.brown,
           icon: Icons.restaurant,
         );
       case 'bundle.nature':
         return BundleInfo(
-          name: 'Nature Bundle',
+          name: loc.natureBundle,
           color: Colors.green,
           icon: Icons.eco,
         );
       case 'bundle.fantasy':
         return BundleInfo(
-          name: 'Fantasy Bundle',
+          name: loc.fantasyBundle,
           color: Colors.purple,
           icon: Icons.auto_awesome,
         );
@@ -303,16 +352,16 @@ class _HomeScreenState extends State<HomeScreen>
                         padding: EdgeInsets.zero,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            //SizedBox(height: maxH * 0.10),
-                            SizedBox(
-                              height: maxH * 0.25,
-                              child: Lottie.asset(
-                                'assets/animations/brain.json',
-                                fit: BoxFit.contain,
+                                                      children: [
+                              //SizedBox(height: maxH * 0.10),
+                              SizedBox(
+                                height: maxH * 0.25,
+                                child: Lottie.asset(
+                                  'assets/animations/brain.json',
+                                  fit: BoxFit.contain,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: maxH * 0.02),
+                              SizedBox(height: maxH * 0.02),
                             Text(
                               loc.appTitle,
                               textAlign: TextAlign.center,
