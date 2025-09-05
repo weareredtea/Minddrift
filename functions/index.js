@@ -1,4 +1,5 @@
 const { onCall } = require('firebase-functions/v2/https');
+const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin
@@ -97,6 +98,119 @@ exports.verifyPurchase = onCall({
     }
     
     throw new Error('Failed to verify purchase', error.message);
+  }
+});
+
+/**
+ * Creates a user document in Firestore with default values
+ * This function has admin privileges and can create documents
+ */
+exports.createUserDocument = onCall({
+  region: 'us-central1',
+  maxInstances: 10
+}, async (request) => {
+  try {
+    const { data, auth } = request;
+    
+    // Check if user is authenticated
+    if (!auth) {
+      throw new Error('User must be authenticated');
+    }
+
+    const { userId } = data;
+    
+    // Verify the user is creating their own document
+    if (auth.uid !== userId) {
+      throw new Error('User can only create their own document');
+    }
+
+    console.log(`Creating user document for: ${userId}`);
+
+    // Check if document already exists
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+    
+    if (userDoc.exists) {
+      console.log(`User document already exists for: ${userId}`);
+      return {
+        success: true,
+        message: 'User document already exists',
+        existed: true
+      };
+    }
+
+    // Create the user document
+    await userRef.set({
+      owned_skus: ['bundle.free'],
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    console.log(`Successfully created user document for: ${userId}`);
+    
+    return {
+      success: true,
+      message: 'User document created successfully',
+      existed: false
+    };
+
+  } catch (error) {
+    console.error('Error creating user document:', error);
+    throw error;
+  }
+});
+
+/**
+ * Creates a user document in Firestore with default values.
+ * This function can be called manually or automatically to ensure user documents exist.
+ * This eliminates the chicken-and-egg problem for new users.
+ */
+exports.ensureUserDocument = onCall({
+  region: 'us-central1',
+  maxInstances: 10
+}, async (request) => {
+  try {
+    const { data, auth } = request;
+    
+    // Check if user is authenticated
+    if (!auth) {
+      throw new Error('User must be authenticated');
+    }
+
+    const userId = auth.uid;
+    console.log(`🔧 Ensuring user document exists for: ${userId}`);
+
+    // Check if document already exists
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+    
+    if (userDoc.exists) {
+      console.log(`✅ User document already exists for: ${userId}`);
+      return {
+        success: true,
+        message: 'User document already exists',
+        existed: true
+      };
+    }
+
+    // Create the user document
+    await userRef.set({
+      owned_skus: ['bundle.free'],
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    console.log(`✅ Successfully created user document for: ${userId}`);
+    
+    return {
+      success: true,
+      message: 'User document created successfully',
+      existed: false
+    };
+
+  } catch (error) {
+    console.error('Error ensuring user document:', error);
+    throw error;
   }
 });
 

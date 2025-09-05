@@ -14,7 +14,7 @@ import '../widgets/animated_background.dart';
 import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
 import '../services/category_service.dart';
-import '../providers/purchase_provider.dart';
+import '../providers/purchase_provider_new.dart';
 import '../utils/responsive_helper.dart';
 import '../widgets/keyboard_aware_scroll_view.dart';
 // import '../providers/premium_provider.dart'; // Temporarily disabled
@@ -64,18 +64,36 @@ class _HomeScreenState extends State<HomeScreen>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Consumer<PurchaseProvider>(
+        return Consumer<PurchaseProviderNew>(
           builder: (context, purchaseProvider, child) {
-            final ownedBundles = purchaseProvider.ownedBundles;
+            final availableBundles = purchaseProvider.availableBundles;
             
-            return AlertDialog(
-              title: Text(
-                loc.selectBundleForGame,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
+            return StatefulBuilder(
+              builder: (context, setState) {
+                Set<String> selectedBundles = {};
+                
+                return AlertDialog(
+              title: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      loc.selectBundleForGame,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(Icons.close, color: Colors.white70),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
+                      shape: CircleBorder(),
+                    ),
+                  ),
+                ],
               ),
               backgroundColor: Colors.grey[900],
               shape: RoundedRectangleBorder(
@@ -84,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen>
               contentPadding: ResponsiveHelper.getResponsivePadding(context, mobile: 20, tablet: 24, desktop: 28),
               content: SizedBox(
                 width: double.maxFinite,
+                height: 400, // Fixed height for scrolling
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -95,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen>
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context) * 1.5),
-                    if (ownedBundles.length <= 1) ...[
+                    if (availableBundles.length <= 1) ...[
                       Container(
                         padding: ResponsiveHelper.getResponsivePadding(context, mobile: 16, tablet: 20, desktop: 24),
                         decoration: BoxDecoration(
@@ -122,78 +141,110 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       SizedBox(height: ResponsiveHelper.getResponsiveSpacing(context) * 1.5),
                     ],
-                    ...ownedBundles.map((bundleId) {
-                      final bundleInfo = _getBundleInfo(bundleId);
-                      final categories = CategoryService.getCategoriesByBundle(bundleId);
-                      
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            width: 1,
-                          ),
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          leading: BundleIndicator(
-                            categoryId: bundleId,
-                            showIcon: true,
-                            showLabel: false,
-                            size: 24,
-                          ),
-                          title: Text(
-                            bundleInfo.name,
-                            style: TextStyle(
-                              color: bundleInfo.color,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                    // Scrollable list of bundles
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: availableBundles.length,
+                        itemBuilder: (context, index) {
+                          final bundleId = availableBundles.elementAt(index);
+                          final bundleInfo = _getBundleInfo(bundleId);
+                          final categories = CategoryService.getCategoriesByBundle(bundleId);
+                          final isSelected = selectedBundles.contains(bundleId);
+                          
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected 
+                                ? bundleInfo.color.withValues(alpha: 0.2)
+                                : Colors.white.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected 
+                                  ? bundleInfo.color.withValues(alpha: 0.6)
+                                  : Colors.white.withValues(alpha: 0.1),
+                                width: isSelected ? 2 : 1,
+                              ),
                             ),
-                          ),
-                          subtitle: Text(
-                            '${categories.length} ${loc.categories}',
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 14,
+                            child: CheckboxListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                              value: isSelected,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  if (value == true) {
+                                    selectedBundles.add(bundleId);
+                                  } else {
+                                    selectedBundles.remove(bundleId);
+                                  }
+                                });
+                              },
+                              title: Row(
+                                children: [
+                                  BundleIndicator(
+                                    categoryId: bundleId,
+                                    showIcon: true,
+                                    showLabel: false,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      bundleInfo.name,
+                                      style: TextStyle(
+                                        color: bundleInfo.color,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              subtitle: Text(
+                                '${categories.length} ${loc.categories}',
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              activeColor: bundleInfo.color,
+                              checkColor: Colors.white,
                             ),
-                          ),
-                          trailing: Icon(
-                            Icons.check_circle_outline,
-                            color: Colors.green,
-                            size: 24,
-                          ),
-                          onTap: () => Navigator.of(context).pop(bundleId),
-                        ),
-                      );
-                    }),
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
               actions: [
+                // Secondary button: Get Bundles
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    child: Text(
-                      loc.cancel,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pop(); // Close the dialog
                       Navigator.pushNamed(context, StoreScreen.routeName); // Navigate to store
                     },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    child: Text(
+                      loc.getBundles,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+                // Primary button: Start Game
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: ElevatedButton(
+                    onPressed: selectedBundles.isNotEmpty 
+                      ? () => Navigator.of(context).pop(selectedBundles.first) // For now, use first selected bundle
+                      : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
+                      backgroundColor: selectedBundles.isNotEmpty 
+                        ? _getBundleInfo(selectedBundles.first).color
+                        : Colors.grey,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -201,12 +252,14 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     child: Text(
-                      loc.getBundles,
+                      'Start Game',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
               ],
+                );
+              },
             );
           },
         );

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/category_service.dart';
-import '../providers/purchase_provider.dart';
+import '../providers/purchase_provider_new.dart';
 import '../widgets/bundle_indicator.dart';
 import '../utils/responsive_helper.dart';
 import '../l10n/app_localizations.dart';
@@ -19,7 +19,7 @@ class BundlePreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final purchase = context.watch<PurchaseProvider>();
+    final purchase = context.watch<PurchaseProviderNew>();
     final categories = CategoryService.getCategoriesByBundle(bundleId);
     final bundleInfo = _getBundleInfo(bundleId);
     final isOwned = purchase.isOwned(bundleId);

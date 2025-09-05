@@ -32,7 +32,7 @@ import 'screens/store_screen.dart';
 import 'screens/wave_spectrum_test.dart';
 import 'theme/app_theme.dart';
 import 'providers/locale_provider.dart';
-import 'providers/purchase_provider.dart';
+import 'providers/purchase_provider_new.dart';
 // import 'providers/premium_provider.dart'; // Temporarily disabled
 import 'l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart'; // Import this to check for debug mode
@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
             providers: [
         ChangeNotifierProvider(create: (_) => FirebaseService()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
-        ChangeNotifierProvider(create: (_) => PurchaseProvider()),
+        ChangeNotifierProvider(create: (_) => PurchaseProviderNew()),
         // ChangeNotifierProvider(create: (_) => PremiumProvider()), // Temporarily disabled
       ],
       child: Consumer<LocaleProvider>(
