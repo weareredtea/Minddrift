@@ -64,6 +64,7 @@ dependencies:
   firebase_storage: ^12.4.7
   just_audio: ^0.9.36
   connectivity_plus: ^6.1.5
+  flutter_native_splash: ^2.4.0
 
 
 dev_dependencies:
@@ -112,16 +113,41 @@ flutter:
   assets:
     - assets/images/endpoint_left.png
     - assets/images/endpoint_right.png
+    - assets/images/splash.png
+    - assets/images/splash_logo2.png
     - assets/avatars/
-    - assets/audio/
+    - assets/audio/bg_music.mp3
+    - assets/audio/ui_tap.mp3
+    - assets/audio/cheer.mp3
+    - assets/audio/score_low.mp3
+    - assets/audio/player_leave.mp3
+    - assets/audio/dice_roll.mp3
+    - assets/audio/score_high.mp3
+    - assets/audio/player_join.mp3
     - assets/animations/
+    - assets/AppIcons/playstore.png
+    - assets/AppIcons/splash_logo2.png
+    - assets/AppIcons/stretched_background_1920x1080.png
+    - assets/AppIcons/android/
+    - shorebird.yaml
 
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icons/icon.png"
+  image_path: "assets/AppIcons/playstore.png"
   min_sdk_android: 23 # Ensures adaptive icons are generated. Your build.gradle confirms this is your minSdk.
+  
+  # Proper icon scaling for circular fit
+  adaptive_icon_background: "#4A90E2"
+  adaptive_icon_foreground: "assets/AppIcons/playstore.png"
+  adaptive_icon_padding: true
+  
+  # Splash screen configuration
+  android_12:
+    image_path: "assets/AppIcons/playstore.png"
+    icon_background_color: "#4A90E2"
+    image_path_adaptive: "assets/AppIcons/playstore.png"
   
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -153,3 +179,25 @@ flutter_launcher_icons:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  # Background image
+  background_image: "assets/images/splash_background.png"
+  
+  # Logo image (no circular mask)
+  image: "assets/images/splash_logo2.png"
+  image_dark: "assets/images/splash_logo2.png"
+  
+  # Platform-specific configurations
+  android: true
+  ios: true
+  
+  # Full screen splash
+  fullscreen: true
+  
+  # Android 12+ configuration (no circular mask)
+  android_12:
+    image: "assets/images/splash_logo2.png"
+    image_dark: "assets/images/splash_logo2.png"
+    background_image: "assets/images/splash_background.png"
+    background_image_dark: "assets/images/splash_background.png"

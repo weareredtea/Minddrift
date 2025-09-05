@@ -3,6 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../providers/purchase_provider.dart';
 import '../l10n/app_localizations.dart';
@@ -22,11 +25,162 @@ class StoreScreen extends StatelessWidget {
         title: Text(loc.store),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.read<PurchaseProvider>().restorePurchases();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Restoring purchases...'),
+                  backgroundColor: Colors.blue,
+                ),
+              );
+            },
+            child: const Text(
+              'Restore Purchases',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       backgroundColor: Colors.black,
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Debug: Show current user ID
+          Container(
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Debug Info:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Patch Version: 2 (Firestore Path Fix)',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final packageInfo = snapshot.data!;
+                      return Text(
+                        'App Version: ${packageInfo.version}+${packageInfo.buildNumber}',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      );
+                    }
+                    return const Text('Loading version...');
+                  },
+                ),
+                const SizedBox(height: 8),
+                StreamBuilder<User?>(
+                  stream: FirebaseAuth.instance.authStateChanges(),
+                  builder: (context, snapshot) {
+                    final user = snapshot.data;
+                    if (user != null) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('User ID: ${user.uid}'),
+                          Text('Email: ${user.email ?? 'Anonymous'}'),
+                          Text('Provider: ${user.providerData.isNotEmpty ? user.providerData.first.providerId : 'None'}'),
+                        ],
+                      );
+                    } else {
+                      return const Text('Not signed in');
+                    }
+                  },
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final purchase = context.read<PurchaseProvider>();
+                      final success = await purchase.ensureAuthentication();
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('✅ Authentication successful!'), backgroundColor: Colors.green),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('❌ Authentication failed'), backgroundColor: Colors.red),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('❌ Error: $e'), backgroundColor: Colors.red),
+                      );
+                    }
+                  },
+                  child: const Text('Test Authentication'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final purchase = context.read<PurchaseProvider>();
+                      final token = await purchase.getIdToken();
+                      if (token != null) {
+                        await Clipboard.setData(ClipboardData(text: token));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('🔑 ID Token copied to clipboard!'), backgroundColor: Colors.blue),
+                        );
+                        print('🔑 Full ID Token: $token');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('❌ Failed to get ID token'), backgroundColor: Colors.red),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('❌ Error: $e'), backgroundColor: Colors.red),
+                      );
+                    }
+                  },
+                  child: const Text('Get ID Token for Testing'),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      // Force app restart to check for patches
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('🔄 Restart app to check for patches!'),
+                          backgroundColor: Colors.orange,
+                          duration: Duration(seconds: 3),
+                        ),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('❌ Error: $e'), backgroundColor: Colors.red),
+                      );
+                    }
+                  },
+                  child: const Text('Check for Patches'),
+                ),
+              ],
+            ),
+          ),
+          
           // Billing availability warning
           if (!purchase.isBillingAvailable) ...[
             Container(
