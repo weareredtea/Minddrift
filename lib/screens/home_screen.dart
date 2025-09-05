@@ -35,6 +35,10 @@ class _HomeScreenState extends State<HomeScreen>
   final _roomCtrl = TextEditingController();
   bool _loading = false;
   String? _error;
+  
+  // Bundle selection state
+  Set<String> _selectedBundles = {};
+  bool _selectedBundlesInitialized = false;
 
   late final AnimationController _glowController;
   late final Animation<double> _glowAnimation;
@@ -58,9 +62,12 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
-  Future<String?> _showBundleSelectionDialog() async {
+  Future<List<String>?> _showBundleSelectionDialog() async {
     final loc = AppLocalizations.of(context)!;
-    return showDialog<String>(
+    // Reset selected bundles when opening dialog
+    _selectedBundles.clear();
+    _selectedBundlesInitialized = false;
+    return showDialog<List<String>>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -70,7 +77,11 @@ class _HomeScreenState extends State<HomeScreen>
             
             return StatefulBuilder(
               builder: (context, setState) {
-                Set<String> selectedBundles = {};
+                // Initialize selectedBundles outside the builder to persist state
+                if (!_selectedBundlesInitialized) {
+                  _selectedBundles = <String>{};
+                  _selectedBundlesInitialized = true;
+                }
                 
                 return AlertDialog(
               title: Row(
@@ -150,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen>
                           final bundleId = availableBundles.elementAt(index);
                           final bundleInfo = _getBundleInfo(bundleId);
                           final categories = CategoryService.getCategoriesByBundle(bundleId);
-                          final isSelected = selectedBundles.contains(bundleId);
+                          final isSelected = _selectedBundles.contains(bundleId);
                           
                           return Container(
                             margin: const EdgeInsets.only(bottom: 8),
@@ -172,10 +183,13 @@ class _HomeScreenState extends State<HomeScreen>
                               onChanged: (bool? value) {
                                 setState(() {
                                   if (value == true) {
-                                    selectedBundles.add(bundleId);
+                                    _selectedBundles.add(bundleId);
+                                    print('✅ Selected bundle: $bundleId');
                                   } else {
-                                    selectedBundles.remove(bundleId);
+                                    _selectedBundles.remove(bundleId);
+                                    print('❌ Deselected bundle: $bundleId');
                                   }
+                                  print('📦 Current selected bundles: $_selectedBundles');
                                 });
                               },
                               title: Row(
@@ -238,12 +252,15 @@ class _HomeScreenState extends State<HomeScreen>
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: ElevatedButton(
-                    onPressed: selectedBundles.isNotEmpty 
-                      ? () => Navigator.of(context).pop(selectedBundles.first) // For now, use first selected bundle
+                    onPressed: _selectedBundles.isNotEmpty 
+                      ? () {
+                          print('🎮 Starting game with bundles: $_selectedBundles');
+                          Navigator.of(context).pop(_selectedBundles.toList()); // Pass all selected bundles
+                        }
                       : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: selectedBundles.isNotEmpty 
-                        ? _getBundleInfo(selectedBundles.first).color
+                      backgroundColor: _selectedBundles.isNotEmpty 
+                        ? _getBundleInfo(_selectedBundles.first).color
                         : Colors.grey,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -444,19 +461,22 @@ class _HomeScreenState extends State<HomeScreen>
                                       ? null
                                       : () async {
                                           setState(() => _loading = true);
-                                          String? selectedBundle;
+                                          List<String>? selectedBundles;
                                           try {
-                                            selectedBundle = await _showBundleSelectionDialog();
-                                            if (selectedBundle != null) {
+                                            selectedBundles = await _showBundleSelectionDialog();
+                                            if (selectedBundles != null && selectedBundles.isNotEmpty) {
                                               final settings = await fb
                                                   .fetchRoomCreationSettings();
+                                              // For now, use the first selected bundle for room creation
+                                              // TODO: Update createRoom to handle multiple bundles
                                               await fb.createRoom(
                                                 settings['saboteurEnabled'] ??
                                                     false,
                                                 settings['diceRollEnabled'] ??
                                                     false,
-                                                selectedBundle,
+                                                selectedBundles.first,
                                               );
+                                              print('🎮 Room created with bundles: $selectedBundles');
                                             } else {
                                               setState(() => _loading = false);
                                             }
@@ -470,7 +490,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             ExceptionHandler.logError('home_screen_create_room', 'Room creation failed in UI', 
                                               extraData: {
                                                 'error': ExceptionHandler.getDeveloperMessage(e),
-                                                'bundle': selectedBundle ?? 'unknown',
+                                                'bundles': selectedBundles?.join(',') ?? 'unknown',
                                               });
                                           }
                                         },
