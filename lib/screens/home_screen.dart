@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import 'package:rive/rive.dart' hide LinearGradient;
 import 'package:lottie/lottie.dart';
 import 'package:minddrift/screens/store_screen.dart';
 import 'package:minddrift/screens/tutorial_screen.dart';
@@ -284,6 +285,64 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  Widget _buildHappyMeepleAnimation(double maxHeight) {
+    return FutureBuilder<bool>(
+      future: _checkIfHappyMeepleExists(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Container(
+            height: maxHeight * 0.25,
+            child: Icon(
+              Icons.psychology,
+              size: 80,
+              color: Colors.white.withValues(alpha: 0.3),
+            ),
+          );
+        }
+        
+        if (snapshot.data == true) {
+          // Happy Meeple animation exists, use it
+          return RiveAnimation.asset(
+            'assets/animations/meeple.riv',
+            fit: BoxFit.contain,
+            placeHolder: Container(
+              height: maxHeight * 0.25,
+              child: Icon(
+                Icons.psychology,
+                size: 80,
+                color: Colors.white.withValues(alpha: 0.3),
+              ),
+            ),
+            onInit: (artboard) {
+              // Animation initialization if needed
+              print('🎭 Meeple animation loaded successfully!');
+            },
+          );
+        } else {
+          // Fallback to brain animation using Lottie
+          return Container(
+            height: maxHeight * 0.25,
+            child: Lottie.asset(
+              'assets/animations/brain.json',
+              fit: BoxFit.contain,
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Future<bool> _checkIfHappyMeepleExists() async {
+    try {
+      // Try to load the asset to check if it exists
+      await DefaultAssetBundle.of(context).load('assets/animations/meeple.riv');
+      return true;
+    } catch (e) {
+      print('⚠️ Meeple animation not found: $e');
+      return false;
+    }
+  }
+
   BundleInfo _getBundleInfo(String bundleId) {
     final loc = AppLocalizations.of(context)!;
     
@@ -426,10 +485,7 @@ class _HomeScreenState extends State<HomeScreen>
                               //SizedBox(height: maxH * 0.10),
                               SizedBox(
                                 height: maxH * 0.25,
-                                child: Lottie.asset(
-                                  'assets/animations/brain.json',
-                                  fit: BoxFit.contain,
-                                ),
+                                child: _buildHappyMeepleAnimation(maxH),
                               ),
                               SizedBox(height: maxH * 0.02),
                             Text(
