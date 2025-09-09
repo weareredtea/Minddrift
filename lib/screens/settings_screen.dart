@@ -7,7 +7,7 @@ import 'package:minddrift/screens/tutorial_screen.dart';
 import 'package:minddrift/services/audio_service.dart';
 import '../services/firebase_service.dart';
 import '../providers/locale_provider.dart';
-import '../providers/purchase_provider.dart';
+import '../providers/purchase_provider_new.dart';
 // import '../providers/premium_provider.dart'; // Temporarily disabled
 import '../services/category_service.dart';
 import '../widgets/bundle_indicator.dart';
@@ -213,7 +213,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const Divider(),
 
           // --- NEW: Bundle Selection ---
-          Consumer<PurchaseProvider>(
+          Consumer<PurchaseProviderNew>(
             builder: (context, purchaseProvider, child) {
               final ownedBundles = purchaseProvider.ownedBundles;
               

@@ -30,6 +30,7 @@ class PurchaseService {
   List<ProductDetails> _products = [];
   Set<String> _ownedBundles = {'bundle.free'};
   bool _isInitialized = false;
+  bool _isBillingAvailable = false;
   String? _error;
 
   // Stream controllers for reactive updates
@@ -40,6 +41,7 @@ class PurchaseService {
   List<ProductDetails> get products => List.unmodifiable(_products);
   Set<String> get ownedBundles => Set.unmodifiable(_ownedBundles);
   bool get isInitialized => _isInitialized;
+  bool get isBillingAvailable => _isBillingAvailable;
   String? get error => _error;
   bool get hasAllAccess => _ownedBundles.contains('all_access');
   
@@ -59,6 +61,7 @@ class PurchaseService {
       
       // Check billing availability
       final isAvailable = await _iap.isAvailable();
+      _isBillingAvailable = isAvailable;
       print('🔍 Billing available: $isAvailable');
       
       if (!isAvailable) {

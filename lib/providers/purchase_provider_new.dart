@@ -18,7 +18,7 @@ class PurchaseProviderNew extends ChangeNotifier {
   Set<String> get availableBundles => _purchaseService.getAvailableBundles();
   bool get isInitialized => _isInitialized;
   String? get error => _error ?? _purchaseService.error;
-  bool get isBillingAvailable => _purchaseService.isInitialized && _purchaseService.products.isNotEmpty;
+  bool get isBillingAvailable => _purchaseService.isBillingAvailable;
   bool get hasAllAccess => _purchaseService.hasAllAccess;
   
   /// Check if a bundle is owned (including all access logic)
