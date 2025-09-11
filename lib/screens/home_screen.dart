@@ -427,8 +427,11 @@ class _HomeScreenState extends State<HomeScreen>
                               SizedBox(
                                 height: maxH * 0.25,
                                 child: Lottie.asset(
-                                  'assets/animations/brain.json',
+                                  'assets/animations/Speedometer.json',
                                   fit: BoxFit.contain,
+                                  animate: true,
+                                  repeat: true,
+                                  frameRate: FrameRate.max,
                                 ),
                               ),
                               SizedBox(height: maxH * 0.02),

@@ -12,7 +12,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appTitle => 'موجة';
 
   @override
-  String get homeSubtitle => 'أنشئ غرفة أو انضم إليها لبدء اللعبة!';
+  String get homeSubtitle => 'اعمل غرفة او انضم لغرفة عشان تبدا اللعبة!';
 
   @override
   String get createRoom => 'إنشاء غرفة';
@@ -51,45 +51,45 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsSaved => 'تم حفظ الإعدادات!';
 
   @override
-  String get tutorialTitle1 => 'إنشاء غرفة أو الانضمام إليها';
+  String get tutorialTitle1 => 'إنشاء غرفة أو الانضمام ليها!';
 
   @override
   String get tutorialDesc1 =>
-      'اضغط على \"إنشاء غرفة\" لبدء لعبة جديدة، أو أدخل رمزًا للانضمام إلى الأصدقاء.';
+      'اضغط على \"إنشاء غرفة\" عشان تبدا لعبة جديدة، أو أدخل رمز الغرفة وانضم إلى اصدقائك.';
 
   @override
   String get tutorialTitle2 => 'تعيين الأدوار';
 
   @override
   String get tutorialDesc2 =>
-      'يُعيَّن دور الملاح والمخرب وبقية اللاعبين متخمين في كل جولة.';
+      'يُعيَّن دور القائد والمخرب وبقية اللاعبين مخمنين في كل جولة.';
 
   @override
-  String get tutorialTitle3 => 'الملاح يعطي تلميحًا';
+  String get tutorialTitle3 => 'القائد بيكتب تلميح عشان يوجه الفريق للاجابة الصحيحة';
 
   @override
   String get tutorialDesc3 =>
-      'يرى الملاح الهدف المخفي ويعطي تلميحًا بكلمة واحدة.';
+      'بيظهر للقائد موقع النقطة المخفية وبيكتب تلميح ذكي يسهل للفريق يكتشف الموقع بالزبط.';
 
   @override
-  String get tutorialTitle4 => 'المُخَمِّنون يضعون رهاناتهم';
+  String get tutorialTitle4 => 'الفريق بيتناقش مع بعض ويتفق على احسن تخمين لموقع النقطةالمخفية';
 
   @override
   String get tutorialDesc4 =>
-      'يحدد المتخمِّنون موضع المنزلق حيث يعتقدون أن الهدف موجود.';
+      'فريق المخمنين بيضع المؤشر في المكان المتفق عليه، السؤال هو هل حيكون دا المكان الصحيح ولا ما هل؟.';
 
   @override
   String get tutorialTitle5 => 'المخرب يحاول التضليل';
 
   @override
-  String get tutorialDesc5 => 'يختار المخرب السري موضعًا لإرباك الفريق.';
+  String get tutorialDesc5 => 'المخرب بحاول يشوش على الفريق بدون ما يتم كشفه.';
 
   @override
-  String get tutorialTitle6 => 'الكشف والنقاط!';
+  String get tutorialTitle6 => 'النتيجة والاسكور!';
 
   @override
   String get tutorialDesc6 =>
-      'اطلع على تخمينات الجميع مقابل الهدف الفعلي ثم احسب النقاط.';
+      'اطلع على تخمينات الفريق مقابل الهدف الفعلي وشوف حصلت كم نقطة.';
 
   @override
   String get skip => 'تخطي';
@@ -104,7 +104,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get roleRevealTitle => 'كشف الدور';
 
   @override
-  String get youAreNavigator => 'أنت الملاح';
+  String get youAreNavigator => 'أنت القائد';
 
   @override
   String get youAreSaboteur => 'أنت المخرب';
@@ -122,13 +122,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get waitingForPlayers => 'في انتظار اللاعبين...';
 
   @override
-  String get readyButton => 'جاهز';
+  String get readyButton => 'انا جاهز';
 
   @override
   String get diceRollTitle => 'رمي النرد';
 
   @override
-  String get rollTheDice => 'ارمِ النرد';
+  String get rollTheDice => 'ارمِي النرد';
 
   @override
   String get rolling => 'جاري الرمي...';
@@ -143,7 +143,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get waitingClueTitle => 'في انتظار التلميح';
 
   @override
-  String get waitingForNavigator => 'في انتظار الملاح لإعطاء التلميح...';
+  String get waitingForNavigator => 'في انتظار القائد يكتب التلميح...';
 
   @override
   String get guessRoundTitle => 'جولة التخمين';
@@ -167,7 +167,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get finalScores => 'النتائج النهائية';
 
   @override
-  String get playAgain => 'العب مجددًا';
+  String get playAgain => 'العب مرة تانية';
 
   @override
   String get selectCategory => 'اختر الفئة';
@@ -194,7 +194,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get imReady => 'أنا جاهز';
 
   @override
-  String get allReadyStartRound => 'الجميع جاهزون — ابدأ الجولة';
+  String get allReadyStartRound => 'الجميع جاهزين — ابدأ الجولة';
 
   @override
   String get waitingForPlayersToGetReady => 'في انتظار اللاعبين للاستعداد...';
@@ -206,7 +206,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get exitGame => 'الخروج من اللعبة؟';
 
   @override
-  String get exitGameConfirmation => 'هل أنت متأكد من أنك تريد الخروج من هذه الغرفة؟ سيتم إخطار اللاعبين الآخرين.';
+  String get exitGameConfirmation => 'هل أنت متأكد من أنك تريد الخروج من الغرفة؟ سيتم إخطار اللاعبين الآخرين.';
 
   @override
   String get cancel => 'إلغاء';
@@ -278,10 +278,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sevenRounds => '7 جولات';
 
   @override
-  String get seekersMakeGuess => 'الباحثون: ضعوا تخمينكم';
+  String get seekersMakeGuess => 'فريق المخمنين: تناقشوا وحددوا اجابتكم';
 
   @override
-  String get confirmGroupGuess => 'تأكيد تخمين المجموعة';
+  String get confirmGroupGuess => 'تأكيد تخمين الفريق';
 
   @override
   String get waitingForHostToContinue => 'في انتظار المضيف للمتابعة...';
@@ -293,10 +293,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get halfScore => 'نصف النقاط!';
 
   @override
-  String get navigatorGetsToken => 'يحصل الملاح على رمز!';
+  String get navigatorGetsToken => 'يحصل القائد على رمز!';
 
   @override
-  String get reverseSlider => 'عكس المنزلق!';
+  String get reverseSlider => 'عكس المؤشر!';
 
   @override
   String get noClue => 'لا تلميح!';
@@ -311,7 +311,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get store => 'المتجر';
 
   @override
-  String get owned => 'مملوك';
+  String get owned => 'تم الشراء';
 
   @override
   String get pleaseEnterRoomCode => 'يرجى إدخال رمز الغرفة.';
@@ -341,16 +341,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String error(String error) => 'خطأ: $error';
 
   @override
-  String get navigatorDescription => 'أعطِ تلميحًا ذكيًا لتوجيه فريقك!';
+  String get navigatorDescription => 'اكتب تلميح ذكي لتوجيه فريقك!';
 
   @override
-  String get saboteurDescription => 'أضل الفريق بخبث ليجعلهم يخطئون!';
+  String get saboteurDescription => 'شوش على الفريق عشان يغلطو!';
 
   @override
   String get seekerDescription => 'اعمل مع فريقك لتخمين الموضع!';
 
   @override
-  String get secretPositionSet => 'تم تعيين موضعك السري — أدخل تلميحك';
+  String get secretPositionSet => 'تم تعيين الموقع السري — أدخل تلميحك';
 
   @override
   String get clueDisabledByEffect => 'التلميح معطل بسبب التأثير';
@@ -368,10 +368,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rollingTheDice => 'رمي النرد...';
 
   @override
-  String get bullseye => 'إصابة مباشرة!';
+  String get bullseye => 'جوة الجك!';
 
   @override
-  String get howScoringWorks => 'كيف يعمل التسجيل';
+  String get howScoringWorks => 'كيف شرح نظام النقاط';
 
   @override
   String get scoringExplanation => 'كلما كان تخمين فريقك أقرب إلى الهدف السري، كلما حصلت على نقاط أكثر!\n\nإصابة مباشرة (0-2 بعيداً): 6 نقاط\nممتاز (3-5 بعيداً): 4 نقاط\nجيد (6-10 بعيداً): 3 نقاط\nمقبول (11-15 بعيداً): 2 نقاط';
@@ -383,7 +383,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String roundResults(int roundNumber) => 'نتائج الجولة $roundNumber';
 
   @override
-  String navigatorWas(String navigatorName) => '$navigatorName كان الملاح';
+  String navigatorWas(String navigatorName) => '$navigatorName كان القائد';
 
   @override
   String get score => 'النقاط';
