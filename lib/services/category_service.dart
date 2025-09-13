@@ -72,12 +72,30 @@ class CategoryService {
   /// Get localized category text
   static String getLocalizedCategoryText(BuildContext context, String categoryId, bool isLeft) {
     final locale = Localizations.localeOf(context).languageCode;
+    
+    // Debug logging for release mode issues
+    if (categoryId.isEmpty) {
+      print('⚠️ CategoryService: categoryId is empty');
+      return isLeft ? 'LEFT' : 'RIGHT';
+    }
+    
     final category = allCategories.firstWhere(
       (cat) => cat.id == categoryId,
-      orElse: () => CategoryItem(id: '', left: '', right: '', bundleId: 'bundle.free'),
+      orElse: () {
+        print('⚠️ CategoryService: Category not found for ID: $categoryId');
+        return CategoryItem(id: '', left: 'LEFT', right: 'RIGHT', bundleId: 'bundle.free');
+      },
     );
     
-    return isLeft ? category.getLeftText(locale) : category.getRightText(locale);
+    final result = isLeft ? category.getLeftText(locale) : category.getRightText(locale);
+    
+    // Debug logging for empty results
+    if (result.isEmpty) {
+      print('⚠️ CategoryService: Empty text for categoryId: $categoryId, isLeft: $isLeft, locale: $locale');
+      return isLeft ? 'LEFT' : 'RIGHT';
+    }
+    
+    return result;
   }
 }
 

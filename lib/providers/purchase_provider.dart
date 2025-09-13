@@ -1,7 +1,6 @@
 
 import 'dart:async';
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
@@ -9,8 +8,7 @@ import 'package:flutter/foundation.dart';
 // --- NEW IMPORTS ---
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../services/category_service.dart';
-import 'package:flutter/foundation.dart'; // Added for kDebugMode
+// Added for kDebugMode
 
 class PurchaseProvider extends ChangeNotifier {
   final _iap = InAppPurchase.instance;
@@ -26,12 +24,12 @@ class PurchaseProvider extends ChangeNotifier {
   String? _billingError;
 
   static const _kProductIds = <String>[
-    'bundle.horror',
-    'bundle.kids',
-    'bundle.food',
-    'bundle.nature',
-    'bundle.fantasy',
-    'all_access',
+    'com.redtea.minddrift.bundle.horror',
+    'com.redtea.minddrift.bundle.kids',
+    'com.redtea.minddrift.bundle.food',
+    'com.redtea.minddrift.bundle.nature',
+    'com.redtea.minddrift.bundle.fantasy',
+    'com.redtea.minddrift.all_access',
   ];
 
   List<ProductDetails> products = [];
@@ -282,6 +280,8 @@ class PurchaseProvider extends ChangeNotifier {
             'token': pd.verificationData.serverVerificationData,
             'sku': pd.productID,
             'platform': 'android', // Or 'ios'
+            'transactionId': pd.purchaseID,
+            'originalTransactionId': pd.purchaseID, // For non-consumables, these are the same
           });
           
           print('✅ Cloud Function call successful: ${result.data}');

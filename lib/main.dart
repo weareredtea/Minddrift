@@ -41,25 +41,37 @@ import 'package:flutter/services.dart'; // Import for edge-to-edge support
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-// *** NEW: Preload sounds for better performance ***
-  await AudioService().preloadSounds(); 
   
+  // Initialize Firebase first (required for app to work)
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Initialize music setting from Firebase (after Firebase is initialized)
-  final audioService = AudioService();
-  final firebaseService = FirebaseService();
-  await audioService.initializeMusicSetting(firebaseService);
-
-  // Initialize premium provider - temporarily disabled
-  // final premiumProvider = PremiumProvider();
-  // await premiumProvider.initialize();
-
-
-  
+  // Start the app immediately - defer heavy initialization
   runApp(const MyApp());
+  
+  // Initialize heavy services in background after app starts
+  _initializeServicesInBackground();
+}
+
+// Initialize heavy services in background to avoid blocking splash screen
+void _initializeServicesInBackground() async {
+  try {
+    // Preload sounds in background
+    await AudioService().preloadSounds();
+    
+    // Initialize music setting from Firebase
+    final audioService = AudioService();
+    final firebaseService = FirebaseService();
+    await audioService.initializeMusicSetting(firebaseService);
+    
+    // Initialize premium provider - temporarily disabled
+    // final premiumProvider = PremiumProvider();
+    // await premiumProvider.initialize();
+  } catch (e) {
+    print('Background initialization error: $e');
+    // Don't crash the app if background initialization fails
+  }
 }
 
 class MyApp extends StatelessWidget {

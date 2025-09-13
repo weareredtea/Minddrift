@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -260,8 +259,8 @@ class FirebaseService with ChangeNotifier {
     try {
       ExceptionHandler.logError('auth_initialization', 'Starting authentication initialization');
       
-      // Check network connectivity first
-      await _checkNetworkConnectivity();
+      // Skip network connectivity check for faster startup
+      // await _checkNetworkConnectivity();
       
       final auth = FirebaseAuth.instance;
       
@@ -269,14 +268,19 @@ class FirebaseService with ChangeNotifier {
       if (auth.currentUser != null) {
         ExceptionHandler.logError('auth_initialization', 'User already authenticated', 
           extraData: {'uid': auth.currentUser!.uid});
+        
+        // Clean up any stale room data on startup
+        await _cleanupStaleRoomData();
         return;
       }
 
-      // Try custom token authentication first
+      // Try custom token authentication first with timeout
       if (_canvasInitialAuthToken.isNotEmpty) {
         try {
           ExceptionHandler.logError('auth_initialization', 'Attempting custom token authentication');
-          await auth.signInWithCustomToken(_canvasInitialAuthToken);
+          await auth.signInWithCustomToken(_canvasInitialAuthToken).timeout(
+            const Duration(seconds: 5), // Add timeout for faster fallback
+          );
           ExceptionHandler.logError('auth_initialization', 'Custom token authentication successful', 
             extraData: {'uid': auth.currentUser!.uid});
         } catch (e) {
@@ -290,6 +294,9 @@ class FirebaseService with ChangeNotifier {
         await _performAnonymousAuth();
       }
 
+      // Clean up any stale room data after authentication
+      await _cleanupStaleRoomData();
+
       // Set up auth state listener
       _auth.authStateChanges().listen((User? user) {
         ExceptionHandler.logError('auth_state_change', 'Auth state changed', 
@@ -300,25 +307,23 @@ class FirebaseService with ChangeNotifier {
     } catch (e) {
       ExceptionHandler.logError('auth_initialization', 'Authentication initialization failed', 
         extraData: {'error': e.toString()});
-      throw AuthenticationException(
-        'Failed to initialize authentication',
-        code: 'INIT_FAILED',
-        details: e.toString(),
-        stackTrace: StackTrace.current,
-      );
+      // Don't throw exception - let the app start and handle auth later
+      print('Auth initialization failed, app will continue: $e');
     }
   }
 
   Future<void> _checkNetworkConnectivity() async {
     try {
-      final connectivityResult = await Connectivity().checkConnectivity();
+      // Quick connectivity check with shorter timeout
+      final connectivityResult = await Connectivity().checkConnectivity().timeout(
+        const Duration(seconds: 3), // Reduced from default timeout
+      );
       
       ExceptionHandler.logError('network_check', 'Connectivity check result', 
         extraData: {'connectivity': connectivityResult.toString()});
       
       if (connectivityResult == ConnectivityResult.none) {
         throw NetworkException(
-          
           'No internet connection available. Please check your network settings and try again.',
           code: 'NO_CONNECTIVITY',
           details: 'Connectivity result: $connectivityResult',
@@ -333,35 +338,17 @@ class FirebaseService with ChangeNotifier {
         return; // Allow emulator to proceed without Firebase connectivity check
       }
       
-      // Additional check for Firebase service availability (only on real devices)
-      if (connectivityResult == ConnectivityResult.wifi || connectivityResult == ConnectivityResult.mobile) {
-        // Try a simple Firebase operation to verify service availability
-        try {
-          await _auth.currentUser?.reload().timeout(const Duration(seconds: 10));
-          ExceptionHandler.logError('network_check', 'Firebase service connectivity verified');
-        } catch (e) {
-          ExceptionHandler.logError('network_check', 'Firebase service connectivity failed', 
-            extraData: {'error': e.toString()});
-          
-          throw NetworkException(
-            'Firebase services are temporarily unavailable. Please check your internet connection and try again.',
-            code: 'FIREBASE_SERVICE_UNAVAILABLE',
-            details: e.toString(),
-            stackTrace: StackTrace.current,
-          );
-        }
-      }
+      // Skip additional Firebase connectivity check to speed up startup
+      // The app will handle network errors gracefully when they occur
+      ExceptionHandler.logError('network_check', 'Skipping Firebase service connectivity check for faster startup');
       
     } catch (e) {
       if (e is NetworkException) {
         rethrow;
       }
-      throw NetworkException(
-        'Unable to check network connectivity. Please ensure you have internet access.',
-        code: 'CONNECTIVITY_CHECK_FAILED',
-        details: e.toString(),
-        stackTrace: StackTrace.current,
-      );
+      // Don't throw on connectivity check failure - let the app start and handle errors later
+      ExceptionHandler.logError('network_check', 'Connectivity check failed, continuing anyway', 
+        extraData: {'error': e.toString()});
     }
   }
 
@@ -1584,19 +1571,32 @@ class FirebaseService with ChangeNotifier {
           'lastJoined': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
       } else {
-        await _userCurrentRoomIdDocRef().update({
-          'roomId': FieldValue.delete(),
-          'lastJoined': FieldValue.delete(),
-        }).catchError((e) {
+        // More robust cleanup - try delete first, then update if that fails
+        try {
+          await _userCurrentRoomIdDocRef().delete();
+        } catch (e) {
           if (e is FirebaseException && e.code == 'not-found') {
-            print('Document for currentRoomId did not exist during delete attempt (safe to ignore): $e');
+            // Document doesn't exist, which is what we want
+            print('Current room document already deleted (safe to ignore)');
           } else {
-            print('Error clearing current room ID: $e');
+            // Try update as fallback
+            await _userCurrentRoomIdDocRef().update({
+              'roomId': FieldValue.delete(),
+              'lastJoined': FieldValue.delete(),
+            });
           }
-        });
+        }
       }
     } catch (e) {
       print('Error saving current room ID: $e');
+      // In case of error, try to force clear the document
+      if (roomId == null) {
+        try {
+          await _userCurrentRoomIdDocRef().delete();
+        } catch (deleteError) {
+          print('Failed to force delete current room document: $deleteError');
+        }
+      }
     }
   }
 
@@ -1605,7 +1605,44 @@ class FirebaseService with ChangeNotifier {
       return Stream.value(null);
     }
     return _userCurrentRoomIdDocRef().snapshots().map((snap) {
-      return snap.data()?['roomId'] as String?;
+      final roomId = snap.data()?['roomId'] as String?;
+      // Validate that the room still exists before returning it
+      if (roomId != null) {
+        // Check if room exists asynchronously and clear if it doesn't
+        _validateAndClearStaleRoomId(roomId);
+      }
+      return roomId;
     });
+  }
+
+  // Helper method to validate room exists and clear stale data
+  Future<void> _validateAndClearStaleRoomId(String roomId) async {
+    try {
+      final exists = await roomExists(roomId);
+      if (!exists) {
+        print('Room $roomId no longer exists, clearing stale current room data');
+        await saveCurrentRoomId(null);
+      }
+    } catch (e) {
+      print('Error validating room $roomId: $e');
+      // If we can't validate, clear the data to be safe
+      await saveCurrentRoomId(null);
+    }
+  }
+
+  // Aggressive cleanup method to clear any stale room data on startup
+  Future<void> _cleanupStaleRoomData() async {
+    try {
+      if (currentUserUid.isEmpty) return;
+      
+      print('🧹 Cleaning up stale room data on startup...');
+      
+      // Force clear any existing current room data
+      await saveCurrentRoomId(null);
+      
+      print('✅ Stale room data cleanup completed');
+    } catch (e) {
+      print('❌ Error during stale room data cleanup: $e');
+    }
   }
 }
