@@ -7,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/daily_challenge_service.dart';
 import '../models/daily_challenge_models.dart';
 import '../models/avatar.dart';
+import '../widgets/solo_spectrum_card.dart';
+import '../widgets/radial_spectrum.dart';
 
 class DailyChallengeScreen extends StatefulWidget {
   static const routeName = '/daily-challenge';
@@ -288,61 +290,21 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Text(
-              'Where does this clue belong?',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontFamily: 'Chewy',
-              ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Labels
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _todaysChallenge!.leftLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'LuckiestGuy',
-                  ),
+            // Radial Spectrum Widget
+            SizedBox(
+              height: 300, // Standard height from original
+              child: SoloSpectrumCard(
+                startLabel: _todaysChallenge!.leftLabel,
+                endLabel: _todaysChallenge!.rightLabel,
+                child: RadialSpectrumWidget(
+                  value: _userGuess * 100, // Convert 0-1 to 0-100
+                  onChanged: _isSubmitting ? (value) {} : (value) {
+                    setState(() {
+                      _userGuess = value / 100; // Convert 0-100 back to 0-1
+                    });
+                  },
+                  isReadOnly: _isSubmitting,
                 ),
-                Text(
-                  _todaysChallenge!.rightLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'LuckiestGuy',
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Slider
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: Colors.amber[600],
-                inactiveTrackColor: Colors.grey[700],
-                thumbColor: Colors.amber[600],
-                overlayColor: Colors.amber[600]?.withValues(alpha: 0.2),
-                trackHeight: 8,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-              ),
-              child: Slider(
-                value: _userGuess,
-                onChanged: _isSubmitting ? null : (value) {
-                  setState(() {
-                    _userGuess = value;
-                  });
-                },
-                min: 0.0,
-                max: 1.0,
               ),
             ),
             
@@ -849,6 +811,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
           ? const Center(child: CircularProgressIndicator())
           : TabBarView(
               controller: _tabController,
+              physics: const NeverScrollableScrollPhysics(), // Disable swipe gestures
               children: [
                 _buildChallengeTab(),
                 _buildLeaderboardTab(),

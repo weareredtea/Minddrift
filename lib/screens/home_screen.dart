@@ -24,6 +24,7 @@ import '../l10n/app_localizations.dart';
 import 'profile_edit_screen.dart';
 import 'practice_mode_screen.dart';
 import 'daily_challenge_screen.dart';
+import 'campaign_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -527,6 +528,43 @@ class _HomeScreenState extends State<HomeScreen>
                                     const SizedBox(width: 8),
                                     Text(
                                       'Daily Challenge',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        color: Colors.white,
+                                        fontFamily: 'LuckiestGuy',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: maxH * 0.02),
+
+                            // Campaign Mode button
+                            SizedBox(
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const CampaignScreen(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.deepPurple[700],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.military_tech, color: Colors.white),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Campaign Mode',
                                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                         color: Colors.white,
                                         fontFamily: 'LuckiestGuy',

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/practice_service.dart';
 import '../models/practice_models.dart';
+import '../widgets/solo_spectrum_card.dart';
+import '../widgets/radial_spectrum.dart';
 
 class PracticeModeScreen extends StatefulWidget {
   static const routeName = '/practice';
@@ -164,113 +166,79 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
             const SizedBox(height: 24),
             
             // Spectrum slider
-            Column(
-              children: [
-                // Labels
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            SizedBox(
+              height: 300, // Standard height from original
+              child: SoloSpectrumCard(
+                startLabel: _currentChallenge!.leftLabel,
+                endLabel: _currentChallenge!.rightLabel,
+                child: RadialSpectrumWidget(
+                  value: _userGuess * 100, // Convert 0-1 to 0-100
+                  onChanged: _hasGuessed ? (value) {} : (value) {
+                    setState(() {
+                      _userGuess = value / 100; // Convert 0-100 back to 0-1
+                    });
+                  },
+                  isReadOnly: _hasGuessed,
+                ),
+              ),
+            ),
+            
+            // Show secret position and user guess after guessing
+            if (_hasGuessed) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text(
-                      _currentChallenge!.leftLabel,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'LuckiestGuy',
-                      ),
-                    ),
-                    Text(
-                      _currentChallenge!.rightLabel,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'LuckiestGuy',
-                      ),
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 16),
-                
-                // Slider
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: Colors.blue[600],
-                    inactiveTrackColor: Colors.grey[700],
-                    thumbColor: Colors.blue[600],
-                    overlayColor: Colors.blue[600]?.withValues(alpha: 0.2),
-                    trackHeight: 8,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                  ),
-                  child: Slider(
-                    value: _userGuess,
-                    onChanged: _hasGuessed ? null : (value) {
-                      setState(() {
-                        _userGuess = value;
-                      });
-                    },
-                    min: 0.0,
-                    max: 1.0,
-                  ),
-                ),
-                
-                // Show secret position and user guess after guessing
-                if (_hasGuessed) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    Column(
                       children: [
-                        Column(
-                          children: [
-                            Text(
-                              'Your Guess',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 12,
-                                fontFamily: 'Chewy',
-                              ),
-                            ),
-                            Text(
-                              '${(_userGuess * 100).toStringAsFixed(0)}%',
-                              style: const TextStyle(
-                                color: Colors.blue,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          'Your Guess',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 12,
+                            fontFamily: 'Chewy',
+                          ),
                         ),
-                        Column(
-                          children: [
-                            Text(
-                              'Correct Answer',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 12,
-                                fontFamily: 'Chewy',
-                              ),
-                            ),
-                            Text(
-                              '${(_currentChallenge!.secretPosition * 100).toStringAsFixed(0)}%',
-                              style: const TextStyle(
-                                color: Colors.green,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          '${(_userGuess * 100).toStringAsFixed(0)}%',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ],
-            ),
+                    Column(
+                      children: [
+                        Text(
+                          'Correct Answer',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 12,
+                            fontFamily: 'Chewy',
+                          ),
+                        ),
+                        Text(
+                          '${(_currentChallenge!.secretPosition * 100).toStringAsFixed(0)}%',
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
             
             const SizedBox(height: 24),
             

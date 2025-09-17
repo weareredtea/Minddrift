@@ -29,6 +29,7 @@ import 'screens/store_screen.dart';
 // import 'screens/bundle_suggestion_screen.dart'; // Temporarily disabled
 // import 'screens/profile_edit_screen.dart'; // Used via direct navigation
 // import 'screens/online_matchmaking_screen.dart'; // Temporarily disabled
+import 'screens/campaign_level_screen.dart';
 import 'screens/wave_spectrum_test.dart';
 import 'theme/app_theme.dart';
 import 'providers/locale_provider.dart';
@@ -168,6 +169,13 @@ class MyApp extends StatelessWidget {
               //         child: const OnlineMatchmakingScreen(),
               //       ),
               // ),
+              // Campaign Level Screen
+              CampaignLevelScreen.routeName: (_) => Builder(
+                builder: (context) => Theme(
+                  data: AppTheme.getDarkTheme(context),
+                  child: const CampaignLevelScreen(),
+                ),
+              ),
               // Only register test route in debug mode
               if (kDebugMode)
                 WaveSpectrumTestScreen.routeName: (_) => Builder(
