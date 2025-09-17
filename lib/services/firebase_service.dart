@@ -431,20 +431,35 @@ class FirebaseService with ChangeNotifier {
   }
 
   Future<void> _performAnonymousAuth() async {
-    try {
-      ExceptionHandler.logError('auth_anonymous', 'Attempting anonymous authentication');
-      await _auth.signInAnonymously();
-      ExceptionHandler.logError('auth_anonymous', 'Anonymous authentication successful', 
-        extraData: {'uid': _auth.currentUser!.uid});
-    } catch (e) {
-      ExceptionHandler.logError('auth_anonymous', 'Anonymous authentication failed', 
-        extraData: {'error': e.toString()});
-      throw AuthenticationException(
-        'Failed to sign in anonymously',
-        code: 'ANONYMOUS_AUTH_FAILED',
-        details: e.toString(),
-        stackTrace: StackTrace.current,
-      );
+    const int maxRetries = 3;
+    const Duration retryDelay = Duration(seconds: 2);
+    
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        ExceptionHandler.logError('auth_anonymous', 'Attempting anonymous authentication (attempt $attempt/$maxRetries)');
+        
+        await _auth.signInAnonymously().timeout(const Duration(seconds: 10));
+        
+        ExceptionHandler.logError('auth_anonymous', 'Anonymous authentication successful', 
+          extraData: {'uid': _auth.currentUser!.uid, 'attempt': attempt});
+        return;
+        
+      } catch (e) {
+        ExceptionHandler.logError('auth_anonymous', 'Anonymous authentication failed (attempt $attempt/$maxRetries)', 
+          extraData: {'error': e.toString(), 'attempt': attempt});
+        
+        if (attempt == maxRetries) {
+          throw AuthenticationException(
+            'Failed to sign in anonymously after $maxRetries attempts',
+            code: 'ANONYMOUS_AUTH_FAILED',
+            details: e.toString(),
+            stackTrace: StackTrace.current,
+          );
+        }
+        
+        // Wait before retrying
+        await Future.delayed(retryDelay);
+      }
     }
   }
 

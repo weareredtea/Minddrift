@@ -22,6 +22,8 @@ import '../widgets/keyboard_aware_scroll_view.dart';
 // import '../screens/premium_screen.dart'; // Temporarily disabled
 import '../l10n/app_localizations.dart';
 import 'profile_edit_screen.dart';
+import 'practice_mode_screen.dart';
+import 'daily_challenge_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -462,6 +464,80 @@ class _HomeScreenState extends State<HomeScreen>
                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
                             ),
                             SizedBox(height: maxH * 0.1),
+
+                            // Practice Mode button
+                            SizedBox(
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const PracticeModeScreen(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green[600],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.fitness_center, color: Colors.white),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Practice Mode',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        color: Colors.white,
+                                        fontFamily: 'LuckiestGuy',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: maxH * 0.02),
+
+                            // Daily Challenge button
+                            SizedBox(
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const DailyChallengeScreen(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.amber[600],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.calendar_today, color: Colors.white),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Daily Challenge',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        color: Colors.white,
+                                        fontFamily: 'LuckiestGuy',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: maxH * 0.03),
 
                             // Create Room button with glow
                             AnimatedBuilder(

@@ -4,6 +4,9 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
 
+// Import daily challenge functions
+const { generateDailyChallenge, generateDailyChallengeManual } = require('./dailyChallenge');
+
 // Initialize Firebase Admin
 admin.initializeApp();
 
@@ -639,3 +642,7 @@ async function verifyWithGooglePlay(token, sku, platform) {
   // In production, this should always verify with Google's servers
   return true;
 }
+
+// Export daily challenge functions
+exports.generateDailyChallenge = generateDailyChallenge;
+exports.generateDailyChallengeManual = generateDailyChallengeManual;
