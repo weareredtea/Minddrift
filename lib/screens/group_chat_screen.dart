@@ -238,7 +238,6 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   stream: FirebaseFirestore.instance
                       .collection('chat_messages')
                       .where('roomId', isEqualTo: widget.roomId)
-                      .orderBy('timestamp', descending: false)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
@@ -258,7 +257,8 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
 
                     final messages = snapshot.data!.docs
                         .map((doc) => ChatMessage.fromFirestore(doc))
-                        .toList();
+                        .toList()
+                      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
                     if (messages.isEmpty) {
                       return Center(

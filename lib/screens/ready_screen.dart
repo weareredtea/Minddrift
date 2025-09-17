@@ -14,6 +14,7 @@ import '../screens/dialog_helpers.dart';
 import '../services/firebase_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/language_toggle.dart';
+import '../widgets/global_chat_overlay.dart';
 
 import '../l10n/app_localizations.dart';
 
@@ -167,17 +168,18 @@ class _ReadyScreenState extends State<ReadyScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<ReadyScreenViewModel>(
-        stream: fb.listenToReadyScreenViewModel(widget.roomId),
-        builder: (ctx, vmSnap) {
-          if (!vmSnap.hasData) {
-            return const _ReadySkeleton();
-          }
-          final viewModel = vmSnap.data!;
-          final players = viewModel.players;
-          final me = viewModel.me;
+      body: Stack(
+        children: [
+          StreamBuilder<ReadyScreenViewModel>(
+            stream: fb.listenToReadyScreenViewModel(widget.roomId),
+            builder: (ctx, vmSnap) {
+              if (!vmSnap.hasData) {
+                return const _ReadySkeleton();
+              }
+              final viewModel = vmSnap.data!;
+              final players = viewModel.players;
 
-          return Column(
+              return Column(
             children: [
               Expanded(
                 child: Padding(
@@ -243,7 +245,13 @@ class _ReadyScreenState extends State<ReadyScreen> {
           );
         },
       ),
-
+          // Global Chat Overlay
+          GlobalChatOverlay(
+            roomId: widget.roomId,
+            roomName: 'Room ${widget.roomId}',
+          ),
+        ],
+      ),
     );
   }
 }

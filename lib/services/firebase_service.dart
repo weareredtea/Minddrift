@@ -152,21 +152,7 @@ class ExceptionHandler {
 class _RoundCache {
   static final Map<String, Round> _cache = {};
   static final Map<String, DateTime> _cacheTimestamps = {};
-  static const Duration _cacheExpiry = Duration(seconds: 5);
 
-  // Note: Cache get method is available for future use if needed
-  static Round? get(String roomId) {
-    final timestamp = _cacheTimestamps[roomId];
-    if (timestamp == null) return null;
-    
-    if (DateTime.now().difference(timestamp) > _cacheExpiry) {
-      _cache.remove(roomId);
-      _cacheTimestamps.remove(roomId);
-      return null;
-    }
-    
-    return _cache[roomId];
-  }
 
   static void set(String roomId, Round round) {
     _cache[roomId] = round;
@@ -178,31 +164,13 @@ class _RoundCache {
     _cacheTimestamps.remove(roomId);
   }
 
-  static void clearAll() {
-    _cache.clear();
-    _cacheTimestamps.clear();
-  }
 }
 
 // Performance optimization: Memoized player status cache
 class _PlayerStatusCache {
   static final Map<String, List<PlayerStatus>> _cache = {};
   static final Map<String, DateTime> _cacheTimestamps = {};
-  static const Duration _cacheExpiry = Duration(seconds: 3);
 
-  // Note: Cache get method is available for future use if needed
-  static List<PlayerStatus>? get(String roomId) {
-    final timestamp = _cacheTimestamps[roomId];
-    if (timestamp == null) return null;
-    
-    if (DateTime.now().difference(timestamp) > _cacheExpiry) {
-      _cache.remove(roomId);
-      _cacheTimestamps.remove(roomId);
-      return null;
-    }
-    
-    return _cache[roomId];
-  }
 
   static void set(String roomId, List<PlayerStatus> players) {
     _cache[roomId] = players;
@@ -879,6 +847,9 @@ class FirebaseService with ChangeNotifier {
   CollectionReference<Map<String,dynamic>> playersColRef(String roomId) =>
       _db.collection('rooms').doc(roomId).collection('players');
 
+  DocumentReference<Map<String,dynamic>> userDocRef(String userId) =>
+      _db.collection('users').doc(userId);
+
   Future<List<PigeonUserDetails>> fetchPlayers(String roomId) async {
     final querySnapshot = await playersColRef(roomId).get();
     return querySnapshot.docs.map((doc) {
@@ -1310,9 +1281,6 @@ class FirebaseService with ChangeNotifier {
         return;
       }
       
-      final roomData = roomSnap.data()!;
-      final currentRoundNumberInRoom = roomData['currentRoundNumber'] as int;
-
       final roundData = roundSnap.data()!;
       final Effect currentEffect = Effect.values.firstWhere(
         (e) => e.toString().split('.').last == (roundData['effect'] as String?),
@@ -1456,7 +1424,7 @@ class FirebaseService with ChangeNotifier {
   }
 
   DocumentReference<Map<String, dynamic>> _userSettingsDocRef() {
-    final appId = _canvasAppId ?? 'default-app-id';
+    final appId = _canvasAppId;
     return _db.collection('artifacts').doc(appId).collection('users').doc(currentUserUid).collection('settings').doc('roomCreation');
   }
 
@@ -1558,7 +1526,7 @@ class FirebaseService with ChangeNotifier {
   }
 
   DocumentReference<Map<String, dynamic>> _userCurrentRoomIdDocRef() {
-    final appId = _canvasAppId ?? 'default-app-id';
+    final appId = _canvasAppId;
     return _db.collection('artifacts').doc(appId).collection('users').doc(currentUserUid).collection('settings').doc('currentRoom');
   }
 
@@ -1590,12 +1558,10 @@ class FirebaseService with ChangeNotifier {
     } catch (e) {
       print('Error saving current room ID: $e');
       // In case of error, try to force clear the document
-      if (roomId == null) {
-        try {
-          await _userCurrentRoomIdDocRef().delete();
-        } catch (deleteError) {
-          print('Failed to force delete current room document: $deleteError');
-        }
+      try {
+        await _userCurrentRoomIdDocRef().delete();
+      } catch (deleteError) {
+        print('Failed to force delete current room document: $deleteError');
       }
     }
   }

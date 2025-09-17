@@ -16,6 +16,7 @@ import '../services/category_service.dart'; // Import CategoryService for locali
 import '../models/player_status.dart';
 import '../models/round.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/global_chat_overlay.dart';
 
 class ResultScreen extends StatefulWidget {
   static const routeName = '/result';
@@ -63,7 +64,9 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<List<dynamic>>(
+      body: Stack(
+        children: [
+          StreamBuilder<List<dynamic>>(
         stream: Rx.combineLatest3(
           fb.listenCurrentRound(widget.roomId),
           fb.roomDocRef(widget.roomId).snapshots(),
@@ -195,6 +198,13 @@ class _ResultScreenState extends State<ResultScreen> {
                          ],
            );
         },
+      ),
+          // Global Chat Overlay
+          GlobalChatOverlay(
+            roomId: widget.roomId,
+            roomName: 'Room ${widget.roomId}',
+          ),
+        ],
       ),
       bottomNavigationBar: NextRoundControls(roomId: widget.roomId),
     );

@@ -14,7 +14,7 @@ import '../models/round.dart';
 import 'dialog_helpers.dart';
 import 'package:rxdart/rxdart.dart';
 import '../l10n/app_localizations.dart';
-
+import '../widgets/global_chat_overlay.dart';
 
 class GuessRoundScreen extends StatefulWidget {
   final String roomId;
@@ -66,8 +66,10 @@ class _GuessRoundScreenState extends State<GuessRoundScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<Round>(
-        stream: fb.listenCurrentRound(roomId),
+      body: Stack(
+        children: [
+          StreamBuilder<Round>(
+            stream: fb.listenCurrentRound(roomId),
         builder: (ctx, snap) {
           if (!snap.hasData || snap.data!.clue == null || snap.data!.categoryLeft == null) {
             return const Center(child: CircularProgressIndicator());
@@ -268,6 +270,13 @@ class _GuessRoundScreenState extends State<GuessRoundScreen> {
             ),
           );
         },
+      ),
+          // Global Chat Overlay
+          GlobalChatOverlay(
+            roomId: widget.roomId,
+            roomName: 'Room ${widget.roomId}',
+          ),
+        ],
       ),
     );
   }

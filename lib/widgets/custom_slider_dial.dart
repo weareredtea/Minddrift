@@ -26,11 +26,6 @@ class _CustomSliderDialState extends State<CustomSliderDial> with SingleTickerPr
   late AnimationController _controller;
   late Animation<double> _animation;
   
-  // Performance optimization: Track previous values to avoid unnecessary repaints
-  // Note: These are used in didUpdateWidget for optimization
-  double _lastValue = 0.0;
-  bool _lastShowValue = true;
-  bool _lastIsReadOnly = false;
 
   @override
   void initState() {
@@ -44,9 +39,6 @@ class _CustomSliderDialState extends State<CustomSliderDial> with SingleTickerPr
     );
     
     // Initialize tracking values
-    _lastValue = widget.value;
-    _lastShowValue = widget.showValue;
-    _lastIsReadOnly = widget.isReadOnly;
   }
 
   @override
@@ -55,13 +47,9 @@ class _CustomSliderDialState extends State<CustomSliderDial> with SingleTickerPr
     
     // Performance optimization: Only update if values actually changed
     if (oldWidget.value != widget.value) {
-      _lastValue = widget.value;
-    }
-    if (oldWidget.showValue != widget.showValue) {
-      _lastShowValue = widget.showValue;
-    }
-    if (oldWidget.isReadOnly != widget.isReadOnly) {
-      _lastIsReadOnly = widget.isReadOnly;
+      _animation = Tween<double>(begin: 1.0, end: 1.2).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+      );
     }
   }
   

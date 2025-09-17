@@ -14,6 +14,7 @@ import '../theme/app_theme.dart'; // Import for AppColors
 import 'home_screen.dart'; // Import for navigating back to home
 import 'scoreboard_screen.dart'; // Import for navigating to scoreboard
 import '../l10n/app_localizations.dart';
+import '../widgets/global_chat_overlay.dart';
 
 class SetupRoundScreen extends StatefulWidget {
   static const routeName = '/setup';
@@ -186,9 +187,11 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        bottom: false, // Don't add bottom safe area, we'll handle it manually
-        child: StreamBuilder<Round>(
+      body: Stack(
+        children: [
+          SafeArea(
+            bottom: false, // Don't add bottom safe area, we'll handle it manually
+            child: StreamBuilder<Round>(
         stream: fb.listenCurrentRound(roomId),
         builder: (ctx, snap) {
           if (!snap.hasData || snap.data!.secretPosition == null || snap.data!.categoryLeft == null) {
@@ -313,6 +316,13 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
         },
       ),
     ),
+          // Global Chat Overlay
+          GlobalChatOverlay(
+            roomId: widget.roomId,
+            roomName: 'Room ${widget.roomId}',
+          ),
+        ],
+      ),
     );
   }
 }

@@ -25,14 +25,15 @@ import 'screens/tutorial_screen.dart';
 import 'screens/store_screen.dart';
 // import 'screens/premium_screen.dart'; // Temporarily disabled
 // import 'screens/avatar_customization_screen.dart'; // Temporarily disabled
-// import 'screens/group_chat_screen.dart'; // Temporarily disabled
+// import 'screens/group_chat_screen.dart'; // Available for future use
 // import 'screens/bundle_suggestion_screen.dart'; // Temporarily disabled
-// import 'screens/custom_username_screen.dart'; // Temporarily disabled
+// import 'screens/profile_edit_screen.dart'; // Used via direct navigation
 // import 'screens/online_matchmaking_screen.dart'; // Temporarily disabled
 import 'screens/wave_spectrum_test.dart';
 import 'theme/app_theme.dart';
 import 'providers/locale_provider.dart';
 import 'providers/purchase_provider_new.dart';
+import 'providers/chat_provider.dart';
 // import 'providers/premium_provider.dart'; // Temporarily disabled
 import 'l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart'; // Import this to check for debug mode
@@ -99,6 +100,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => FirebaseService()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => PurchaseProviderNew()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
         // ChangeNotifierProvider(create: (_) => PremiumProvider()), // Temporarily disabled
       ],
       child: Consumer<LocaleProvider>(

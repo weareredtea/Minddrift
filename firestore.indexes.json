@@ -15,7 +15,7 @@
       ]
     },
     {
-      "collectionGroup": "chatMessages",
+      "collectionGroup": "chat_messages",
       "queryScope": "COLLECTION",
       "fields": [
         {

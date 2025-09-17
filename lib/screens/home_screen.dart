@@ -1,5 +1,6 @@
 // lib/screens/home_screen.dart
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ import '../widgets/keyboard_aware_scroll_view.dart';
 // import '../providers/premium_provider.dart'; // Temporarily disabled
 // import '../screens/premium_screen.dart'; // Temporarily disabled
 import '../l10n/app_localizations.dart';
+import 'profile_edit_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -373,6 +375,14 @@ class _HomeScreenState extends State<HomeScreen>
           // Language Toggle Button
           const LanguageToggle(),
           IconButton(
+            icon: const Icon(Icons.person_rounded, color: Colors.white),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileEditScreen()),
+            ),
+            tooltip: 'Edit Profile',
+          ),
+          IconButton(
             icon: const Icon(Icons.store_rounded, color: Colors.white),
             onPressed: () =>
                 Navigator.pushNamed(context, StoreScreen.routeName),
@@ -431,7 +441,6 @@ class _HomeScreenState extends State<HomeScreen>
                                   fit: BoxFit.contain,
                                   animate: true,
                                   repeat: true,
-                                  frameRate: FrameRate.max,
                                 ),
                               ),
                               SizedBox(height: maxH * 0.02),

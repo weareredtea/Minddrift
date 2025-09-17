@@ -132,8 +132,6 @@ class AppTypography {
 class AppTheme {
   static ThemeData getDarkTheme(BuildContext context) {
     final textTheme = AppTypography.getTextTheme(context);
-    final locale = Localizations.localeOf(context);
-    final isArabic = locale.languageCode == 'ar';
     
     return ThemeData.dark().copyWith(
       colorScheme: const ColorScheme.dark().copyWith(

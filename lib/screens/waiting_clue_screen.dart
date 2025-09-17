@@ -10,7 +10,7 @@ import '../models/round.dart';
 import 'dialog_helpers.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
-
+import '../widgets/global_chat_overlay.dart';
 
 class WaitingClueScreen extends StatefulWidget {
   static const routeName = '/waiting';
@@ -62,8 +62,10 @@ class _WaitingClueScreenState extends State<WaitingClueScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<Round>(
-        stream: fb.listenCurrentRound(roomId),
+      body: Stack(
+        children: [
+          StreamBuilder<Round>(
+            stream: fb.listenCurrentRound(roomId),
         builder: (ctx, roundSnap) { // *** FIX: Consistently using 'roundSnap' ***
           if (!roundSnap.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -107,6 +109,13 @@ class _WaitingClueScreenState extends State<WaitingClueScreen> {
             },
           );
         },
+      ),
+          // Global Chat Overlay
+          GlobalChatOverlay(
+            roomId: widget.roomId,
+            roomName: 'Room ${widget.roomId}',
+          ),
+        ],
       ),
     );
   }

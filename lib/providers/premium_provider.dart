@@ -27,9 +27,6 @@ class PremiumProvider extends ChangeNotifier {
   bool get hasBundleSuggestions => false; // Temporarily disabled
   bool get hasCustomUsername => false; // Temporarily disabled
 
-  bool _hasFeature(String feature) {
-    return false; // Temporarily disabled - will be enabled later
-  }
 
   // Initialize premium status
   Future<void> initialize() async {

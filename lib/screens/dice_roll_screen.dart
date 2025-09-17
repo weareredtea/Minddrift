@@ -9,6 +9,7 @@ import '../services/firebase_service.dart';
 import '../models/round.dart'; // Import Round and Effect enum
 import '../widgets/effect_card.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/global_chat_overlay.dart';
 // Import for PlayerStatus
 // Import for navigating back to home
 // Import for navigating to scoreboard
@@ -146,8 +147,10 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: StreamBuilder<Round>(
+      body: Stack(
+        children: [
+          Center(
+            child: StreamBuilder<Round>(
           stream: fb.listenCurrentRound(widget.roomId),
           builder: (ctx, snap) {
             if (!snap.hasData || snap.data!.effect == null) {
@@ -214,6 +217,13 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
             );
           },
         ),
+      ),
+          // Global Chat Overlay
+          GlobalChatOverlay(
+            roomId: widget.roomId,
+            roomName: 'Room ${widget.roomId}',
+          ),
+        ],
       ),
     );
   }

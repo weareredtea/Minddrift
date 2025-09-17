@@ -6,7 +6,6 @@ import '../services/category_service.dart';
 import '../providers/purchase_provider_new.dart';
 import '../widgets/bundle_indicator.dart';
 import '../utils/responsive_helper.dart';
-import '../l10n/app_localizations.dart';
 
 class BundlePreviewScreen extends StatelessWidget {
   final String bundleId;
@@ -18,7 +17,6 @@ class BundlePreviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
     final purchase = context.watch<PurchaseProviderNew>();
     final categories = CategoryService.getCategoriesByBundle(bundleId);
     final bundleInfo = _getBundleInfo(bundleId);

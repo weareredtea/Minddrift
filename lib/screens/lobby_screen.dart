@@ -12,11 +12,18 @@ import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
 import '../services/category_service.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/global_chat_overlay.dart';
 
-class LobbyScreen extends StatelessWidget {
+class LobbyScreen extends StatefulWidget {
   static const routeName = '/lobby';
   final String roomId;
   const LobbyScreen({super.key, required this.roomId});
+
+  @override
+  State<LobbyScreen> createState() => _LobbyScreenState();
+}
+
+class _LobbyScreenState extends State<LobbyScreen> {
 
   BundleInfo _getBundleInfo(String bundleId) {
     switch (bundleId) {
@@ -78,9 +85,11 @@ class LobbyScreen extends StatelessWidget {
           const LanguageToggle(),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
           children: [
             Text(loc.roomCode,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).hintColor)),
@@ -89,13 +98,13 @@ class LobbyScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  roomId,
+                  widget.roomId,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: roomId));
+                    Clipboard.setData(ClipboardData(text: widget.roomId));
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(loc.roomCodeCopied),
@@ -117,7 +126,7 @@ class LobbyScreen extends StatelessWidget {
             
             // Bundle indicator
             StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-              stream: fb.roomDocRef(roomId).snapshots(),
+              stream: fb.roomDocRef(widget.roomId).snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data!.data() != null) {
                   final selectedBundle = snapshot.data!.data()!['selectedBundle'] as String?;
@@ -161,7 +170,7 @@ class LobbyScreen extends StatelessWidget {
 
             // --- Player List ---
             FutureBuilder<List<PigeonUserDetails>>(
-              future: fb.fetchPlayers(roomId),
+              future: fb.fetchPlayers(widget.roomId),
               builder: (ctx, snap) {
                 if (snap.connectionState != ConnectionState.done) {
                   return const Center(child: CircularProgressIndicator());
@@ -199,7 +208,7 @@ class LobbyScreen extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ReadyScreen(roomId: roomId),
+                      builder: (_) => ReadyScreen(roomId: widget.roomId),
                     ),
                   );
                 },
@@ -208,6 +217,13 @@ class LobbyScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+          // Global Chat Overlay
+          GlobalChatOverlay(
+            roomId: widget.roomId,
+            roomName: 'Room ${widget.roomId}',
+          ),
+        ],
       ),
     );
   }
