@@ -525,4 +525,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAvatarConfirmation => 'Are you sure you want to delete this avatar? This action cannot be undone.';
+
+  @override
+  String get practiceMode => 'Practice Mode';
+
+  @override
+  String get dailyChallenge => 'Daily Challenge';
+
+  @override
+  String get campaignMode => 'Campaign Mode';
 }

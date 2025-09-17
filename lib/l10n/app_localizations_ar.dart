@@ -523,4 +523,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deleteAvatarConfirmation => 'هل أنت متأكد من أنك تريد حذف هذه الصورة الرمزية؟ لا يمكن التراجع عن هذا الإجراء.';
+
+  @override
+  String get practiceMode => 'وضع التدريب';
+
+  @override
+  String get dailyChallenge => 'التحدي اليومي';
+
+  @override
+  String get campaignMode => 'وضع الحملة';
 }

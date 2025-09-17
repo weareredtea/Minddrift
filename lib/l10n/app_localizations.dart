@@ -1163,6 +1163,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to delete this avatar? This action cannot be undone.'**
   String get deleteAvatarConfirmation;
+
+  /// No description provided for @practiceMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice Mode'**
+  String get practiceMode;
+
+  /// No description provided for @dailyChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Challenge'**
+  String get dailyChallenge;
+
+  /// No description provided for @campaignMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Campaign Mode'**
+  String get campaignMode;
 }
 
 class _AppLocalizationsDelegate

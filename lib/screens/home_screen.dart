@@ -1,6 +1,5 @@
 // lib/screens/home_screen.dart
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +16,6 @@ import '../widgets/language_toggle.dart';
 import '../services/category_service.dart';
 import '../providers/purchase_provider_new.dart';
 import '../utils/responsive_helper.dart';
-import '../widgets/keyboard_aware_scroll_view.dart';
 // import '../providers/premium_provider.dart'; // Temporarily disabled
 // import '../screens/premium_screen.dart'; // Temporarily disabled
 import '../l10n/app_localizations.dart';
@@ -25,7 +23,6 @@ import 'profile_edit_screen.dart';
 import 'practice_mode_screen.dart';
 import 'daily_challenge_screen.dart';
 import 'campaign_screen.dart';
-
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/';
@@ -40,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen>
   final _roomCtrl = TextEditingController();
   bool _loading = false;
   String? _error;
-  
+
   // Bundle selection state
   Set<String> _selectedBundles = {};
   bool _selectedBundlesInitialized = false;
@@ -79,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen>
         return Consumer<PurchaseProviderNew>(
           builder: (context, purchaseProvider, child) {
             final availableBundles = purchaseProvider.availableBundles;
-            
+
             return StatefulBuilder(
               builder: (context, setState) {
                 // Initialize selectedBundles outside the builder to persist state
@@ -87,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen>
                   _selectedBundles = <String>{};
                   _selectedBundlesInitialized = true;
                 }
-                
+
                 return AlertDialog(
               title: Row(
                 children: [
@@ -103,10 +100,10 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close, color: Colors.white70),
+                    icon: const Icon(Icons.close, color: Colors.white70),
                     style: IconButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      shape: CircleBorder(),
+                      backgroundColor: Colors.white.withAlpha(25),
+                      shape: const CircleBorder(),
                     ),
                   ),
                 ],
@@ -134,13 +131,13 @@ class _HomeScreenState extends State<HomeScreen>
                       Container(
                         padding: ResponsiveHelper.getResponsivePadding(context, mobile: 16, tablet: 20, desktop: 24),
                         decoration: BoxDecoration(
-                          color: Colors.purple.withValues(alpha: 0.1),
+                          color: Colors.purple.withAlpha(25),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
+                          border: Border.all(color: Colors.purple.withAlpha(75)),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.store, color: Colors.purple, size: 24),
+                            const Icon(Icons.store, color: Colors.purple, size: 24),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
@@ -167,18 +164,18 @@ class _HomeScreenState extends State<HomeScreen>
                           final bundleInfo = _getBundleInfo(bundleId);
                           final categories = CategoryService.getCategoriesByBundle(bundleId);
                           final isSelected = _selectedBundles.contains(bundleId);
-                          
+
                           return Container(
                             margin: const EdgeInsets.only(bottom: 8),
                             decoration: BoxDecoration(
-                              color: isSelected 
-                                ? bundleInfo.color.withValues(alpha: 0.2)
-                                : Colors.white.withValues(alpha: 0.05),
+                              color: isSelected
+                                ? bundleInfo.color.withAlpha(50)
+                                : Colors.white.withAlpha(15),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected 
-                                  ? bundleInfo.color.withValues(alpha: 0.6)
-                                  : Colors.white.withValues(alpha: 0.1),
+                                color: isSelected
+                                  ? bundleInfo.color.withAlpha(150)
+                                  : Colors.white.withAlpha(25),
                                 width: isSelected ? 2 : 1,
                               ),
                             ),
@@ -257,14 +254,14 @@ class _HomeScreenState extends State<HomeScreen>
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: ElevatedButton(
-                    onPressed: _selectedBundles.isNotEmpty 
+                    onPressed: _selectedBundles.isNotEmpty
                       ? () {
                           print('🎮 Starting game with bundles: $_selectedBundles');
                           Navigator.of(context).pop(_selectedBundles.toList()); // Pass all selected bundles
                         }
                       : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedBundles.isNotEmpty 
+                      backgroundColor: _selectedBundles.isNotEmpty
                         ? _getBundleInfo(_selectedBundles.first).color
                         : Colors.grey,
                       foregroundColor: Colors.white,
@@ -273,9 +270,9 @@ class _HomeScreenState extends State<HomeScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Start Game',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -289,9 +286,255 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  void _showMultiplayerBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: const BoxDecoration(
+          color: Color(0xFF1A1A2E),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[600],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Play with Friends',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    // Create Room Button (same UI as current)
+                    AnimatedBuilder(
+                      animation: _glowAnimation,
+                      builder: (context, child) => SizedBox(
+                        height: 60,
+                        child: ElevatedButton(
+                          onPressed: _loading ? null : () async {
+                            Navigator.of(context).pop(); // Close bottom sheet
+                            setState(() => _loading = true);
+                            List<String>? selectedBundles;
+                            try {
+                              selectedBundles = await _showBundleSelectionDialog();
+                              if (selectedBundles != null && selectedBundles.isNotEmpty) {
+                                final settings = await context.read<FirebaseService>().fetchRoomCreationSettings();
+                                await context.read<FirebaseService>().createRoom(
+                                  settings['saboteurEnabled'] ?? false,
+                                  settings['diceRollEnabled'] ?? false,
+                                  selectedBundles.first,
+                                );
+                              } else {
+                                setState(() => _loading = false);
+                              }
+                            } catch (e) {
+                              setState(() {
+                                _error = ExceptionHandler.getUserFriendlyMessage(e);
+                                _loading = false;
+                              });
+                              ExceptionHandler.logError('home_screen_create_room', 'Room creation failed in UI',
+                                  extraData: {'error': ExceptionHandler.getDeveloperMessage(e), 'bundles': selectedBundles?.join(',') ?? 'unknown'});
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            elevation: _glowAnimation.value,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: Ink(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)]),
+                              borderRadius: BorderRadius.all(Radius.circular(30)),
+                            ),
+                            child: Center(
+                              child: _loading && _roomCtrl.text.isEmpty
+                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  : Text(
+                                      AppLocalizations.of(context)!.createRoom,
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Join Room section
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(10),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.withAlpha(20))
+                      ),
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _roomCtrl,
+                            textAlign: TextAlign.center,
+                            textCapitalization: TextCapitalization.characters,
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, letterSpacing: 2),
+                            decoration: InputDecoration(
+                              hintText: AppLocalizations.of(context)!.enterCodeHint,
+                              hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white54),
+                              filled: true,
+                              fillColor: Colors.white12,
+                              contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _loading ? null : () async {
+                                final code = _roomCtrl.text.trim().toUpperCase();
+                                if (code.isEmpty) {
+                                  setState(() => _error = AppLocalizations.of(context)!.pleaseEnterRoomCode);
+                                  return;
+                                }
+                                Navigator.of(context).pop(); // Close bottom sheet
+                                setState(() => _loading = true);
+                                try {
+                                  await context.read<FirebaseService>().joinRoom(code);
+                                } catch (e) {
+                                  setState(() {
+                                    _error = ExceptionHandler.getUserFriendlyMessage(e);
+                                    _loading = false;
+                                  });
+                                  ExceptionHandler.logError('home_screen_join_room', 'Room join failed in UI', extraData: {'error': ExceptionHandler.getDeveloperMessage(e), 'roomCode': code});
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF144D52),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: Center(
+                                child: _loading && _roomCtrl.text.isNotEmpty
+                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    : Text(
+                                        AppLocalizations.of(context)!.joinRoom,
+                                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSoloBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.5,
+        decoration: const BoxDecoration(
+          color: Color(0xFF1A1A2E),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[600],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Play by Yourself',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    // Practice Mode Tile (same UI as current)
+                    _buildModeTile(
+                      context,
+                      AppLocalizations.of(context)!.practiceMode,
+                      Icons.fitness_center,
+                      Colors.green[600]!,
+                      () {
+                        Navigator.of(context).pop(); // Close bottom sheet
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const PracticeModeScreen()));
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    // Campaign Mode Tile (same UI as current)
+                    _buildModeTile(
+                      context,
+                      AppLocalizations.of(context)!.campaignMode,
+                      Icons.military_tech,
+                      Colors.deepPurple[700]!,
+                      () {
+                        Navigator.of(context).pop(); // Close bottom sheet
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const CampaignScreen()));
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   BundleInfo _getBundleInfo(String bundleId) {
     final loc = AppLocalizations.of(context)!;
-    
+
     switch (bundleId) {
       case 'bundle.free':
         return BundleInfo(
@@ -341,7 +584,6 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final fb = context.read<FirebaseService>();
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -395,19 +637,6 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () =>
                 Navigator.pushNamed(context, SettingsScreen.routeName),
           ),
-          // Premium button temporarily hidden
-          // Consumer<PremiumProvider>(
-          //   builder: (context, premium, child) {
-          //     return IconButton(
-          //       icon: Icon(
-          //         premium.isPremium ? Icons.star : Icons.star_border,
-          //         color: premium.isPremium ? Colors.amber : Colors.white,
-          //       ),
-          //       onPressed: () => Navigator.pushNamed(context, PremiumScreen.routeName),
-          //       tooltip: premium.isPremium ? 'Premium Active' : 'Upgrade to Premium',
-          //     );
-          //   },
-          // ),
           // Test button - only show in debug mode
           if (kDebugMode)
             IconButton(
@@ -422,343 +651,213 @@ class _HomeScreenState extends State<HomeScreen>
         children: [
           const AnimatedBackground(),
           SafeArea(
-            bottom: false, // Don't add bottom safe area, we'll handle it manually
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final maxH = constraints.maxHeight;
-                return KeyboardAwareScrollView(
-                  padding: ResponsiveHelper.getResponsivePadding(context, mobile: 24, tablet: 32, desktop: 48),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: maxH),
-                    child: IntrinsicHeight(
-                      child: Padding(
-                        padding: EdgeInsets.zero,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                                                      children: [
-                              //SizedBox(height: maxH * 0.10),
-                              SizedBox(
-                                height: maxH * 0.25,
-                                child: Lottie.asset(
-                                  'assets/animations/Speedometer.json',
-                                  fit: BoxFit.contain,
-                                  animate: true,
-                                  repeat: true,
-                                ),
-                              ),
-                              SizedBox(height: maxH * 0.02),
-                            Text(
-                              loc.appTitle,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                                color: Colors.white, fontSize: 38,
-                                // Use Oi font for Arabic title only
-                                fontFamily: Localizations.localeOf(context).languageCode == 'ar' 
-                                    ? 'Oi' 
-                                    : null,
-                              ),
-                            ),
-                            SizedBox(height: maxH * 0.01),
-                            Text(
-                              loc.homeSubtitle,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
-                            ),
-                            SizedBox(height: maxH * 0.1),
+            bottom: false,
+            child: SingleChildScrollView(
+              padding: ResponsiveHelper.getResponsivePadding(
+                context,
+                mobile: 24,
+                tablet: 32,
+                desktop: 48,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 40),
+                  
+                  // Main App Logo/Animation
+                  SizedBox(
+                    height: 150,
+                    child: Lottie.asset(
+                      'assets/animations/Speedometer.json',
+                      fit: BoxFit.contain,
+                      animate: true,
+                      repeat: true,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    loc.appTitle,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      color: Colors.white,
+                      fontSize: 38,
+                      fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                          ? 'Oi'
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    loc.homeSubtitle,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 80),
 
-                            // Practice Mode button
-                            SizedBox(
-                              height: 56,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const PracticeModeScreen(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green[600],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.fitness_center, color: Colors.white),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Practice Mode',
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: Colors.white,
-                                        fontFamily: 'LuckiestGuy',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            
-                            SizedBox(height: maxH * 0.02),
-
-                            // Daily Challenge button
-                            SizedBox(
-                              height: 56,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const DailyChallengeScreen(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.amber[600],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.calendar_today, color: Colors.white),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Daily Challenge',
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: Colors.white,
-                                        fontFamily: 'LuckiestGuy',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            
-                            SizedBox(height: maxH * 0.02),
-
-                            // Campaign Mode button
-                            SizedBox(
-                              height: 56,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const CampaignScreen(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.deepPurple[700],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.military_tech, color: Colors.white),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Campaign Mode',
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        color: Colors.white,
-                                        fontFamily: 'LuckiestGuy',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            
-                            SizedBox(height: maxH * 0.03),
-
-                            // Create Room button with glow
-                            AnimatedBuilder(
-                              animation: _glowAnimation,
-                              builder: (context, child) => SizedBox(
-                                height: 56,
-                                child: ElevatedButton(
-                                  onPressed: _loading
-                                      ? null
-                                      : () async {
-                                          setState(() => _loading = true);
-                                          List<String>? selectedBundles;
-                                          try {
-                                            selectedBundles = await _showBundleSelectionDialog();
-                                            if (selectedBundles != null && selectedBundles.isNotEmpty) {
-                                              final settings = await fb
-                                                  .fetchRoomCreationSettings();
-                                              // For now, use the first selected bundle for room creation
-                                              // TODO: Update createRoom to handle multiple bundles
-                                              await fb.createRoom(
-                                                settings['saboteurEnabled'] ??
-                                                    false,
-                                                settings['diceRollEnabled'] ??
-                                                    false,
-                                                selectedBundles.first,
-                                              );
-                                              print('🎮 Room created with bundles: $selectedBundles');
-                                            } else {
-                                              setState(() => _loading = false);
-                                            }
-                                          } catch (e) {
-                                            setState(() {
-                                              _error = ExceptionHandler.getUserFriendlyMessage(e);
-                                              _loading = false;
-                                            });
-                                            
-                                            // Log detailed error for developers
-                                            ExceptionHandler.logError('home_screen_create_room', 'Room creation failed in UI', 
-                                              extraData: {
-                                                'error': ExceptionHandler.getDeveloperMessage(e),
-                                                'bundles': selectedBundles?.join(',') ?? 'unknown',
-                                              });
-                                          }
-                                        },
-                                  style: ElevatedButton.styleFrom(
-                                    elevation: _glowAnimation.value,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                  ),
-                                  child: Ink(
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(colors: [
-                                        Color(0xFF4B0082),
-                                        Color(0xFF800080),
-                                      ]),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(12)),
-                                    ),
-                                    child: Center(
-                                      child: _loading && _roomCtrl.text.isEmpty
-                                          ? const CircularProgressIndicator(
-                                              color: Colors.white)
-                                          : Text(
-                                              loc.createRoom,
-                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white),
-                                            ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: maxH * 0.02),
-                            Row(
+                  // --- Main 3 Buttons ---
+                  
+                  // 1. Play with Friends Button
+                  AnimatedBuilder(
+                    animation: _glowAnimation,
+                    builder: (context, child) => SizedBox(
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: _showMultiplayerBottomSheet,
+                        style: ElevatedButton.styleFrom(
+                          elevation: _glowAnimation.value,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Ink(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)]),
+                            borderRadius: BorderRadius.all(Radius.circular(30)),
+                          ),
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Expanded(
-                                    child: Divider(color: Colors.white38)),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Text(
-                                    loc.or,
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white38),
-                                  ),
+                                const Icon(Icons.people, color: Colors.white),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Play with Friends',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                                 ),
-                                const Expanded(
-                                    child: Divider(color: Colors.white38)),
                               ],
                             ),
-                            SizedBox(height: maxH * 0.02),
-                            TextField(
-                              controller: _roomCtrl,
-                              textAlign: TextAlign.center,
-                              textCapitalization: TextCapitalization.characters,
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
-                              decoration: InputDecoration(
-                                hintText: loc.enterCodeHint,
-                                hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white54),
-                                filled: true,
-                                fillColor: Colors.white12,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: maxH * 0.02),
-                            AnimatedBuilder(
-                              animation: _glowAnimation,
-                              builder: (context, child) => SizedBox(
-                                height: 56,
-                                child: ElevatedButton(
-                                  onPressed: _loading
-                                      ? null
-                                      : () async {
-                                          final code = _roomCtrl.text
-                                              .trim()
-                                              .toUpperCase();
-                                          if (code.isEmpty) {
-                                            setState(() => _error =
-                                                loc.pleaseEnterRoomCode);
-                                            return;
-                                          }
-                                          setState(() => _loading = true);
-                                          try {
-                                            await fb.joinRoom(code);
-                                          } catch (e) {
-                                            setState(() {
-                                              _error = ExceptionHandler.getUserFriendlyMessage(e);
-                                              _loading = false;
-                                            });
-                                            
-                                            // Log detailed error for developers
-                                            ExceptionHandler.logError('home_screen_join_room', 'Room join failed in UI', 
-                                              extraData: {
-                                                'error': ExceptionHandler.getDeveloperMessage(e),
-                                                'roomCode': code,
-                                              });
-                                          }
-                                        },
-                                  style: ElevatedButton.styleFrom(
-                                    elevation: _glowAnimation.value,
-                                    backgroundColor:
-                                        const Color(0xFF005F73),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: _loading &&
-                                            _roomCtrl.text.isNotEmpty
-                                        ? const CircularProgressIndicator(
-                                            color: Colors.white)
-                                             : Text(
-                                            loc.joinRoom,
-                                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),),
-                            if (_error != null) ...[
-                            SizedBox(height: maxH * 0.02),
-                            Text(
-                              _error!,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.error),
-                            ),
-                          ],
-                        ]),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                );
-              },
+                  
+                  const SizedBox(height: 20),
+                  
+                  // 2. Play Solo Button
+                  SizedBox(
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: _showSoloBottomSheet,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: Ink(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(colors: [Color(0xFF00C851), Color(0xFF007E33)]),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.person, color: Colors.white),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Play Solo',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // 3. Daily Challenge Button
+                  SizedBox(
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DailyChallengeScreen())),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: Ink(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(colors: [Color(0xFFFFB300), Color(0xFFFF8F00)]),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.calendar_today, color: Colors.white),
+                              const SizedBox(width: 8),
+                              Text(
+                                loc.dailyChallenge,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+                  
+                  if (_error != null) ...[
+                    Text(
+                      _error!,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.error),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                  
+                  const SizedBox(height: 40), // Bottom spacing
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildModeTile(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        height: 80, // Fixed height for consistency in bottom sheet
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withAlpha(50),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withAlpha(150)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 32, color: color),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BundleInfo {
+  final String name;
+  final Color color;
+  final IconData icon;
+
+  BundleInfo({required this.name, required this.color, required this.icon});
 }
