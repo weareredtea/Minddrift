@@ -24,23 +24,32 @@ dependencies {
   // Import the Firebase BoM
   implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
 
-
   // TODO: Add the dependencies for Firebase products you want to use
   // When using the BoM, don't specify versions in Firebase dependencies
   implementation("com.google.firebase:firebase-analytics")
 
-
   // Add the dependencies for any other desired Firebase products
   // https://firebase.google.com/docs/android/setup#available-libraries
+  
+  // AndroidX dependencies for edge-to-edge support
+  implementation("androidx.core:core-ktx:1.12.0")
+  implementation("androidx.activity:activity:1.8.2")
 }
 
 android {
     namespace = "com.redtea.minddrift"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34
     ndkVersion = "27.0.12077973"
     
     // Fix for 16KB native library alignment
     packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+    
+    // Additional native library alignment configuration
+    packaging {
         jniLibs {
             useLegacyPackaging = false
         }
@@ -81,9 +90,12 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
-        targetSdk = 35
-        versionCode = 33
-        versionName = "2.1.3"
+        targetSdk = 34
+        versionCode = 34
+        versionName = "2.1.4"
+        
+        // Enable edge-to-edge support
+        resConfigs("en", "ar") // Specify supported languages for optimization
     }
 
     buildTypes {
