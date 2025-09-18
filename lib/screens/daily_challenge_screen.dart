@@ -51,8 +51,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
     setState(() => _isLoading = true);
 
     try {
-      // Load today's challenge
-      _todaysChallenge = await DailyChallengeService.getTodaysChallenge();
+      // Load today's challenge with current language
+      final languageCode = Localizations.localeOf(context).languageCode;
+      _todaysChallenge = await DailyChallengeService.getTodaysChallenge(languageCode);
       
       // Check if user has already played today
       _hasPlayedToday = await DailyChallengeService.hasPlayedToday();

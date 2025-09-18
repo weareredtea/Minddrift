@@ -13,10 +13,10 @@ import '../services/quest_service.dart';
 class DailyChallengeService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  /// Get today's daily challenge
+  /// Get today's daily challenge with localization support
   /// First tries to fetch from Firestore (server-generated)
   /// Falls back to local generation if server challenge not available
-  static Future<DailyChallenge> getTodaysChallenge() async {
+  static Future<DailyChallenge> getTodaysChallenge([String languageCode = 'en']) async {
     final today = DateTime.now();
     final todayId = _formatDate(today);
 
@@ -25,21 +25,26 @@ class DailyChallengeService {
       final doc = await _db.collection('daily_challenges').doc(todayId).get();
       
       if (doc.exists && doc.data() != null) {
-        return DailyChallenge.fromFirestore(doc);
+        final challenge = DailyChallenge.fromFirestore(doc);
+        // If server challenge exists but we need localization, create localized version
+        if (languageCode != 'en') {
+          return _createLocalizedChallenge(challenge, languageCode);
+        }
+        return challenge;
       }
       
       // Fallback: Generate challenge locally using curated template
-      return _generateLocalDailyChallenge(today);
+      return _generateLocalDailyChallenge(today, languageCode);
       
     } catch (e) {
       print('Error fetching daily challenge, using local generation: $e');
       // Fallback to local generation
-      return _generateLocalDailyChallenge(today);
+      return _generateLocalDailyChallenge(today, languageCode);
     }
   }
 
   /// Generate daily challenge locally using curated template
-  static DailyChallenge _generateLocalDailyChallenge(DateTime date) {
+  static DailyChallenge _generateLocalDailyChallenge(DateTime date, [String languageCode = 'en']) {
     final template = DailyChallengeDatabase.getChallengeForDay(date);
     
     // Get category info
@@ -58,12 +63,38 @@ class DailyChallengeService {
       categoryId: template.categoryId,
       secretPosition: secretPosition,
       range: template.range,
-      clue: template.specificClue,
+      clue: template.localizedClue?.getClue(languageCode) ?? template.specificClue,
       difficulty: template.difficulty,
       date: date,
       bundleId: categoryInfo.bundleId,
-      leftLabel: categoryInfo.getLeftText('en'),
-      rightLabel: categoryInfo.getRightText('en'),
+      leftLabel: categoryInfo.getLeftText(languageCode),
+      rightLabel: categoryInfo.getRightText(languageCode),
+    );
+  }
+
+  /// Create localized version of server challenge
+  static DailyChallenge _createLocalizedChallenge(DailyChallenge serverChallenge, String languageCode) {
+    // Get category info for localized labels
+    final categoryInfo = allCategories.firstWhere(
+      (cat) => cat.id == serverChallenge.categoryId,
+      orElse: () => allCategories.first,
+    );
+
+    // Try to get localized clue from campaign data if available
+    final template = DailyChallengeDatabase.getChallengeForDay(serverChallenge.date);
+    final localizedClue = template.localizedClue?.getClue(languageCode) ?? serverChallenge.clue;
+
+    return DailyChallenge(
+      id: serverChallenge.id,
+      categoryId: serverChallenge.categoryId,
+      secretPosition: serverChallenge.secretPosition,
+      range: serverChallenge.range,
+      clue: localizedClue,
+      difficulty: serverChallenge.difficulty,
+      date: serverChallenge.date,
+      bundleId: serverChallenge.bundleId,
+      leftLabel: categoryInfo.getLeftText(languageCode),
+      rightLabel: categoryInfo.getRightText(languageCode),
     );
   }
 
@@ -256,9 +287,28 @@ class DailyChallengeService {
         final userDoc = await _db.collection('users').doc(doc.id).get();
         final userData = userDoc.data() ?? {};
         
+        // Check for custom username first
+        String displayName = 'Anonymous';
+        try {
+          final customUsernameQuery = await _db
+              .collection('custom_usernames')
+              .where('userId', isEqualTo: doc.id)
+              .where('isActive', isEqualTo: true)
+              .limit(1)
+              .get();
+          
+          if (customUsernameQuery.docs.isNotEmpty) {
+            displayName = customUsernameQuery.docs.first.data()['username'] ?? 'Anonymous';
+          } else {
+            displayName = userData['displayName'] ?? 'Anonymous';
+          }
+        } catch (e) {
+          displayName = userData['displayName'] ?? 'Anonymous';
+        }
+        
         final entry = DailyLeaderboardEntry(
           userId: doc.id,
-          displayName: userData['displayName'] ?? 'Anonymous',
+          displayName: displayName,
           avatarId: userData['avatarId'] ?? 'bear',
           score: data['score'] ?? 0,
           accuracy: data['accuracy']?.toDouble() ?? 0.0,

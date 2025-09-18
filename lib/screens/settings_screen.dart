@@ -12,6 +12,7 @@ import '../providers/purchase_provider_new.dart';
 import '../services/category_service.dart';
 import '../widgets/bundle_indicator.dart';
 import '../l10n/app_localizations.dart';
+import 'analytics_dashboard_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const routeName = '/settings';
@@ -421,6 +422,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const Divider(),
+          
+          // Analytics Dashboard Access (Debug Only)
+          if (kDebugMode) ...[
+            ListTile(
+              leading: const Icon(Icons.analytics, color: Colors.amber),
+              title: const Text(
+                'Analytics Dashboard',
+                style: TextStyle(color: Colors.white, fontFamily: 'LuckiestGuy'),
+              ),
+              subtitle: const Text(
+                'View app analytics and user data',
+                style: TextStyle(color: Colors.grey, fontFamily: 'Chewy'),
+              ),
+              onTap: () {
+                Navigator.pushNamed(context, AnalyticsDashboardScreen.routeName);
+              },
+            ),
+            const Divider(),
+          ],
           
           // Build timestamp for version verification
           if (kDebugMode) ...[

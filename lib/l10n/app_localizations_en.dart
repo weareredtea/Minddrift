@@ -821,4 +821,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stats => 'Stats';
   @override
   String get refresh => 'Refresh';
+  
+  // Campaign Screen
+  @override
+  String get loadingCampaign => 'Loading Campaign...';
+  @override
+  String get failedToLoadCampaign => 'Failed to load campaign';
+  // section already exists above
+  // level already exists above
+  @override
+  String get levels => 'Levels';
+  @override
+  String get complete => 'Complete';
+  @override
+  String get campaignSections => 'Campaign Sections';
+  @override
+  String get completePreviousSectionToUnlock => 'Complete previous section with 22+ stars to unlock';
 }

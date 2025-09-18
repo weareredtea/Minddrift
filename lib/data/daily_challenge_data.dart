@@ -4,11 +4,14 @@
 /// 365+ hand-picked challenges for optimal user experience
 /// Easy to add/edit/remove challenges
 
+import '../models/campaign_models.dart'; // For LocalizedClue
+
 class DailyChallengeTemplate {
   final String id;
   final String categoryId;
   final int range; // 1-5
   final String specificClue; // Specific clue from the range pool
+  final LocalizedClue? localizedClue; // Localized clue support
   final String difficulty; // 'easy', 'medium', 'hard'
   final String? specialNote; // Optional note for special days
 
@@ -17,6 +20,7 @@ class DailyChallengeTemplate {
     required this.categoryId,
     required this.range,
     required this.specificClue,
+    this.localizedClue,
     required this.difficulty,
     this.specialNote,
   });

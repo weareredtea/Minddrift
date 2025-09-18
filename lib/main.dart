@@ -32,11 +32,13 @@ import 'screens/store_screen.dart';
 import 'screens/campaign_level_screen.dart';
 import 'screens/gem_store_screen.dart';
 import 'screens/quest_screen.dart';
+import 'screens/analytics_dashboard_screen.dart';
 import 'screens/wave_spectrum_test.dart';
 import 'theme/app_theme.dart';
 import 'providers/locale_provider.dart';
 import 'providers/purchase_provider_new.dart';
 import 'providers/chat_provider.dart';
+import 'services/analytics_service.dart';
 // import 'providers/premium_provider.dart'; // Temporarily disabled
 import 'l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart'; // Import this to check for debug mode
@@ -68,6 +70,9 @@ void _initializeServicesInBackground() async {
     final audioService = AudioService();
     final firebaseService = FirebaseService();
     await audioService.initializeMusicSetting(firebaseService);
+    
+    // Initialize Firebase Analytics
+    await AnalyticsService.initialize();
     
     // Initialize premium provider - temporarily disabled
     // final premiumProvider = PremiumProvider();
@@ -190,6 +195,13 @@ class MyApp extends StatelessWidget {
                 builder: (context) => Theme(
                   data: AppTheme.getDarkTheme(context),
                   child: const QuestScreen(),
+                ),
+              ),
+              // Analytics Dashboard Screen
+              AnalyticsDashboardScreen.routeName: (_) => Builder(
+                builder: (context) => Theme(
+                  data: AppTheme.getDarkTheme(context),
+                  child: const AnalyticsDashboardScreen(),
                 ),
               ),
               // Only register test route in debug mode

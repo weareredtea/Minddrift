@@ -1338,6 +1338,16 @@ abstract class AppLocalizations {
   // leaderboard already exists above
   String get stats;
   String get refresh;
+  
+  // Campaign Screen
+  String get loadingCampaign;
+  String get failedToLoadCampaign;
+  // section already exists above
+  // level already exists above
+  String get levels;
+  String get complete;
+  String get campaignSections;
+  String get completePreviousSectionToUnlock;
 }
 
 class _AppLocalizationsDelegate

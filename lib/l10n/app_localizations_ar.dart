@@ -819,4 +819,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get stats => 'الإحصائيات';
   @override
   String get refresh => 'تحديث';
+  
+  // Campaign Screen
+  @override
+  String get loadingCampaign => 'جاري تحميل الحملة...';
+  @override
+  String get failedToLoadCampaign => 'فشل في تحميل الحملة';
+  // section already exists above
+  // level already exists above
+  @override
+  String get levels => 'المستويات';
+  @override
+  String get complete => 'مكتمل';
+  @override
+  String get campaignSections => 'أقسام الحملة';
+  @override
+  String get completePreviousSectionToUnlock => 'أكمل القسم السابق بـ 22+ نجمة للفتح';
 }
