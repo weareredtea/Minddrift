@@ -9,6 +9,8 @@ class PlayerWallet {
   final List<String> ownedSliderSkins;
   final List<String> ownedBadges;
   final List<String> ownedAvatarPacks;
+  final List<String>? ownedSpectrumSkins;  // New field for spectrum skins
+  final String? activeSpectrumSkin;        // Currently applied spectrum skin
   final int usernameChangesUsed;
   final DateTime lastDailyBonus;
   final int totalGemsEarned; // Lifetime Gems earned for statistics
@@ -20,6 +22,8 @@ class PlayerWallet {
     this.ownedSliderSkins = const [],
     this.ownedBadges = const [],
     this.ownedAvatarPacks = const [],
+    this.ownedSpectrumSkins,
+    this.activeSpectrumSkin,
     this.usernameChangesUsed = 0,
     required this.lastDailyBonus,
     this.totalGemsEarned = 0,
@@ -35,6 +39,10 @@ class PlayerWallet {
       ownedSliderSkins: List<String>.from(data['ownedSliderSkins'] ?? []),
       ownedBadges: List<String>.from(data['ownedBadges'] ?? []),
       ownedAvatarPacks: List<String>.from(data['ownedAvatarPacks'] ?? []),
+      ownedSpectrumSkins: data['ownedSpectrumSkins'] != null 
+          ? List<String>.from(data['ownedSpectrumSkins']) 
+          : null,
+      activeSpectrumSkin: data['activeSpectrumSkin'] as String?,
       usernameChangesUsed: data['usernameChangesUsed'] ?? 0,
       lastDailyBonus: data['lastDailyBonus']?.toDate() ?? DateTime(2000),
       totalGemsEarned: data['totalGemsEarned'] ?? 0,
@@ -50,6 +58,8 @@ class PlayerWallet {
       'ownedSliderSkins': ownedSliderSkins,
       'ownedBadges': ownedBadges,
       'ownedAvatarPacks': ownedAvatarPacks,
+      'ownedSpectrumSkins': ownedSpectrumSkins,
+      'activeSpectrumSkin': activeSpectrumSkin,
       'usernameChangesUsed': usernameChangesUsed,
       'lastDailyBonus': Timestamp.fromDate(lastDailyBonus),
       'totalGemsEarned': totalGemsEarned,

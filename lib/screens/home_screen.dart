@@ -423,26 +423,33 @@ class _HomeScreenState extends State<HomeScreen>
                         height: 60,
                         child: ElevatedButton(
                           onPressed: _loading ? null : () async {
+                            // Capture FirebaseService reference before any navigation
+                            final firebaseService = context.read<FirebaseService>();
                             Navigator.of(context).pop(); // Close bottom sheet
+                            
+                            if (!mounted) return; // Check if widget is still mounted
                             setState(() => _loading = true);
+                            
                             List<String>? selectedBundles;
                             try {
                               selectedBundles = await _showBundleSelectionDialog();
                               if (selectedBundles != null && selectedBundles.isNotEmpty) {
-                                final settings = await context.read<FirebaseService>().fetchRoomCreationSettings();
-                                await context.read<FirebaseService>().createRoom(
+                                final settings = await firebaseService.fetchRoomCreationSettings();
+                                await firebaseService.createRoom(
                                   settings['saboteurEnabled'] ?? false,
                                   settings['diceRollEnabled'] ?? false,
                                   selectedBundles.first,
                                 );
                               } else {
-                                setState(() => _loading = false);
+                                if (mounted) setState(() => _loading = false);
                               }
                             } catch (e) {
-                              setState(() {
-                                _error = e.toString();
-                                _loading = false;
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  _error = e.toString();
+                                  _loading = false;
+                                });
+                              }
                               print('Room creation failed: $e');
                             }
                           },

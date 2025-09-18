@@ -2,6 +2,27 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Localized clue data for campaign levels
+class LocalizedClue {
+  final String english;
+  final String arabic;
+
+  const LocalizedClue({
+    required this.english,
+    required this.arabic,
+  });
+
+  String getClue(String languageCode) {
+    switch (languageCode) {
+      case 'ar':
+        return arabic;
+      case 'en':
+      default:
+        return english;
+    }
+  }
+}
+
 /// Represents a single campaign level
 class CampaignLevel {
   final String id;
@@ -12,6 +33,7 @@ class CampaignLevel {
   final String categoryId;
   final int range;
   final String specificClue;
+  final LocalizedClue? localizedClue; // New field for localized clues
   final int secretPosition;
   final String difficulty; // 'easy', 'medium', 'hard', 'expert'
   final int maxScore;
@@ -29,6 +51,7 @@ class CampaignLevel {
     required this.categoryId,
     required this.range,
     required this.specificClue,
+    this.localizedClue,
     required this.secretPosition,
     required this.difficulty,
     required this.maxScore,
@@ -37,6 +60,14 @@ class CampaignLevel {
     this.bestScore = 0,
     this.bestAccuracy = 0.0,
   });
+
+  /// Get localized clue text
+  String getClue(String languageCode) {
+    if (localizedClue != null) {
+      return localizedClue!.getClue(languageCode);
+    }
+    return specificClue; // Fallback to original clue
+  }
 
   CampaignLevel copyWith({
     String? id,

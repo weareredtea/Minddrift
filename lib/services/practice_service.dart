@@ -19,7 +19,7 @@ class PracticeService {
   /// 2. Random range (1-5) 
   /// 3. Random position within that range
   /// 4. Random clue from the specific (category + range) pool
-  static PracticeChallenge generateChallenge() {
+  static PracticeChallenge generateChallenge([String languageCode = 'en']) {
     // Step 1: Pick random category from practice categories
     final categoryId = _pickRandom(PracticeClueDatabase.practiceCategories);
     
@@ -32,14 +32,14 @@ class PracticeService {
     final secretPosition = rangeStart + (_random.nextDouble() * (rangeEnd - rangeStart));
     
     // Step 4: Get clue pool for this (category + range) combination
-    final cluePool = PracticeClueDatabase.getCluePool(categoryId, range);
+    final cluePool = PracticeClueDatabase.getCluePool(categoryId, range, languageCode);
     final clue = _pickRandom(cluePool);
     
     // Get category info for labels
     final categoryInfo = allCategories.firstWhere((cat) => cat.id == categoryId);
     final bundleId = categoryInfo.bundleId;
-    final leftLabel = categoryInfo.getLeftText('en');
-    final rightLabel = categoryInfo.getRightText('en');
+    final leftLabel = categoryInfo.getLeftText(languageCode);
+    final rightLabel = categoryInfo.getRightText(languageCode);
     
     return PracticeChallenge(
       categoryId: categoryId,

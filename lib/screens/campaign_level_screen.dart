@@ -308,7 +308,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        '"${_level!.specificClue}"',
+                        '"${_level!.getClue(Localizations.localeOf(context).languageCode)}"',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontFamily: 'Chewy',

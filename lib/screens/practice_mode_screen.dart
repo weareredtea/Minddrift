@@ -28,12 +28,23 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
   @override
   void initState() {
     super.initState();
-    _generateNewChallenge();
+    // Don't generate challenge here - wait for didChangeDependencies
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Generate challenge after localization is available
+    if (_currentChallenge == null) {
+      _generateNewChallenge();
+    }
   }
 
   void _generateNewChallenge() {
     setState(() {
-      _currentChallenge = PracticeService.generateChallenge();
+      // Get current language code
+      final languageCode = Localizations.localeOf(context).languageCode;
+      _currentChallenge = PracticeService.generateChallenge(languageCode);
       _userGuess = 0.5;
       _hasGuessed = false;
       _showingResult = false;

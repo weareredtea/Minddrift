@@ -243,7 +243,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                     child: Column(
                       children: [
                         Text(
-                          'Today\'s Clue:',
+                          AppLocalizations.of(context)!.todaysClue,
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 14,
@@ -362,8 +362,8 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
         child: Column(
           children: [
             Text(
-              'Today\'s Result',
-              style: TextStyle(
+              AppLocalizations.of(context)!.todaysResult,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -418,7 +418,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                   Column(
                     children: [
                       Text(
-                        'Correct Answer',
+                        AppLocalizations.of(context)!.correctAnswer,
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 12,
@@ -453,7 +453,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
               child: Column(
                 children: [
                   Text(
-                    'Challenge Complete!',
+                    AppLocalizations.of(context)!.challengeComplete,
                     style: TextStyle(
                       color: Colors.amber[600],
                       fontSize: 16,
@@ -463,7 +463,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Come back tomorrow for a new challenge!',
+                    AppLocalizations.of(context)!.comeBackTomorrow,
                     style: TextStyle(
                       color: Colors.amber[300],
                       fontSize: 14,
@@ -491,8 +491,8 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
               Icon(Icons.leaderboard, color: Colors.amber[600], size: 28),
               const SizedBox(width: 12),
               Text(
-                'Today\'s Leaderboard',
-                style: TextStyle(
+                AppLocalizations.of(context)!.todaysLeaderboard,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -513,7 +513,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                       Icon(Icons.emoji_events_outlined, size: 64, color: Colors.grey[600]),
                       const SizedBox(height: 16),
                       Text(
-                        'No players yet today',
+                        AppLocalizations.of(context)!.noPlayersYetToday,
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 16,
@@ -522,7 +522,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Be the first to complete today\'s challenge!',
+                        AppLocalizations.of(context)!.beTheFirstToComplete,
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 14,
@@ -636,8 +636,8 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                       Icon(Icons.analytics, color: Colors.green[600], size: 28),
                       const SizedBox(width: 12),
                       Text(
-                        'Your Statistics',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.yourStatistics,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -699,9 +699,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildScoreStat('Days Played', '${_userStats.totalDaysPlayed}', Colors.blue),
-                      _buildScoreStat('Perfect Days', '${_userStats.perfectDays}', Colors.green),
-                      _buildScoreStat('Best Streak', '${_userStats.bestStreak}', Colors.orange),
+                      _buildScoreStat(AppLocalizations.of(context)!.daysPlayed, '${_userStats.totalDaysPlayed}', Colors.blue),
+                      _buildScoreStat(AppLocalizations.of(context)!.perfectDays, '${_userStats.perfectDays}', Colors.green),
+                      _buildScoreStat(AppLocalizations.of(context)!.bestStreak, '${_userStats.bestStreak}', Colors.orange),
                     ],
                   ),
                   
@@ -710,9 +710,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildScoreStat('Avg Score', _userStats.averageScore.toStringAsFixed(1), Colors.purple),
-                      _buildScoreStat('Avg Accuracy', '${(_userStats.averageAccuracy * 100).toStringAsFixed(1)}%', Colors.teal),
-                      _buildScoreStat('Best Score', '${_userStats.bestScore}/5', Colors.amber),
+                      _buildScoreStat(AppLocalizations.of(context)!.avgScore, _userStats.averageScore.toStringAsFixed(1), Colors.purple),
+                      _buildScoreStat(AppLocalizations.of(context)!.avgAccuracy, '${(_userStats.averageAccuracy * 100).toStringAsFixed(1)}%', Colors.teal),
+                      _buildScoreStat(AppLocalizations.of(context)!.bestScore, '${_userStats.bestScore}/5', Colors.amber),
                     ],
                   ),
                 ],
@@ -783,9 +783,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text(
-          'Daily Challenge',
-          style: TextStyle(fontFamily: 'LuckiestGuy'),
+        title: Text(
+          AppLocalizations.of(context)!.dailyChallenge,
+          style: const TextStyle(fontFamily: 'LuckiestGuy'),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -794,15 +794,15 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadDailyChallenge,
-            tooltip: 'Refresh',
+            tooltip: AppLocalizations.of(context)!.refresh,
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.play_arrow), text: 'Challenge'),
-            Tab(icon: Icon(Icons.leaderboard), text: 'Leaderboard'),
-            Tab(icon: Icon(Icons.analytics), text: 'Stats'),
+          tabs: [
+            Tab(icon: const Icon(Icons.play_arrow), text: AppLocalizations.of(context)!.challenge),
+            Tab(icon: const Icon(Icons.leaderboard), text: AppLocalizations.of(context)!.leaderboard),
+            Tab(icon: const Icon(Icons.analytics), text: AppLocalizations.of(context)!.stats),
           ],
           labelColor: Colors.white,
           unselectedLabelColor: Colors.grey[400],

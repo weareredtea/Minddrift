@@ -780,4 +780,43 @@ class AppLocalizationsAr extends AppLocalizations {
   String get usernameIsAlreadyTaken => 'اسم المستخدم مستخدم بالفعل';
   @override
   String get errorCheckingUsernameAvailability => 'خطأ في التحقق من توفر اسم المستخدم';
+  
+  // Daily Challenge Screen
+  @override
+  String get todaysClue => 'دليل اليوم:';
+  @override
+  String get todaysResult => 'نتيجة اليوم';
+  // correctAnswer already exists above
+  @override
+  String get challengeComplete => 'تم إكمال التحدي!';
+  @override
+  String get comeBackTomorrow => 'عد غداً لتحدي جديد!';
+  @override
+  String get todaysLeaderboard => 'قائمة متصدري اليوم';
+  @override
+  String get noPlayersYetToday => 'لا يوجد لاعبون اليوم بعد';
+  @override
+  String get beTheFirstToComplete => 'كن أول من يكمل تحدي اليوم!';
+  @override
+  String get yourStatistics => 'إحصائياتك';
+  // currentStreak already exists above
+  @override
+  String get daysPlayed => 'أيام اللعب';
+  @override
+  String get perfectDays => 'أيام مثالية';
+  @override
+  String get bestStreak => 'أفضل مسلسل';
+  @override
+  String get avgScore => 'متوسط النقاط';
+  @override
+  String get avgAccuracy => 'متوسط الدقة';
+  @override
+  String get bestScore => 'أفضل نقاط';
+  @override
+  String get challenge => 'التحدي';
+  // leaderboard already exists above
+  @override
+  String get stats => 'الإحصائيات';
+  @override
+  String get refresh => 'تحديث';
 }

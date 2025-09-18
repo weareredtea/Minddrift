@@ -9,6 +9,11 @@ class RadialSpectrumWidget extends StatefulWidget {
   final double? secretValue;
   final Function(double) onChanged;
   final bool isReadOnly;
+  final double size;
+  final Color? arcColor;
+  final Color? needleColor;
+  final Color? backgroundColor;
+  final Color? trackColor;
 
   const RadialSpectrumWidget({
     super.key,
@@ -16,6 +21,11 @@ class RadialSpectrumWidget extends StatefulWidget {
     this.secretValue,
     required this.onChanged,
     this.isReadOnly = false,
+    this.size = 280,
+    this.arcColor,
+    this.needleColor,
+    this.backgroundColor,
+    this.trackColor,
   });
 
   @override
@@ -123,11 +133,15 @@ class _RadialSpectrumWidgetState extends State<RadialSpectrumWidget> {
           // Performance optimization: Expand touch area for better responsiveness
           behavior: HitTestBehavior.opaque,
           child: CustomPaint(
-            size: const Size(double.infinity, 180),
+            size: Size(widget.size, widget.size * 0.64), // Maintain aspect ratio
             painter: _GaugePainter(
               value: widget.value,
               secretValue: widget.secretValue,
               isReadOnly: widget.isReadOnly,
+              arcColor: widget.arcColor,
+              needleColor: widget.needleColor,
+              backgroundColor: widget.backgroundColor,
+              trackColor: widget.trackColor,
             ),
           ),
         ),
@@ -140,26 +154,28 @@ class _GaugePainter extends CustomPainter {
   final double value;
   final double? secretValue;
   final bool isReadOnly;
+  final Color? arcColor;
+  final Color? needleColor;
+  final Color? backgroundColor;
+  final Color? trackColor;
 
   static const double startAngle = -pi;
   static const double sweepAngle = pi;
 
-  // Performance optimization: Single solid color instead of gradient
-  static const Color _arcColor = Color(0xFF00A896); // Teal - matches app theme
-  
-  // Performance optimization: Cache paint objects
-  static final Paint _fillPaint = Paint()..color = Colors.white.withValues(alpha: 0.05);
-  static final Paint _arcPaint = Paint()
-    ..color = _arcColor
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = 20.0; // Fixed stroke width for consistency
-  static final Paint _centerCirclePaint = Paint()..color = Colors.grey[800]!;
-  static final Paint _innerCirclePaint = Paint()..color = Colors.white.withValues(alpha: 0.7);
+  // Default colors (performance optimized)
+  static const Color _defaultArcColor = Color(0xFF00A896); // Teal
+  static const Color _defaultNeedleColor = Colors.white;
+  static const Color _defaultBackgroundColor = Colors.transparent;
+  static const Color _defaultTrackColor = Colors.grey;
 
-  _GaugePainter({
+  const _GaugePainter({
     required this.value,
     this.secretValue,
     required this.isReadOnly,
+    this.arcColor,
+    this.needleColor,
+    this.backgroundColor,
+    this.trackColor,
   });
 
   @override
@@ -171,16 +187,23 @@ class _GaugePainter extends CustomPainter {
     // Restore original thickness: radius * 0.25 for proper visual weight
     final zoneStrokeWidth = radius * 0.25;
     
-    // Update arc paint with dynamic stroke width
-    _arcPaint.strokeWidth = zoneStrokeWidth;
+    // Performance optimization: Create paint objects with themed colors
+    final currentArcColor = arcColor ?? _defaultArcColor;
+    final currentNeedleColor = needleColor ?? _defaultNeedleColor;
+    
+    final fillPaint = Paint()..color = currentArcColor.withOpacity(0.1);
+    final arcPaint = Paint()
+      ..color = currentArcColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = zoneStrokeWidth;
 
     // Draw background fill
-    canvas.drawArc(rect, startAngle, sweepAngle, true, _fillPaint);
+    canvas.drawArc(rect, startAngle, sweepAngle, true, fillPaint);
 
-    // Performance optimization: Draw solid color arc with original thickness
+    // Performance optimization: Draw solid color arc with themed color
     canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius - zoneStrokeWidth / 2),
-        startAngle, sweepAngle, false, _arcPaint);
+        startAngle, sweepAngle, false, arcPaint);
 
     // Draw secret marker if available
     if (secretValue != null) {
@@ -223,9 +246,10 @@ class _GaugePainter extends CustomPainter {
       );
       canvas.drawLine(innerArcPoint, outerArcPoint, markerPaint);
     } else {
-      // Performance optimization: Cache paint objects for needle
-      final needleBodyPaint = Paint()..color = Colors.white.withValues(alpha: 0.6);
-      final needleTipPaint = Paint()..color = Colors.white.withValues(alpha: 0.9);
+      // Performance optimization: Themed needle colors
+      final currentNeedleColor = needleColor ?? _defaultNeedleColor;
+      final needleBodyPaint = Paint()..color = currentNeedleColor.withOpacity(0.6);
+      final needleTipPaint = Paint()..color = currentNeedleColor.withOpacity(0.9);
       const needleWidth = 10.0;
       const gap = 1.5;
 
@@ -251,9 +275,11 @@ class _GaugePainter extends CustomPainter {
       canvas.drawRRect(needleTipRRect, needleTipPaint);
       canvas.restore();
       
-      // Draw center circles using cached paints
-      canvas.drawCircle(center, 12, _centerCirclePaint);
-      canvas.drawCircle(center, 5, _innerCirclePaint);
+      // Draw center circles with themed colors
+      final centerCirclePaint = Paint()..color = (trackColor ?? _defaultTrackColor).withOpacity(0.8);
+      final innerCirclePaint = Paint()..color = currentNeedleColor.withOpacity(0.7);
+      canvas.drawCircle(center, 12, centerCirclePaint);
+      canvas.drawCircle(center, 5, innerCirclePaint);
     }
   }
 

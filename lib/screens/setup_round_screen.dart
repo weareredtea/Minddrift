@@ -29,16 +29,19 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
   String _clue = '';
   bool _submitting = false;
   bool _showingLastPlayerDialog = false;
+  late final FirebaseService _firebaseService;
 
   @override
   void initState() {
     super.initState();
+    // Capture FirebaseService reference to avoid widget lifecycle issues
+    _firebaseService = context.read<FirebaseService>();
     _setupPlayerListeners();
   }
 
   void _setupPlayerListeners() {
     // Listen for player departures to show toast messages
-    context.read<FirebaseService>().listenForPlayerDepartures(widget.roomId).listen((playerName) {
+    _firebaseService.listenForPlayerDepartures(widget.roomId).listen((playerName) {
       if (playerName != null && mounted) {
         final loc = AppLocalizations.of(context);
         if (loc != null) {
@@ -53,16 +56,16 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
     });
 
     // Listen for last player standing scenario
-    context.read<FirebaseService>().listenToLastPlayerStatus(widget.roomId).listen((status) async {
+    _firebaseService.listenToLastPlayerStatus(widget.roomId).listen((status) async {
       final onlinePlayerCount = status['onlinePlayerCount'] as int;
       final isLastPlayer = status['isLastPlayer'] as bool;
       final currentUserDisplayName = status['currentUserDisplayName'] as String;
       final roomId = widget.roomId;
 
       // Get room data to check if current user is creator and it's the very beginning
-      final roomSnap = await context.read<FirebaseService>().roomDocRef(roomId).get();
+      final roomSnap = await _firebaseService.roomDocRef(roomId).get();
       final roomData = roomSnap.data();
-      final isCreator = roomData?['creator'] == context.read<FirebaseService>().currentUserUid;
+      final isCreator = roomData?['creator'] == _firebaseService.currentUserUid;
       final currentRoundNumber = roomData?['currentRoundNumber'] as int? ?? 0;
 
       // Suppress dialog if creator and it's the very first round (currentRoundNumber is 0 or 1)

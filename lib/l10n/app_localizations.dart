@@ -1316,6 +1316,28 @@ abstract class AppLocalizations {
   String get randomAvatar;
   String get usernameIsAlreadyTaken;
   String get errorCheckingUsernameAvailability;
+  
+  // Daily Challenge Screen
+  String get todaysClue;
+  String get todaysResult;
+  // correctAnswer already exists above
+  String get challengeComplete;
+  String get comeBackTomorrow;
+  String get todaysLeaderboard;
+  String get noPlayersYetToday;
+  String get beTheFirstToComplete;
+  String get yourStatistics;
+  // currentStreak already exists above
+  String get daysPlayed;
+  String get perfectDays;
+  String get bestStreak;
+  String get avgScore;
+  String get avgAccuracy;
+  String get bestScore;
+  String get challenge;
+  // leaderboard already exists above
+  String get stats;
+  String get refresh;
 }
 
 class _AppLocalizationsDelegate

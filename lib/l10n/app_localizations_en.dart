@@ -782,4 +782,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get usernameIsAlreadyTaken => 'Username is already taken';
   @override
   String get errorCheckingUsernameAvailability => 'Error checking username availability';
+  
+  // Daily Challenge Screen
+  @override
+  String get todaysClue => 'Today\'s Clue:';
+  @override
+  String get todaysResult => 'Today\'s Result';
+  // correctAnswer already exists above
+  @override
+  String get challengeComplete => 'Challenge Complete!';
+  @override
+  String get comeBackTomorrow => 'Come back tomorrow for a new challenge!';
+  @override
+  String get todaysLeaderboard => 'Today\'s Leaderboard';
+  @override
+  String get noPlayersYetToday => 'No players yet today';
+  @override
+  String get beTheFirstToComplete => 'Be the first to complete today\'s challenge!';
+  @override
+  String get yourStatistics => 'Your Statistics';
+  // currentStreak already exists above
+  @override
+  String get daysPlayed => 'Days Played';
+  @override
+  String get perfectDays => 'Perfect Days';
+  @override
+  String get bestStreak => 'Best Streak';
+  @override
+  String get avgScore => 'Avg Score';
+  @override
+  String get avgAccuracy => 'Avg Accuracy';
+  @override
+  String get bestScore => 'Best Score';
+  @override
+  String get challenge => 'Challenge';
+  // leaderboard already exists above
+  @override
+  String get stats => 'Stats';
+  @override
+  String get refresh => 'Refresh';
 }
