@@ -227,7 +227,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
           const SizedBox(height: 32),
           
           // Category display
-          Container(
+          /*Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: const Color(0xFF2A2A4A),
@@ -268,7 +268,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                 ),
               ],
             ),
-          ),
+          ),*/
           
           const SizedBox(height: 32),
           
@@ -456,15 +456,15 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
             ),
             child: Column(
               children: [
-                _buildScoreRow('Your Guess', '${_result!.userGuess}'),
-                _buildScoreRow('Correct Answer', '${_level!.secretPosition}'),
+                //_buildScoreRow('Your Guess', '${_result!.userGuess}'),
+               // _buildScoreRow('Correct Answer', '${_level!.secretPosition}'),
                 _buildScoreRow('Accuracy', '${_result!.accuracy.toStringAsFixed(1)}%'),
                 _buildScoreRow('Score', '${_result!.score}/${_level!.maxScore}'),
                 _buildScoreRow('Time', '${_result!.timeSpent.inSeconds}s'),
                 if (_result!.isNewBest) ...[
                   const Divider(color: Colors.white24),
                   const Text(
-                    '🎉 New Personal Best! 🎉',
+                    '🎉 New Personal Best!',
                     style: TextStyle(
                       fontFamily: 'LuckiestGuy',
                       fontSize: 16,
@@ -611,6 +611,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
         _level!,
         _currentValue.round(),
         timeSpent,
+        context: context,
       );
 
       setState(() {

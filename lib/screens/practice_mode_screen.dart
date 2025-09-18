@@ -66,7 +66,7 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
     });
 
     // Record result in background
-    PracticeService.recordPracticeResult(result);
+    PracticeService.recordPracticeResult(result, context: context);
   }
 
   void _nextChallenge() {

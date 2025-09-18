@@ -30,6 +30,8 @@ import 'screens/store_screen.dart';
 // import 'screens/profile_edit_screen.dart'; // Used via direct navigation
 // import 'screens/online_matchmaking_screen.dart'; // Temporarily disabled
 import 'screens/campaign_level_screen.dart';
+import 'screens/gem_store_screen.dart';
+import 'screens/quest_screen.dart';
 import 'screens/wave_spectrum_test.dart';
 import 'theme/app_theme.dart';
 import 'providers/locale_provider.dart';
@@ -174,6 +176,20 @@ class MyApp extends StatelessWidget {
                 builder: (context) => Theme(
                   data: AppTheme.getDarkTheme(context),
                   child: const CampaignLevelScreen(),
+                ),
+              ),
+              // Gem Store Screen
+              GemStoreScreen.routeName: (_) => Builder(
+                builder: (context) => Theme(
+                  data: AppTheme.getDarkTheme(context),
+                  child: const GemStoreScreen(),
+                ),
+              ),
+              // Quest Screen
+              QuestScreen.routeName: (_) => Builder(
+                builder: (context) => Theme(
+                  data: AppTheme.getDarkTheme(context),
+                  child: const QuestScreen(),
                 ),
               ),
               // Only register test route in debug mode

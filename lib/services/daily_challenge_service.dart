@@ -3,9 +3,12 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import '../data/daily_challenge_data.dart';
 import '../data/category_data.dart';
 import '../models/daily_challenge_models.dart';
+import '../services/wallet_service.dart';
+import '../services/quest_service.dart';
 
 class DailyChallengeService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -69,6 +72,7 @@ class DailyChallengeService {
     required DailyChallenge challenge,
     required double userGuess,
     required Duration timeSpent,
+    BuildContext? context,
   }) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -113,6 +117,65 @@ class DailyChallengeService {
 
       // Update user's daily statistics
       await _updateDailyStats(user.uid, result);
+
+      // Award Mind Gems for daily challenge completion
+      await WalletService.awardGems(50, 'daily_completion', 
+        context: context,
+        metadata: {
+          'challengeId': challenge.id,
+          'score': result.score,
+          'accuracy': result.accuracy,
+        });
+
+      // Check and award daily bonus if this is the first game today
+      final dailyBonusAwarded = await WalletService.claimDailyBonus(context: context);
+      if (dailyBonusAwarded) {
+        print('Daily bonus awarded: 250 Gems');
+      }
+
+      // Track quest progress
+      await QuestService.trackProgress('complete_daily_challenge', 
+        amount: 1,
+        context: context,
+        metadata: {
+          'challengeId': challenge.id,
+          'score': result.score,
+          'accuracy': result.accuracy,
+          'categoryId': challenge.categoryId,
+        });
+
+      // Track perfect score achievement
+      if (result.accuracy >= 1.0) {
+        await QuestService.trackProgress('perfect_score', 
+          amount: 1,
+          context: context,
+          metadata: {
+            'challengeId': challenge.id,
+            'mode': 'daily_challenge',
+            'accuracy': result.accuracy,
+          });
+      }
+
+      // Track accuracy-based quests
+      await QuestService.trackProgress('achieve_accuracy', 
+        amount: 1,
+        context: context,
+        metadata: {
+          'accuracy': result.accuracy,
+          'mode': 'daily_challenge',
+        });
+
+      // Track daily challenge streak
+      await _trackDailyChallengeStreak(context);
+
+      // Track general game completion
+      await QuestService.trackProgress('complete_any_game', 
+        amount: 1,
+        context: context,
+        metadata: {
+          'mode': 'daily_challenge',
+          'score': result.score,
+        });
 
       return result;
     } catch (e) {
@@ -363,6 +426,22 @@ class DailyChallengeService {
     } catch (e) {
       print('Error fetching user rank: $e');
       return null;
+    }
+  }
+
+  /// Track daily challenge streak for quest progress
+  static Future<void> _trackDailyChallengeStreak(BuildContext? context) async {
+    try {
+      final stats = await getUserDailyStats();
+      await QuestService.trackProgress('daily_challenge_streak', 
+        amount: stats.currentStreak,
+        context: context,
+        metadata: {
+          'currentStreak': stats.currentStreak,
+          'longestStreak': stats.bestStreak,
+        });
+    } catch (e) {
+      print('Error tracking daily challenge streak: $e');
     }
   }
 }

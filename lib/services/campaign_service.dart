@@ -3,8 +3,11 @@
 import 'dart:math' as math;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import '../data/campaign_data.dart';
 import '../models/campaign_models.dart';
+import '../services/wallet_service.dart';
+import '../services/quest_service.dart';
 
 class CampaignService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -150,8 +153,9 @@ class CampaignService {
   static Future<CampaignResult> submitLevelResult(
     CampaignLevel level,
     int userGuess,
-    Duration timeSpent,
-  ) async {
+    Duration timeSpent, {
+    BuildContext? context,
+  }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('User not authenticated');
 
@@ -190,6 +194,82 @@ class CampaignService {
 
       // Update user progress
       await _updateUserProgress(level, result);
+
+      // Award Mind Gems for completion and stars (first time only)
+      if (isNewBest) {
+        // Base completion reward for first-time level completion
+        if (existingResult == null) {
+          await WalletService.awardGems(50, 'campaign_completion', 
+            context: context,
+            metadata: {
+              'levelId': level.id,
+              'levelNumber': level.levelNumber,
+              'sectionNumber': level.sectionNumber,
+            });
+        }
+
+        // Star-based Gem rewards (only for new/better star achievements)
+        final previousStars = existingResult?.starsEarned ?? 0;
+        if (starsEarned > previousStars) {
+          await WalletService.awardCampaignStarGems(level.id, starsEarned, existingResult == null, context: context);
+        }
+      }
+
+      // Track quest progress
+      await QuestService.trackProgress('complete_campaign_level', 
+        amount: 1,
+        context: context,
+        metadata: {
+          'levelId': level.id,
+          'levelNumber': level.levelNumber,
+          'sectionNumber': level.sectionNumber,
+          'score': score,
+          'accuracy': accuracy,
+          'starsEarned': starsEarned,
+          'isFirstTime': existingResult == null,
+        });
+
+      // Track star earning progress
+      if (starsEarned > 0) {
+        await QuestService.trackProgress('earn_campaign_stars', 
+          amount: starsEarned,
+          context: context,
+          metadata: {
+            'levelId': level.id,
+            'starsEarned': starsEarned,
+          });
+      }
+
+      // Track perfect score achievement
+      if (accuracy >= 1.0) {
+        await QuestService.trackProgress('perfect_score', 
+          amount: 1,
+          context: context,
+          metadata: {
+            'levelId': level.id,
+            'mode': 'campaign',
+            'accuracy': accuracy,
+          });
+      }
+
+      // Track accuracy-based quests
+      await QuestService.trackProgress('achieve_accuracy', 
+        amount: 1,
+        context: context,
+        metadata: {
+          'accuracy': accuracy,
+          'mode': 'campaign',
+        });
+
+      // Track section completion (if this completes a section)
+      if (_isLevelLastInSection(level)) {
+        await QuestService.trackProgress('complete_campaign_section', 
+          amount: 1,
+          context: context,
+          metadata: {
+            'sectionNumber': level.sectionNumber,
+          });
+      }
 
       print('Successfully saved campaign result: ${level.id}');
       return result;
@@ -359,4 +439,11 @@ class CampaignService {
     return achievements;
   }
 
+  /// Check if this level is the last in its section
+  static bool _isLevelLastInSection(CampaignLevel level) {
+    // For now, assume each section has 10 levels (1-10, 11-20, 21-30, 31-40)
+    // This is a simple check - can be enhanced later with actual section data
+    final levelInSection = ((level.levelNumber - 1) % 10) + 1;
+    return levelInSection == 10; // Last level in section
+  }
 }

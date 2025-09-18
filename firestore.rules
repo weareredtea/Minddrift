@@ -168,6 +168,40 @@ service cloud.firestore {
       }
     }
     
+    // Player Wallet rules
+    match /player_wallets/{userId} {
+      // Allow users to read/write their own wallet
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Gem Transaction rules
+    match /gem_transactions/{userId} {
+      // Allow users to read/write their own transaction history
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Transactions subcollection
+      match /transactions/{transactionId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Quest Progress rules
+    match /quest_progress/{userId} {
+      // Allow users to read/write their own quest progress
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Active quests subcollection
+      match /active_quests/{questId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Quest Statistics rules
+    match /quest_stats/{userId} {
+      // Allow users to read/write their own quest statistics
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
     // Artifacts collection rules (for current room tracking)
     match /artifacts/{appId} {
       // Allow authenticated users to read artifacts

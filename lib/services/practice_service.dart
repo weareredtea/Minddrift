@@ -3,9 +3,12 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import '../data/practice_clue_data.dart';
 import '../data/category_data.dart';
 import '../models/practice_models.dart';
+import '../services/wallet_service.dart';
+import '../services/quest_service.dart';
 
 class PracticeService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -70,7 +73,7 @@ class PracticeService {
   }
 
   /// Record practice result and update user statistics
-  static Future<void> recordPracticeResult(PracticeResult result) async {
+  static Future<void> recordPracticeResult(PracticeResult result, {BuildContext? context}) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
@@ -84,6 +87,61 @@ class PracticeService {
 
       // Update user statistics
       await _updatePracticeStats(user.uid, result);
+
+      // Award Mind Gems for practice completion
+      await WalletService.awardGems(20, 'practice_completion', 
+        context: context,
+        metadata: {
+          'categoryId': result.challenge.categoryId,
+          'score': result.score,
+          'accuracy': result.accuracy,
+        });
+
+      // Check and award daily bonus if this is the first game today
+      final dailyBonusAwarded = await WalletService.claimDailyBonus(context: context);
+      if (dailyBonusAwarded) {
+        print('Daily bonus awarded: 250 Gems');
+      }
+
+      // Track quest progress
+      await QuestService.trackProgress('complete_practice', 
+        amount: 1,
+        context: context,
+        metadata: {
+          'categoryId': result.challenge.categoryId,
+          'score': result.score,
+          'accuracy': result.accuracy,
+        });
+
+      // Track perfect score achievement
+      if (result.accuracy >= 1.0) {
+        await QuestService.trackProgress('perfect_score', 
+          amount: 1,
+          context: context,
+          metadata: {
+            'categoryId': result.challenge.categoryId,
+            'mode': 'practice',
+            'accuracy': result.accuracy,
+          });
+      }
+
+      // Track accuracy-based quests
+      await QuestService.trackProgress('achieve_accuracy', 
+        amount: 1,
+        context: context,
+        metadata: {
+          'accuracy': result.accuracy,
+          'mode': 'practice',
+        });
+
+      // Track general game completion
+      await QuestService.trackProgress('complete_any_game', 
+        amount: 1,
+        context: context,
+        metadata: {
+          'mode': 'practice',
+          'score': result.score,
+        });
     } catch (e) {
       print('Error recording practice result: $e');
       // Don't throw - practice should work even if recording fails

@@ -38,7 +38,7 @@ dependencies {
 
 android {
     namespace = "com.redtea.minddrift"
-    compileSdk = 34
+    compileSdk = 35
     ndkVersion = "27.0.12077973"
     
     // Fix for 16KB native library alignment

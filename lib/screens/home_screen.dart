@@ -23,6 +23,11 @@ import 'profile_edit_screen.dart';
 import 'practice_mode_screen.dart';
 import 'daily_challenge_screen.dart';
 import 'campaign_screen.dart';
+import 'gem_store_screen.dart';
+import 'quest_screen.dart';
+import '../services/wallet_service.dart';
+import '../services/quest_service.dart';
+import '../models/player_wallet.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/';
@@ -42,6 +47,9 @@ class _HomeScreenState extends State<HomeScreen>
   Set<String> _selectedBundles = {};
   bool _selectedBundlesInitialized = false;
 
+  // Wallet state
+  PlayerWallet? _wallet;
+
   late final AnimationController _glowController;
   late final Animation<double> _glowAnimation;
 
@@ -55,6 +63,35 @@ class _HomeScreenState extends State<HomeScreen>
     _glowAnimation = Tween<double>(begin: 4, end: 16).animate(
       CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
     );
+    _loadWallet();
+  }
+
+  Future<void> _loadWallet() async {
+    try {
+      final wallet = await WalletService.getWallet();
+      setState(() {
+        _wallet = wallet;
+      });
+      
+      // Initialize quests in background (don't await to avoid blocking UI)
+      _initializeQuests();
+    } catch (e) {
+      print('Error loading wallet: $e');
+    }
+  }
+
+  Future<void> _initializeQuests() async {
+    try {
+      // Initialize daily, weekly, and achievement quests
+      await Future.wait([
+        QuestService.refreshDailyQuests(),
+        QuestService.refreshWeeklyQuests(),
+        QuestService.initializeAchievementQuests(),
+      ]);
+      print('Quests initialized successfully');
+    } catch (e) {
+      print('Error initializing quests: $e');
+    }
   }
 
   @override
@@ -617,6 +654,33 @@ class _HomeScreenState extends State<HomeScreen>
           ],
         ),
         actions: [
+          // Gem Balance Display
+          if (_wallet != null)
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.amber.withAlpha(50),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.amber.withAlpha(100)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.diamond, color: Colors.amber, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${_wallet!.mindGems}',
+                    style: const TextStyle(
+                      fontFamily: 'LuckiestGuy',
+                      fontSize: 14,
+                      color: Colors.amber,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          
           // Language Toggle Button
           const LanguageToggle(),
           IconButton(
@@ -628,6 +692,19 @@ class _HomeScreenState extends State<HomeScreen>
             tooltip: 'Edit Profile',
           ),
           IconButton(
+            icon: const Icon(Icons.diamond, color: Colors.amber),
+            onPressed: () async {
+              await Navigator.pushNamed(context, GemStoreScreen.routeName);
+              _loadWallet(); // Refresh wallet after returning from store
+            },
+            tooltip: 'Gem Store',
+          ),
+          IconButton(
+            icon: const Icon(Icons.assignment, color: Colors.green),
+            onPressed: () => Navigator.pushNamed(context, QuestScreen.routeName),
+            tooltip: 'Quests',
+          ),
+          IconButton(
             icon: const Icon(Icons.store_rounded, color: Colors.white),
             onPressed: () =>
                 Navigator.pushNamed(context, StoreScreen.routeName),
@@ -637,14 +714,7 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () =>
                 Navigator.pushNamed(context, SettingsScreen.routeName),
           ),
-          // Test button - only show in debug mode
-          if (kDebugMode)
-            IconButton(
-              icon: const Icon(Icons.science, color: Colors.orange),
-              onPressed: () =>
-                  Navigator.pushNamed(context, '/wave-spectrum-test'),
-              tooltip: 'Test Wave Spectrum (Debug Only)',
-            ),
+          // Test button hidden as requested
         ],
       ),
       body: Stack(

@@ -112,6 +112,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
         challenge: _todaysChallenge!,
         userGuess: _userGuess,
         timeSpent: timeSpent,
+        context: context,
       );
 
       setState(() {
