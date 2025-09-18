@@ -6,6 +6,7 @@ import '../services/practice_service.dart';
 import '../models/practice_models.dart';
 import '../widgets/solo_spectrum_card.dart';
 import '../widgets/radial_spectrum.dart';
+import '../l10n/app_localizations.dart';
 
 class PracticeModeScreen extends StatefulWidget {
   static const routeName = '/practice';
@@ -288,9 +289,9 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildScoreStat('Score', '${_lastResult!.score}/5', Colors.blue),
-                _buildScoreStat('Accuracy', _lastResult!.accuracyPercentage, Colors.green),
-                _buildScoreStat('Time', '${_lastResult!.timeSpent.inSeconds}s', Colors.orange),
+                _buildScoreStat(AppLocalizations.of(context)!.score, '${_lastResult!.score}/5', Colors.blue),
+                _buildScoreStat(AppLocalizations.of(context)!.accuracy, _lastResult!.accuracyPercentage, Colors.green),
+                _buildScoreStat(AppLocalizations.of(context)!.gameTime, '${_lastResult!.timeSpent.inSeconds}s', Colors.orange),
               ],
             ),
             
@@ -396,9 +397,9 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text(
-          'Practice Mode',
-          style: TextStyle(fontFamily: 'LuckiestGuy'),
+        title: Text(
+          AppLocalizations.of(context)!.practiceMode,
+          style: const TextStyle(fontFamily: 'LuckiestGuy'),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -407,7 +408,7 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _generateNewChallenge,
-            tooltip: 'New Challenge',
+            tooltip: AppLocalizations.of(context)!.newChallenge,
           ),
         ],
       ),

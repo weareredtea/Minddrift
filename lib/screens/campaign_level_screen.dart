@@ -7,6 +7,7 @@ import '../models/campaign_models.dart';
 import '../data/category_data.dart';
 import '../widgets/solo_spectrum_card.dart';
 import '../widgets/radial_spectrum.dart';
+import '../l10n/app_localizations.dart';
 
 class CampaignLevelScreen extends StatefulWidget {
   static const routeName = '/campaign-level';
@@ -638,7 +639,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error submitting result: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorSubmittingResult}: $e'),
           backgroundColor: Colors.red,
         ),
       );

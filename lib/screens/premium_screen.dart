@@ -152,13 +152,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
       },
       {
         'icon': Icons.lightbulb,
-        'title': 'Bundle Suggestions',
-        'description': 'Suggest new bundles to be added to the game',
+        'title': AppLocalizations.of(context)!.suggestBundle,
+        'description': AppLocalizations.of(context)!.pleaseEnterDescription,
       },
       {
         'icon': Icons.person,
-        'title': 'Custom Username',
-        'description': 'Set a unique custom username',
+        'title': AppLocalizations.of(context)!.customUsername,
+        'description': AppLocalizations.of(context)!.upgradeToPremium,
       },
     ];
 

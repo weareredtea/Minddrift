@@ -69,7 +69,7 @@ class _BundleSuggestionScreenState extends State<BundleSuggestionScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategories.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least one category')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.pleaseSelectAtLeastOneCategory)),
       );
       return;
     }
@@ -83,7 +83,7 @@ class _BundleSuggestionScreenState extends State<BundleSuggestionScreen> {
       final suggestion = BundleSuggestion(
         id: '', // Will be set by Firestore
         userId: user.uid,
-        userName: user.displayName ?? 'Anonymous',
+        userName: user.displayName ?? AppLocalizations.of(context)!.anonymous,
         bundleName: _bundleNameController.text.trim(),
         description: _descriptionController.text.trim(),
         categories: _selectedCategories,

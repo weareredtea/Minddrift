@@ -171,7 +171,7 @@ class StoreScreen extends StatelessWidget {
       title: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white)),
       subtitle: Text(description, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
       trailing: owned
-          ? Text('Owned', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.greenAccent))
+          ? Text(AppLocalizations.of(context)!.owned, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.greenAccent))
           : ElevatedButton(
               onPressed: (product == null || !purchase.isBillingAvailable) 
                   ? null 

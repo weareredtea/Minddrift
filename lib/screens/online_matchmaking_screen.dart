@@ -43,7 +43,7 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
       final matchmakingUser = MatchmakingUser(
         id: '', // Will be set by Firestore
         userId: user.uid,
-        displayName: user.displayName ?? 'Anonymous',
+        displayName: user.displayName ?? AppLocalizations.of(context)!.anonymous,
         avatarUrl: user.photoURL,
         status: status,
         lastSeen: DateTime.now(),

@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:minddrift/screens/store_screen.dart';
 import 'package:minddrift/screens/tutorial_screen.dart';
 import 'package:minddrift/screens/settings_screen.dart';
@@ -27,6 +30,8 @@ import 'quest_screen.dart';
 import '../services/wallet_service.dart';
 import '../services/quest_service.dart';
 import '../models/player_wallet.dart';
+import '../models/avatar.dart';
+import '../models/custom_username.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/';
@@ -48,6 +53,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   // Wallet state
   PlayerWallet? _wallet;
+  
+  // User profile state
+  String _userAvatarId = 'bear'; // Default avatar
+  String _username = 'MindDrifter'; // Default username
 
   late final AnimationController _glowController;
   late final Animation<double> _glowAnimation;
@@ -63,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen>
       CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
     );
     _loadWallet();
+    _loadUserProfile();
   }
 
   Future<void> _loadWallet() async {
@@ -97,6 +107,46 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       if (kDebugMode) {
         print('Error initializing quests: $e');
+      }
+    }
+  }
+
+  Future<void> _loadUserProfile() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      // Load username from custom_usernames collection
+      final usernameQuery = await FirebaseFirestore.instance
+          .collection('custom_usernames')
+          .where('userId', isEqualTo: user.uid)
+          .where('isActive', isEqualTo: true)
+          .limit(1)
+          .get();
+
+      String username = 'MindDrifter'; // Default
+      if (usernameQuery.docs.isNotEmpty) {
+        final customUsername = CustomUsername.fromFirestore(usernameQuery.docs.first);
+        username = customUsername.username;
+      } else if (user.displayName != null && user.displayName!.isNotEmpty) {
+        username = user.displayName!;
+      }
+
+      // Load avatar from user document
+      final fb = context.read<FirebaseService>();
+      final userDoc = await fb.userDocRef(user.uid).get();
+      final userData = userDoc.data();
+      final avatarId = userData?['avatarId'] as String? ?? 'bear';
+
+      if (mounted) {
+        setState(() {
+          _username = username;
+          _userAvatarId = avatarId;
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading user profile: $e');
       }
     }
   }
@@ -310,9 +360,9 @@ class _HomeScreenState extends State<HomeScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'Start Game',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    child: Text(
+                      AppLocalizations.of(context)!.startGame,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -525,7 +575,7 @@ class _HomeScreenState extends State<HomeScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                'Play by Yourself',
+                AppLocalizations.of(context)!.playByYourself,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -613,7 +663,7 @@ class _HomeScreenState extends State<HomeScreen>
         );
       default:
         return BundleInfo(
-          name: 'Unknown Bundle',
+          name: AppLocalizations.of(context)!.unknownBundle,
           color: Colors.grey,
           icon: Icons.help_outline,
         );
@@ -622,14 +672,15 @@ class _HomeScreenState extends State<HomeScreen>
 
   // NEW: Widget for the new profile header
   Widget _buildProfileHeader(BuildContext context) {
-    // Placeholder username - in a real app, this would come from a user service
-    final username = 'MindDrifter'; 
-  
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ProfileEditScreen()),
-      ),
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileEditScreen()),
+        );
+        // Reload profile after returning from edit screen
+        _loadUserProfile();
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
@@ -640,10 +691,18 @@ class _HomeScreenState extends State<HomeScreen>
         child: Row(
           mainAxisSize: MainAxisSize.min, // Fit content
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 20,
-              backgroundColor: Color(0xFF4A00E0), // Using a theme color
-              child: Icon(Icons.person, color: Colors.white, size: 24),
+              backgroundColor: const Color(0xFF4A00E0), // Using a theme color
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: SvgPicture.asset(
+                  Avatars.getPathFromId(_userAvatarId),
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             const SizedBox(width: 12),
             Column(
@@ -651,7 +710,7 @@ class _HomeScreenState extends State<HomeScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  username,
+                  _username,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -726,7 +785,7 @@ class _HomeScreenState extends State<HomeScreen>
             _buildNavBarItem(
               context,
               icon: Icons.diamond_outlined,
-              label: 'Gems', // Using simplified label
+              label: AppLocalizations.of(context)!.gems,
               color: Colors.amber,
               onTap: () async {
                 await Navigator.pushNamed(context, GemStoreScreen.routeName);
@@ -736,21 +795,21 @@ class _HomeScreenState extends State<HomeScreen>
             _buildNavBarItem(
               context,
               icon: Icons.assignment_turned_in_outlined,
-              label: 'Quests', // Using simplified label
+              label: AppLocalizations.of(context)!.quests,
               color: Colors.green,
               onTap: () => Navigator.pushNamed(context, QuestScreen.routeName),
             ),
             _buildNavBarItem(
               context,
               icon: Icons.store_outlined,
-              label: 'Store', // Using simplified label
+              label: AppLocalizations.of(context)!.store,
               color: Colors.cyan,
               onTap: () => Navigator.pushNamed(context, StoreScreen.routeName),
             ),
             _buildNavBarItem(
               context,
               icon: Icons.settings_outlined,
-              label: 'Settings', // Using simplified label
+              label: AppLocalizations.of(context)!.settings,
               color: Colors.grey.shade400,
               onTap: () => Navigator.pushNamed(context, SettingsScreen.routeName),
             ),
@@ -876,7 +935,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       const Icon(Icons.people, color: Colors.white),
                                       const SizedBox(width: 8),
                                       Text(
-                                        'Play with Friends',
+                                        AppLocalizations.of(context)!.playWithFriends,
                                         style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                                       ),
                                     ],
@@ -911,7 +970,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     const Icon(Icons.person, color: Colors.white),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Play Solo',
+                                      AppLocalizations.of(context)!.playSolo,
                                       style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                                     ),
                                   ],

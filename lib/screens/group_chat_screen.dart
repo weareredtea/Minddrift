@@ -82,7 +82,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send message: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.failedToSendMessage}: $e')),
         );
       }
     } finally {
@@ -95,8 +95,8 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   Future<void> _startRecording() async {
     // Voice recording coming soon
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Voice recording coming soon!'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.voiceRecordingComingSoon),
         backgroundColor: Colors.blue,
       ),
     );
@@ -139,7 +139,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         _playingMessageId = null;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to play voice message: $e')),
+        SnackBar(content: Text('${AppLocalizations.of(context)!.failedToPlayVoiceMessage}: $e')),
       );
     }
   }
@@ -163,8 +163,8 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
                   icon: const Icon(Icons.mic_off, color: Colors.grey),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Voice chat requires Premium'),
+                      SnackBar(
+                        content: Text(AppLocalizations.of(context)!.voiceChatRequiresPremium),
                       ),
                     );
                   },

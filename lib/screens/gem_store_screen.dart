@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import '../services/wallet_service.dart';
 import '../models/player_wallet.dart';
 import '../data/cosmetic_catalog.dart';
+import '../l10n/app_localizations.dart';
 
 class GemStoreScreen extends StatefulWidget {
   static const routeName = '/gem-store';
@@ -50,7 +51,7 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
       });
     } catch (e) {
       setState(() {
-        _error = 'Failed to load wallet: $e';
+        _error = '${AppLocalizations.of(context)!.error}: $e';
         _isLoading = false;
       });
     }
@@ -65,9 +66,9 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
           children: [
             const Icon(Icons.diamond, color: Colors.amber, size: 24),
             const SizedBox(width: 8),
-            const Text(
-              'Gem Store',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.gemStoreTitle,
+              style: const TextStyle(
                 fontFamily: 'LuckiestGuy',
                 fontSize: 24,
                 color: Colors.white,
@@ -112,18 +113,18 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
           labelColor: Colors.amber,
           unselectedLabelColor: Colors.white70,
           indicatorColor: Colors.amber,
-          tabs: const [
+          tabs: [
             Tab(
-              icon: Icon(Icons.palette),
-              text: 'Slider Skins',
+              icon: const Icon(Icons.palette),
+              text: AppLocalizations.of(context)!.sliderSkins,
             ),
             Tab(
-              icon: Icon(Icons.military_tech),
-              text: 'Badges',
+              icon: const Icon(Icons.military_tech),
+              text: AppLocalizations.of(context)!.badges,
             ),
             Tab(
-              icon: Icon(Icons.people),
-              text: 'Avatar Packs',
+              icon: const Icon(Icons.people),
+              text: AppLocalizations.of(context)!.avatarPacks,
             ),
           ],
         ),
@@ -180,9 +181,9 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
                 backgroundColor: Colors.amber,
                 foregroundColor: Colors.black,
               ),
-              child: const Text(
-                'Retry',
-                style: TextStyle(fontFamily: 'LuckiestGuy'),
+              child: Text(
+                AppLocalizations.of(context)!.retry,
+                style: const TextStyle(fontFamily: 'LuckiestGuy'),
               ),
             ),
           ],
@@ -287,9 +288,9 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
                             color: Colors.amber.withAlpha(100),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            'ANIMATED',
-                            style: TextStyle(
+                          child:                           Text(
+                            AppLocalizations.of(context)!.animated,
+                            style: const TextStyle(
                               fontSize: 8,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -343,10 +344,10 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
                     color: Colors.green.withAlpha(100),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'OWNED',
+                  child: Text(
+                    AppLocalizations.of(context)!.owned,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'LuckiestGuy',
                       fontSize: 12,
                       color: Colors.white,
@@ -418,7 +419,7 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
     if (!_wallet!.canAfford(item.gemPrice)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Not enough Gems! You need ${item.gemPrice - _wallet!.mindGems} more Gems.'),
+          content: Text('${AppLocalizations.of(context)!.notEnoughGems} ${AppLocalizations.of(context)!.gems}: ${item.gemPrice - _wallet!.mindGems}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -430,9 +431,9 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2A2A4A),
-        title: const Text(
-          'Confirm Purchase',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.confirmPurchase,
+          style: const TextStyle(
             fontFamily: 'LuckiestGuy',
             color: Colors.white,
           ),
@@ -467,7 +468,7 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -475,9 +476,9 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
               backgroundColor: Colors.amber,
               foregroundColor: Colors.black,
             ),
-            child: const Text(
-              'Purchase',
-              style: TextStyle(fontFamily: 'LuckiestGuy'),
+            child: Text(
+              AppLocalizations.of(context)!.purchase,
+              style: const TextStyle(fontFamily: 'LuckiestGuy'),
             ),
           ),
         ],
@@ -495,7 +496,7 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Successfully purchased ${item.name}!'),
+            content: Text('${AppLocalizations.of(context)!.purchaseSuccessful} ${item.name}!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -504,8 +505,8 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
         await _loadWallet();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Purchase failed. Please try again.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.purchaseFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -513,7 +514,7 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorGeneric}: $e'),
           backgroundColor: Colors.red,
         ),
       );

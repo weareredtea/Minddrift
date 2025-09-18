@@ -1181,6 +1181,141 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Campaign Mode'**
   String get campaignMode;
+
+  // ===== NEW FEATURES LOCALIZATION =====
+
+  /// Gem Store related strings
+  String get gemStore;
+  String get gemStoreTitle;
+  String get mindGems;
+  String get sliderSkins;
+  String get badges;
+  String get avatarPacks;
+  String get loadingStore;
+  String get confirmPurchase;
+  String get purchase;
+  // cancel already exists
+  // owned already exists
+  String get notEnoughGems;
+  String get purchaseSuccessful;
+  String get purchaseFailed;
+  String get animated;
+  String get retry;
+
+  /// Quest System related strings
+  String get quests;
+  String get questsTitle;
+  String get daily;
+  String get weekly;
+  String get achievements;
+  String get special;
+  String get loadingQuests;
+  String get progress;
+  String get rewards;
+  String get completed;
+  String get claimReward;
+  String get readyToClaim;
+  String get inProgress;
+  String get questRewardClaimed;
+  String get questClaimFailed;
+  String get noDailyQuests;
+  String get noWeeklyQuests;
+  String get noAchievementQuests;
+  String get noSpecialQuests;
+
+  /// Practice Mode related strings
+  String get yourClue;
+  String get whereDoesThisBelong;
+  String get yourGuess;
+  String get correctAnswer;
+  String get submitGuess;
+  // score already exists
+  String get accuracy;
+  String get gameTime; // Renamed to avoid conflict with time(String time)
+  String get nextChallenge;
+  String get newChallenge;
+
+  /// Campaign Mode related strings
+  String get campaign;
+  String get level;
+  String get section;
+  String get difficulty;
+  String get stars;
+  String get maxScore;
+  String get beginnerJourney;
+  String get risingChallenge;
+  String get expertTerritory;
+  String get grandmasterGauntlet;
+
+  /// Daily Challenge related strings
+  String get todaysChallenge;
+  String get leaderboard;
+  String get streak;
+  String get rank;
+  String get submitAnswer;
+  String get yourRank;
+  String get currentStreak;
+
+  /// General UI strings
+  String get playWithFriends;
+  String get playSolo;
+  String get playByYourself;
+  String get startGame;
+  String get gems;
+  // store already exists
+  // settings already exists
+  String get loading;
+  // error already exists (as function)
+  String get back;
+  String get errorLoadingChallenge;
+  String get errorSubmittingResult;
+  String get unknownBundle;
+  String get noSpecialEffect;
+  String get errorGeneric;
+  String get profileUpdatedSuccessfully;
+  String get errorUpdatingProfile;
+  String get errorLoadingProfile;
+  String get failedToSendMessage;
+  String get voiceRecordingComingSoon;
+  String get failedToPlayVoiceMessage;
+  String get voiceChatRequiresPremium;
+  String get errorSavingBundleSelections;
+  String get loadingBundleSelections;
+  String get you;
+  String get operationTimedOut;
+  String get premiumFeature;
+  String get upgradeToPremiumNew; // Renamed to avoid conflict
+  String get customUsername;
+  String get currentUsername;
+  String get suggestBundle;
+  String get bundleName;
+  String get description;
+  String get pleaseEnterBundleName;
+  String get pleaseEnterDescription;
+  String get pleaseSelectAtLeastOneCategory;
+  String get anonymous;
+  String get onlineMatchmakingNew; // Renamed to avoid conflict
+  String get goOffline;
+  String get goOnline;
+  String get youAreNowOffline;
+  String get youAreNowOnline;
+  String get onlineLookingForPlayers;
+  String get offline;
+  
+  // Profile Edit Screen
+  String get editProfile;
+  String get chooseAvatar;
+  String get username;
+  String get enterYourUsername;
+  String get yourUsername;
+  String get usernameIsRequired;
+  String get usernameMustBeAtLeast3Characters;
+  String get usernameCanOnlyContainLettersNumbersUnderscores;
+  String get usernameRules;
+  String get saveProfile;
+  String get randomAvatar;
+  String get usernameIsAlreadyTaken;
+  String get errorCheckingUsernameAvailability;
 }
 
 class _AppLocalizationsDelegate

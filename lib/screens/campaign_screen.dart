@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/campaign_service.dart';
 import '../models/campaign_models.dart';
+import '../l10n/app_localizations.dart';
 import 'campaign_level_screen.dart';
 
 class CampaignScreen extends StatefulWidget {
@@ -55,9 +56,9 @@ class _CampaignScreenState extends State<CampaignScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
       appBar: AppBar(
-        title: const Text(
-          'Campaign Mode',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.campaignMode,
+          style: const TextStyle(
             fontFamily: 'LuckiestGuy',
             fontSize: 24,
             color: Colors.white,
@@ -145,9 +146,9 @@ class _CampaignScreenState extends State<CampaignScreen> {
                 backgroundColor: Colors.deepPurple,
                 foregroundColor: Colors.white,
               ),
-              child: const Text(
-                'Retry',
-                style: TextStyle(fontFamily: 'LuckiestGuy'),
+              child: Text(
+                AppLocalizations.of(context)!.retry,
+                style: const TextStyle(fontFamily: 'LuckiestGuy'),
               ),
             ),
           ],
@@ -195,10 +196,10 @@ class _CampaignScreenState extends State<CampaignScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Your Progress',
-            style: TextStyle(
-              fontFamily: 'LuckiestGuy',
+            Text(
+              AppLocalizations.of(context)!.progress,
+              style: const TextStyle(
+                fontFamily: 'LuckiestGuy',
               fontSize: 20,
               color: Colors.white,
             ),

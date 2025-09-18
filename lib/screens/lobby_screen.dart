@@ -65,7 +65,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
         );
       default:
         return BundleInfo(
-          name: 'Unknown Bundle',
+          name: AppLocalizations.of(context)!.unknownBundle,
           color: Colors.grey,
           icon: Icons.help_outline,
         );

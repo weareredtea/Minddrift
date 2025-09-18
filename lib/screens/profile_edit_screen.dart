@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/avatar.dart';
 import '../models/custom_username.dart';
 import '../services/firebase_service.dart';
+import '../l10n/app_localizations.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   static const routeName = '/profile-edit';
@@ -72,7 +73,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading profile: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorLoadingProfile}: $e')),
         );
       }
     } finally {
@@ -116,12 +117,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       setState(() {
         _isUsernameAvailable = isAvailable;
-        _usernameError = isAvailable ? null : 'Username is already taken';
+        _usernameError = isAvailable ? null : 'Username is already taken'; // Will be localized in UI
       });
     } catch (e) {
       setState(() {
         _isUsernameAvailable = false;
-        _usernameError = 'Error checking username availability';
+        _usernameError = 'Error checking username availability'; // Will be localized in UI
       });
     } finally {
       setState(() => _isCheckingUsername = false);
@@ -177,8 +178,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.profileUpdatedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -188,7 +189,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error updating profile: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorUpdatingProfile}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -200,12 +201,23 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
+  String? _getLocalizedError(String? error) {
+    if (error == null) return null;
+    if (error == 'Username is already taken') {
+      return AppLocalizations.of(context)!.usernameIsAlreadyTaken;
+    }
+    if (error == 'Error checking username availability') {
+      return AppLocalizations.of(context)!.errorCheckingUsernameAvailability;
+    }
+    return error;
+  }
+
   Widget _buildAvatarSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Choose Avatar',
+          AppLocalizations.of(context)!.chooseAvatar,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontFamily: 'LuckiestGuy',
           ),
@@ -262,7 +274,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Username',
+          AppLocalizations.of(context)!.username,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontFamily: 'LuckiestGuy',
           ),
@@ -273,7 +285,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           child: TextFormField(
             controller: _usernameController,
             decoration: InputDecoration(
-              hintText: 'Enter your username',
+              hintText: AppLocalizations.of(context)!.enterYourUsername,
               filled: true,
               fillColor: Colors.grey[800],
               border: OutlineInputBorder(
@@ -295,7 +307,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           color: _isUsernameAvailable ? Colors.green : Colors.red,
                         )
                       : null,
-              errorText: _usernameError,
+              errorText: _getLocalizedError(_usernameError),
             ),
             style: const TextStyle(color: Colors.white),
             onChanged: (value) {
@@ -310,13 +322,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             },
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Username is required';
+                return AppLocalizations.of(context)!.usernameIsRequired;
               }
               if (value.trim().length < 3) {
-                return 'Username must be at least 3 characters';
+                return AppLocalizations.of(context)!.usernameMustBeAtLeast3Characters;
               }
               if (!CustomUsername.isValidUsername(value.trim())) {
-                return 'Username can only contain letters, numbers, and underscores';
+                return AppLocalizations.of(context)!.usernameCanOnlyContainLettersNumbersUnderscores;
               }
               return null;
             },
@@ -324,7 +336,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          '• 3-20 characters\n• Letters, numbers, and underscores only\n• Must be unique',
+          AppLocalizations.of(context)!.usernameRules,
           style: TextStyle(
             color: Colors.grey[400],
             fontSize: 12,
@@ -342,8 +354,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text(
-          'Edit Profile',
-          style: TextStyle(
+          AppLocalizations.of(context)!.editProfile,
+          style: const TextStyle(
             fontFamily: 'LuckiestGuy',
           ),
         ),
@@ -382,7 +394,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         Text(
                           _usernameController.text.isNotEmpty 
                               ? _usernameController.text 
-                              : 'Your Username',
+                              : AppLocalizations.of(context)!.yourUsername,
                           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                             color: Colors.white,
                             fontFamily: 'LuckiestGuy',
@@ -427,8 +439,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               ),
                             )
                           : Text(
-                              'Save Profile',
-                              style: TextStyle(
+                              AppLocalizations.of(context)!.saveProfile,
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'LuckiestGuy',
@@ -457,8 +469,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       ),
                       icon: const Icon(Icons.shuffle),
                       label: Text(
-                        'Random Avatar',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.randomAvatar,
+                        style: const TextStyle(
                           fontFamily: 'Chewy',
                         ),
                       ),

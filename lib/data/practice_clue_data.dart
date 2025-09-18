@@ -55,76 +55,76 @@ class PracticeClueDatabase {
     'magic_science': CategoryClueSet(
       // Range 1: 0.0-0.2 (MAGIC side)
       range1: [
-        'Dragon\'s breath',
-        'Wizard\'s spell',
-        'Enchanted forest',
-        'Magic potion'
+        'A puff of smoke',
+        'Abracadabra',
+        'A magic wand',
+        'A top hat'
       ],
       // Range 2: 0.2-0.4 (Mostly magic)
       range2: [
-        'Fairy tale',
-        'Crystal ball',
-        'Spell book',
-        'Mystical aura'
+        'A four-leaf clover',
+        'Knocking on wood',
+        'Making a wish',
+        'A tarot card'
       ],
       // Range 3: 0.4-0.6 (Neutral/Mixed)
       range3: [
-        'Fantasy novel',
-        'Alchemy',
-        'Old legend',
-        'Supernatural'
+        'An optical illusion',
+        'Hypnosis',
+        'Astrology',
+        'Déjà vu'
       ],
       // Range 4: 0.6-0.8 (Mostly science)
       range4: [
-        'Laboratory',
-        'Research',
-        'Experiment',
-        'Data analysis'
+        'A lightbulb',
+        'A blueprint',
+        'An antibiotic',
+        'A smartphone'
       ],
       // Range 5: 0.8-1.0 (SCIENCE side)
       range5: [
-        'Quantum physics',
-        'DNA sequencing',
-        'Space telescope',
-        'Clinical trial'
+        'A lab coat',
+        'E = mc²',
+        'A beaker',
+        'The periodic table'
       ],
     ),
 
     'myth_history': CategoryClueSet(
       // Range 1: 0.0-0.2 (MYTH side)
       range1: [
-        'Dragon legend',
-        'Greek gods',
-        'Fairy tale',
-        'Unicorn story'
+        'Mount Olympus',
+        'Excalibur',
+        'A golden fleece',
+        'A cyclops\'s eye'
       ],
       // Range 2: 0.2-0.4 (Mostly myth)
       range2: [
-        'Folk tale',
-        'Ancient legend',
-        'Oral tradition',
-        'Mythical creature'
+        'The Fountain of Youth',
+        'The Loch Ness Monster',
+        'Bigfoot',
+        'The lost city of Atlantis'
       ],
       // Range 3: 0.4-0.6 (Neutral/Mixed)
       range3: [
-        'Historical fiction',
-        'Old story',
-        'Ancient tale',
-        'Legend or fact'
+        'Robin Hood',
+        'The Rosetta Stone',
+        'Hieroglyphics',
+        'The Trojan Horse'
       ],
       // Range 4: 0.6-0.8 (Mostly history)
       range4: [
-        'Historical record',
-        'Archaeological find',
-        'Museum artifact',
-        'Documented event'
+        'A black-and-white photograph',
+        'A museum display',
+        'An ancient coin',
+        'A pyramid'
       ],
       // Range 5: 0.8-1.0 (HISTORY side)
       range5: [
-        'DNA evidence',
-        'Carbon dating',
-        'Scientific proof',
-        'Historical fact'
+        'A fossil',
+        'A birth certificate',
+        'A newspaper headline',
+        'Security camera footage'
       ],
     ),
 
@@ -135,76 +135,76 @@ class PracticeClueDatabase {
     'hungry_satiated': CategoryClueSet(
       // Range 1: 0.0-0.2 (HUNGRY side)
       range1: [
-        'Starving student',
-        'Empty stomach',
-        'Skipped breakfast',
-        'Famished traveler'
+        'Stomach rumbling',
+        'Opening the fridge',
+        'Looking at a menu',
+        'A vending machine'
       ],
       // Range 2: 0.2-0.4 (Mostly hungry)
       range2: [
-        'Getting peckish',
-        'Light snack time',
-        'Stomach rumbling',
-        'Pre-dinner hunger'
+        'A lunch break',
+        'Grocery shopping',
+        'Watching a cooking show',
+        '"What\'s for dinner?"'
       ],
       // Range 3: 0.4-0.6 (Neutral/Satisfied)
       range3: [
-        'Just right',
-        'Content feeling',
-        'Good meal',
-        'Perfectly satisfied'
+        'A doggy bag',
+        'A lunchbox',
+        '"Just a coffee, thanks"',
+        'Cleaning your plate'
       ],
-      // Range 4: 0.6-0.8 (Mostly full)
+      // Range 4: 0.6-0.8 (Mostly satiated)
       range4: [
-        'Very full',
-        'Had enough',
-        'Big dinner',
-        'Feeling stuffed'
+        'Loosening your belt',
+        'A food coma',
+        'Declining dessert',
+        'Patting your belly'
       ],
       // Range 5: 0.8-1.0 (SATIATED side)
       range5: [
-        'Thanksgiving feast',
-        'Food coma',
-        'About to burst',
-        'Can\'t eat another bite'
+        'A nap',
+        'Black tea',
+        'A toothpick',
+        '"I couldn\'t eat another bite"'
       ],
     ),
 
     'spicy_mild': CategoryClueSet(
       // Range 1: 0.0-0.2 (SPICY side)
       range1: [
-        'Ghost pepper',
-        'Fire in mouth',
-        'Call the fire department',
-        'Lava hot'
+        'A glass of milk',
+        'Tears in your eyes',
+        'Sweating',
+        'A fire extinguisher'
       ],
       // Range 2: 0.2-0.4 (Mostly spicy)
       range2: [
-        'Jalapeño kick',
-        'Hot sauce',
-        'Spicy curry',
-        'Burning tongue'
+        'A warning label',
+        'Needing a drink',
+        'A red chili pepper icon',
+        'Fanning your mouth'
       ],
       // Range 3: 0.4-0.6 (Neutral/Balanced)
       range3: [
-        'Black pepper',
-        'Hint of heat',
-        'Gentle warmth',
-        'Balanced seasoning'
+        'Ketchup',
+        'A pinch of salt',
+        'Cinnamon',
+        'Ginger'
       ],
       // Range 4: 0.6-0.8 (Mostly mild)
       range4: [
-        'Plain yogurt',
-        'Butter on toast',
-        'Vanilla ice cream',
-        'Soothing soup'
+        'A saltine cracker',
+        'Chicken noodle soup',
+        'Oatmeal',
+        'A baby spoon'
       ],
       // Range 5: 0.8-1.0 (MILD side)
       range5: [
-        'Baby food',
-        'Plain white rice',
-        'Distilled water',
-        'Completely tasteless'
+        'A glass of water',
+        'An ice cube',
+        'A doctor\'s recommendation',
+        'Fasting'
       ],
     ),
   };

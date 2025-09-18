@@ -89,7 +89,7 @@ class _ResultScreenState extends State<ResultScreen> {
           final secret = currentRound.secretPosition!;
           final guess = currentRound.groupGuessPosition!;
           final score = currentRound.score ?? 0;
-          final currentRoundNumber = roomData['currentRoundNumber'] as int? ?? 0;
+          // final currentRoundNumber = roomData['currentRoundNumber'] as int? ?? 0; // Removed unused variable
 
           if (!_hasPlayedScoreSound) {
             if (score >= 4) { _audioService.playCheerSound(); } 
@@ -251,7 +251,7 @@ class _NextRoundControlsState extends State<NextRoundControls> {
               (p) => p.uid == myUid,
               orElse: () => PlayerStatus(
                 uid: myUid,
-                displayName: 'You',
+                displayName: AppLocalizations.of(context)!.you,
                 ready: false,
                 online: true,
                 avatarId: 'bear'

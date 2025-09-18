@@ -76,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error saving bundle selections: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorSavingBundleSelections}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -219,9 +219,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               
               // Show loading indicator while bundle selections are being loaded
               if (_loadingBundles) {
-                return const ListTile(
-                  title: Text('Loading bundle selections...'),
-                  trailing: SizedBox(
+                return ListTile(
+                  title: Text(AppLocalizations.of(context)!.loadingBundleSelections),
+                  trailing: const SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),

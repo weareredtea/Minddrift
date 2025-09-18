@@ -532,4 +532,252 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get campaignMode => 'وضع الحملة';
+
+  // ===== NEW FEATURES ARABIC TRANSLATIONS =====
+
+  /// Gem Store related strings
+  @override
+  String get gemStore => 'متجر الجواهر';
+  @override
+  String get gemStoreTitle => 'متجر الجواهر';
+  @override
+  String get mindGems => 'جواهر العقل';
+  @override
+  String get sliderSkins => 'أشكال المنزلق';
+  @override
+  String get badges => 'الشارات';
+  @override
+  String get avatarPacks => 'حزم الصور الرمزية';
+  @override
+  String get loadingStore => 'جاري تحميل المتجر...';
+  @override
+  String get confirmPurchase => 'تأكيد الشراء';
+  @override
+  String get purchase => 'شراء';
+  // cancel already exists
+  // owned already exists - updating existing one
+  @override
+  String get notEnoughGems => 'جواهر غير كافية!';
+  @override
+  String get purchaseSuccessful => 'تم الشراء بنجاح!';
+  @override
+  String get purchaseFailed => 'فشل الشراء. يرجى المحاولة مرة أخرى.';
+  @override
+  String get animated => 'متحرك';
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  /// Quest System related strings
+  @override
+  String get quests => 'المهام';
+  @override
+  String get questsTitle => 'المهام';
+  @override
+  String get daily => 'يومي';
+  @override
+  String get weekly => 'أسبوعي';
+  @override
+  String get achievements => 'الإنجازات';
+  @override
+  String get special => 'خاص';
+  @override
+  String get loadingQuests => 'جاري تحميل المهام...';
+  @override
+  String get progress => 'التقدم';
+  @override
+  String get rewards => 'المكافآت';
+  @override
+  String get completed => 'مكتمل';
+  @override
+  String get claimReward => 'استلام المكافأة';
+  @override
+  String get readyToClaim => 'جاهز للاستلام';
+  @override
+  String get inProgress => 'قيد التقدم';
+  @override
+  String get questRewardClaimed => 'تم استلام مكافأة المهمة بنجاح!';
+  @override
+  String get questClaimFailed => 'فشل في استلام المكافأة. يرجى المحاولة مرة أخرى.';
+  @override
+  String get noDailyQuests => 'لا توجد مهام يومية متاحة.\nتحقق غداً!';
+  @override
+  String get noWeeklyQuests => 'لا توجد مهام أسبوعية متاحة.\nتحقق الأسبوع القادم!';
+  @override
+  String get noAchievementQuests => 'لا توجد مهام إنجازات متاحة.\nاستمر في اللعب لفتح المزيد!';
+  @override
+  String get noSpecialQuests => 'لا توجد أحداث خاصة.\nترقب المهام محدودة الوقت!';
+
+  /// Practice Mode related strings
+  @override
+  String get yourClue => 'دليلك:';
+  @override
+  String get whereDoesThisBelong => 'أين ينتمي هذا الدليل؟';
+  @override
+  String get yourGuess => 'تخمينك';
+  @override
+  String get correctAnswer => 'الإجابة الصحيحة';
+  @override
+  String get submitGuess => 'إرسال التخمين';
+  // score already exists
+  @override
+  String get accuracy => 'الدقة';
+  @override
+  String get gameTime => 'الوقت';
+  @override
+  String get nextChallenge => 'التحدي التالي';
+  @override
+  String get newChallenge => 'تحدي جديد';
+
+  /// Campaign Mode related strings
+  @override
+  String get campaign => 'الحملة';
+  @override
+  String get level => 'المستوى';
+  @override
+  String get section => 'القسم';
+  @override
+  String get difficulty => 'الصعوبة';
+  @override
+  String get stars => 'النجوم';
+  @override
+  String get maxScore => 'أقصى نقاط';
+  @override
+  String get beginnerJourney => 'رحلة المبتدئين';
+  @override
+  String get risingChallenge => 'التحدي المتزايد';
+  @override
+  String get expertTerritory => 'منطقة الخبراء';
+  @override
+  String get grandmasterGauntlet => 'تحدي الأستاذ الأكبر';
+
+  /// Daily Challenge related strings
+  @override
+  String get todaysChallenge => 'تحدي اليوم';
+  @override
+  String get leaderboard => 'لوحة المتصدرين';
+  @override
+  String get streak => 'السلسلة';
+  @override
+  String get rank => 'الترتيب';
+  @override
+  String get submitAnswer => 'إرسال الإجابة';
+  @override
+  String get yourRank => 'ترتيبك';
+  @override
+  String get currentStreak => 'السلسلة الحالية';
+
+  /// General UI strings
+  @override
+  String get playWithFriends => 'العب مع الأصدقاء';
+  @override
+  String get playSolo => 'العب منفرداً';
+  @override
+  String get playByYourself => 'العب بمفردك';
+  @override
+  String get startGame => 'ابدأ اللعبة';
+  @override
+  String get gems => 'الجواهر';
+  // store already exists
+  // settings already exists
+  @override
+  String get loading => 'جاري التحميل...';
+  // error already exists (as function)
+  @override
+  String get back => 'رجوع';
+  @override
+  String get errorLoadingChallenge => 'خطأ في تحميل التحدي اليومي';
+  @override
+  String get errorSubmittingResult => 'خطأ في إرسال النتيجة';
+  @override
+  String get unknownBundle => 'حزمة غير معروفة';
+  @override
+  String get noSpecialEffect => 'لا توجد تأثيرات خاصة';
+  @override
+  String get errorGeneric => 'خطأ';
+  @override
+  String get profileUpdatedSuccessfully => 'تم تحديث الملف الشخصي بنجاح!';
+  @override
+  String get errorUpdatingProfile => 'خطأ في تحديث الملف الشخصي';
+  @override
+  String get errorLoadingProfile => 'خطأ في تحميل الملف الشخصي';
+  @override
+  String get failedToSendMessage => 'فشل في إرسال الرسالة';
+  @override
+  String get voiceRecordingComingSoon => 'تسجيل الصوت قريباً!';
+  @override
+  String get failedToPlayVoiceMessage => 'فشل في تشغيل الرسالة الصوتية';
+  @override
+  String get voiceChatRequiresPremium => 'الدردشة الصوتية تتطلب العضوية المميزة';
+  @override
+  String get errorSavingBundleSelections => 'خطأ في حفظ اختيارات الحزم';
+  @override
+  String get loadingBundleSelections => 'جاري تحميل اختيارات الحزم...';
+  @override
+  String get you => 'أنت';
+  @override
+  String get operationTimedOut => 'انتهت مهلة العملية';
+  @override
+  String get premiumFeature => 'ميزة مميزة';
+  @override
+  String get upgradeToPremiumNew => 'ترقية إلى العضوية المميزة';
+  @override
+  String get customUsername => 'اسم مستخدم مخصص';
+  @override
+  String get currentUsername => 'اسم المستخدم الحالي';
+  @override
+  String get suggestBundle => 'اقتراح حزمة';
+  @override
+  String get bundleName => 'اسم الحزمة';
+  @override
+  String get description => 'الوصف';
+  @override
+  String get pleaseEnterBundleName => 'يرجى إدخال اسم الحزمة';
+  @override
+  String get pleaseEnterDescription => 'يرجى إدخال الوصف';
+  @override
+  String get pleaseSelectAtLeastOneCategory => 'يرجى اختيار فئة واحدة على الأقل';
+  @override
+  String get anonymous => 'مجهول';
+  @override
+  String get onlineMatchmakingNew => 'المطابقة عبر الإنترنت';
+  @override
+  String get goOffline => 'عدم الاتصال';
+  @override
+  String get goOnline => 'الاتصال';
+  @override
+  String get youAreNowOffline => 'أنت الآن غير متصل';
+  @override
+  String get youAreNowOnline => 'أنت الآن متصل';
+  @override
+  String get onlineLookingForPlayers => 'متصل - البحث عن لاعبين';
+  @override
+  String get offline => 'غير متصل';
+  
+  // Profile Edit Screen
+  @override
+  String get editProfile => 'تعديل الملف الشخصي';
+  @override
+  String get chooseAvatar => 'اختر الصورة الرمزية';
+  @override
+  String get username => 'اسم المستخدم';
+  @override
+  String get enterYourUsername => 'أدخل اسم المستخدم الخاص بك';
+  @override
+  String get yourUsername => 'اسم المستخدم الخاص بك';
+  @override
+  String get usernameIsRequired => 'اسم المستخدم مطلوب';
+  @override
+  String get usernameMustBeAtLeast3Characters => 'يجب أن يكون اسم المستخدم 3 أحرف على الأقل';
+  @override
+  String get usernameCanOnlyContainLettersNumbersUnderscores => 'يمكن أن يحتوي اسم المستخدم على أحرف وأرقام وشرطات سفلية فقط';
+  @override
+  String get usernameRules => '• 3-20 حرف\n• أحرف وأرقام وشرطات سفلية فقط\n• يجب أن يكون فريداً';
+  @override
+  String get saveProfile => 'حفظ الملف الشخصي';
+  @override
+  String get randomAvatar => 'صورة رمزية عشوائية';
+  @override
+  String get usernameIsAlreadyTaken => 'اسم المستخدم مستخدم بالفعل';
+  @override
+  String get errorCheckingUsernameAvailability => 'خطأ في التحقق من توفر اسم المستخدم';
 }

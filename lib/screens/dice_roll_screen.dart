@@ -117,7 +117,7 @@ class _DiceRollScreenState extends State<DiceRollScreen> {
         return 'Blind Guess!';
       case Effect.none:
       default:
-        return 'No Special Effect';
+        return AppLocalizations.of(context)!.noSpecialEffect;
     }
   }
 

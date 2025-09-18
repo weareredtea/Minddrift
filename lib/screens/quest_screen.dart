@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/quest_service.dart';
 import '../models/quest_models.dart';
+import '../l10n/app_localizations.dart';
 
 class QuestScreen extends StatefulWidget {
   static const routeName = '/quests';
@@ -66,9 +67,9 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
       appBar: AppBar(
-        title: const Text(
-          'Quests',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.questsTitle,
+          style: const TextStyle(
             fontFamily: 'LuckiestGuy',
             fontSize: 24,
             color: Colors.white,
@@ -85,22 +86,22 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
           labelColor: Colors.amber,
           unselectedLabelColor: Colors.white70,
           indicatorColor: Colors.amber,
-          tabs: const [
+          tabs: [
             Tab(
-              icon: Icon(Icons.today),
-              text: 'Daily',
+              icon: const Icon(Icons.today),
+              text: AppLocalizations.of(context)!.daily,
             ),
             Tab(
-              icon: Icon(Icons.date_range),
-              text: 'Weekly',
+              icon: const Icon(Icons.date_range),
+              text: AppLocalizations.of(context)!.weekly,
             ),
             Tab(
-              icon: Icon(Icons.emoji_events),
-              text: 'Achievements',
+              icon: const Icon(Icons.emoji_events),
+              text: AppLocalizations.of(context)!.achievements,
             ),
             Tab(
-              icon: Icon(Icons.star),
-              text: 'Special',
+              icon: const Icon(Icons.star),
+              text: AppLocalizations.of(context)!.special,
             ),
           ],
         ),
@@ -157,9 +158,9 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
                 backgroundColor: Colors.amber,
                 foregroundColor: Colors.black,
               ),
-              child: const Text(
-                'Retry',
-                style: TextStyle(fontFamily: 'LuckiestGuy'),
+              child: Text(
+                AppLocalizations.of(context)!.retry,
+                style: const TextStyle(fontFamily: 'LuckiestGuy'),
               ),
             ),
           ],
@@ -314,7 +315,7 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Progress',
+                      AppLocalizations.of(context)!.progress,
                       style: TextStyle(
                         fontFamily: 'Chewy',
                         fontSize: 12,
@@ -350,7 +351,7 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Rewards',
+                  AppLocalizations.of(context)!.rewards,
                   style: TextStyle(
                     fontFamily: 'Chewy',
                     fontSize: 12,
@@ -455,15 +456,16 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
   }
 
   String _getEmptyMessage(QuestType type) {
+    final loc = AppLocalizations.of(context)!;
     switch (type) {
       case QuestType.daily:
-        return 'No daily quests available.\nCheck back tomorrow!';
+        return loc.noDailyQuests;
       case QuestType.weekly:
-        return 'No weekly quests available.\nCheck back next week!';
+        return loc.noWeeklyQuests;
       case QuestType.achievement:
-        return 'No achievement quests available.\nKeep playing to unlock more!';
+        return loc.noAchievementQuests;
       case QuestType.special:
-        return 'No special events running.\nStay tuned for limited-time quests!';
+        return loc.noSpecialQuests;
     }
   }
 
@@ -478,14 +480,15 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
   }
 
   String _getButtonText(QuestProgress progress) {
+    final loc = AppLocalizations.of(context)!;
     if (progress.isRewardClaimed) {
-      return 'Completed';
+      return loc.completed;
     } else if (progress.canClaimReward) {
-      return 'Claim Reward';
+      return loc.claimReward;
     } else if (progress.isCompleted) {
-      return 'Ready to Claim';
+      return loc.readyToClaim;
     } else {
-      return 'In Progress';
+      return loc.inProgress;
     }
   }
 
@@ -504,8 +507,8 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
       
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Quest reward claimed successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.questRewardClaimed),
             backgroundColor: Colors.green,
           ),
         );
@@ -514,8 +517,8 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
         await _loadQuests();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to claim reward. Please try again.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.questClaimFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -523,7 +526,7 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text('${AppLocalizations.of(context)!.errorGeneric}: $e'),
           backgroundColor: Colors.red,
         ),
       );

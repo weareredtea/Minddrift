@@ -534,4 +534,252 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get campaignMode => 'Campaign Mode';
+
+  // ===== NEW FEATURES ENGLISH TRANSLATIONS =====
+
+  /// Gem Store related strings
+  @override
+  String get gemStore => 'Gem Store';
+  @override
+  String get gemStoreTitle => 'Gem Store';
+  @override
+  String get mindGems => 'Mind Gems';
+  @override
+  String get sliderSkins => 'Slider Skins';
+  @override
+  String get badges => 'Badges';
+  @override
+  String get avatarPacks => 'Avatar Packs';
+  @override
+  String get loadingStore => 'Loading Store...';
+  @override
+  String get confirmPurchase => 'Confirm Purchase';
+  @override
+  String get purchase => 'Purchase';
+  // cancel already exists
+  // owned already exists - using existing 'Owned'
+  @override
+  String get notEnoughGems => 'Not enough Gems!';
+  @override
+  String get purchaseSuccessful => 'Successfully purchased!';
+  @override
+  String get purchaseFailed => 'Purchase failed. Please try again.';
+  @override
+  String get animated => 'ANIMATED';
+  @override
+  String get retry => 'Retry';
+
+  /// Quest System related strings
+  @override
+  String get quests => 'Quests';
+  @override
+  String get questsTitle => 'Quests';
+  @override
+  String get daily => 'Daily';
+  @override
+  String get weekly => 'Weekly';
+  @override
+  String get achievements => 'Achievements';
+  @override
+  String get special => 'Special';
+  @override
+  String get loadingQuests => 'Loading Quests...';
+  @override
+  String get progress => 'Progress';
+  @override
+  String get rewards => 'Rewards';
+  @override
+  String get completed => 'Completed';
+  @override
+  String get claimReward => 'Claim Reward';
+  @override
+  String get readyToClaim => 'Ready to Claim';
+  @override
+  String get inProgress => 'In Progress';
+  @override
+  String get questRewardClaimed => 'Quest reward claimed successfully!';
+  @override
+  String get questClaimFailed => 'Failed to claim reward. Please try again.';
+  @override
+  String get noDailyQuests => 'No daily quests available.\nCheck back tomorrow!';
+  @override
+  String get noWeeklyQuests => 'No weekly quests available.\nCheck back next week!';
+  @override
+  String get noAchievementQuests => 'No achievement quests available.\nKeep playing to unlock more!';
+  @override
+  String get noSpecialQuests => 'No special events running.\nStay tuned for limited-time quests!';
+
+  /// Practice Mode related strings
+  @override
+  String get yourClue => 'Your Clue:';
+  @override
+  String get whereDoesThisBelong => 'Where does this clue belong?';
+  @override
+  String get yourGuess => 'Your Guess';
+  @override
+  String get correctAnswer => 'Correct Answer';
+  @override
+  String get submitGuess => 'Submit Guess';
+  // score already exists - using existing 'SCORE'
+  @override
+  String get accuracy => 'Accuracy';
+  @override
+  String get gameTime => 'Time';
+  @override
+  String get nextChallenge => 'Next Challenge';
+  @override
+  String get newChallenge => 'New Challenge';
+
+  /// Campaign Mode related strings
+  @override
+  String get campaign => 'Campaign';
+  @override
+  String get level => 'Level';
+  @override
+  String get section => 'Section';
+  @override
+  String get difficulty => 'Difficulty';
+  @override
+  String get stars => 'Stars';
+  @override
+  String get maxScore => 'Max Score';
+  @override
+  String get beginnerJourney => 'Beginner\'s Journey';
+  @override
+  String get risingChallenge => 'Rising Challenge';
+  @override
+  String get expertTerritory => 'Expert Territory';
+  @override
+  String get grandmasterGauntlet => 'Grandmaster Gauntlet';
+
+  /// Daily Challenge related strings
+  @override
+  String get todaysChallenge => 'Today\'s Challenge';
+  @override
+  String get leaderboard => 'Leaderboard';
+  @override
+  String get streak => 'Streak';
+  @override
+  String get rank => 'Rank';
+  @override
+  String get submitAnswer => 'Submit Answer';
+  @override
+  String get yourRank => 'Your Rank';
+  @override
+  String get currentStreak => 'Current Streak';
+
+  /// General UI strings
+  @override
+  String get playWithFriends => 'Play with Friends';
+  @override
+  String get playSolo => 'Play Solo';
+  @override
+  String get playByYourself => 'Play by Yourself';
+  @override
+  String get startGame => 'Start Game';
+  @override
+  String get gems => 'Gems';
+  // store already exists
+  // settings already exists
+  @override
+  String get loading => 'Loading...';
+  // error already exists (as function)
+  @override
+  String get back => 'Back';
+  @override
+  String get errorLoadingChallenge => 'Error loading daily challenge';
+  @override
+  String get errorSubmittingResult => 'Error submitting result';
+  @override
+  String get unknownBundle => 'Unknown Bundle';
+  @override
+  String get noSpecialEffect => 'No Special Effect';
+  @override
+  String get errorGeneric => 'Error';
+  @override
+  String get profileUpdatedSuccessfully => 'Profile updated successfully!';
+  @override
+  String get errorUpdatingProfile => 'Error updating profile';
+  @override
+  String get errorLoadingProfile => 'Error loading profile';
+  @override
+  String get failedToSendMessage => 'Failed to send message';
+  @override
+  String get voiceRecordingComingSoon => 'Voice recording coming soon!';
+  @override
+  String get failedToPlayVoiceMessage => 'Failed to play voice message';
+  @override
+  String get voiceChatRequiresPremium => 'Voice chat requires Premium';
+  @override
+  String get errorSavingBundleSelections => 'Error saving bundle selections';
+  @override
+  String get loadingBundleSelections => 'Loading bundle selections...';
+  @override
+  String get you => 'You';
+  @override
+  String get operationTimedOut => 'Operation timed out';
+  @override
+  String get premiumFeature => 'Premium Feature';
+  @override
+  String get upgradeToPremiumNew => 'Upgrade to Premium';
+  @override
+  String get customUsername => 'Custom Username';
+  @override
+  String get currentUsername => 'Current Username';
+  @override
+  String get suggestBundle => 'Suggest Bundle';
+  @override
+  String get bundleName => 'Bundle Name';
+  @override
+  String get description => 'Description';
+  @override
+  String get pleaseEnterBundleName => 'Please enter a bundle name';
+  @override
+  String get pleaseEnterDescription => 'Please enter a description';
+  @override
+  String get pleaseSelectAtLeastOneCategory => 'Please select at least one category';
+  @override
+  String get anonymous => 'Anonymous';
+  @override
+  String get onlineMatchmakingNew => 'Online Matchmaking';
+  @override
+  String get goOffline => 'Go Offline';
+  @override
+  String get goOnline => 'Go Online';
+  @override
+  String get youAreNowOffline => 'You are now offline';
+  @override
+  String get youAreNowOnline => 'You are now online';
+  @override
+  String get onlineLookingForPlayers => 'Online - Looking for players';
+  @override
+  String get offline => 'Offline';
+  
+  // Profile Edit Screen
+  @override
+  String get editProfile => 'Edit Profile';
+  @override
+  String get chooseAvatar => 'Choose Avatar';
+  @override
+  String get username => 'Username';
+  @override
+  String get enterYourUsername => 'Enter your username';
+  @override
+  String get yourUsername => 'Your Username';
+  @override
+  String get usernameIsRequired => 'Username is required';
+  @override
+  String get usernameMustBeAtLeast3Characters => 'Username must be at least 3 characters';
+  @override
+  String get usernameCanOnlyContainLettersNumbersUnderscores => 'Username can only contain letters, numbers, and underscores';
+  @override
+  String get usernameRules => '• 3-20 characters\n• Letters, numbers, and underscores only\n• Must be unique';
+  @override
+  String get saveProfile => 'Save Profile';
+  @override
+  String get randomAvatar => 'Random Avatar';
+  @override
+  String get usernameIsAlreadyTaken => 'Username is already taken';
+  @override
+  String get errorCheckingUsernameAvailability => 'Error checking username availability';
 }

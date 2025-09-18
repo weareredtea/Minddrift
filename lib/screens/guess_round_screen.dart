@@ -159,7 +159,7 @@ class _GuessRoundScreenState extends State<GuessRoundScreen> {
                         (p) => p.uid == uid,
                         orElse: () => PlayerStatus(
                           uid: uid,
-                          displayName: 'You',
+                          displayName: AppLocalizations.of(context)!.you,
                           ready: false,
                           online: true,
                           guessReady: false,

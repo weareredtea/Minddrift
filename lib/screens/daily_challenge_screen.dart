@@ -9,6 +9,7 @@ import '../models/daily_challenge_models.dart';
 import '../models/avatar.dart';
 import '../widgets/solo_spectrum_card.dart';
 import '../widgets/radial_spectrum.dart';
+import '../l10n/app_localizations.dart';
 
 class DailyChallengeScreen extends StatefulWidget {
   static const routeName = '/daily-challenge';
@@ -73,7 +74,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading daily challenge: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.errorLoadingChallenge}: $e')),
         );
       }
     } finally {
@@ -133,7 +134,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error submitting result: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorSubmittingResult}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -170,7 +171,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Daily Challenge',
+                              AppLocalizations.of(context)!.dailyChallenge,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -333,9 +334,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
-                    : const Text(
-                        'Submit Daily Guess',
-                        style: TextStyle(
+                    : Text(
+                        AppLocalizations.of(context)!.submitAnswer,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'LuckiestGuy',
@@ -376,9 +377,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildScoreStat('Score', '${_todaysResult!.score}/5', _getScoreColor(_todaysResult!.score)),
-                _buildScoreStat('Accuracy', '${(_todaysResult!.accuracy * 100).toStringAsFixed(1)}%', Colors.green),
-                _buildScoreStat('Time', '${_todaysResult!.timeSpent.inSeconds}s', Colors.orange),
+                _buildScoreStat(AppLocalizations.of(context)!.score, '${_todaysResult!.score}/5', _getScoreColor(_todaysResult!.score)),
+                _buildScoreStat(AppLocalizations.of(context)!.accuracy, '${(_todaysResult!.accuracy * 100).toStringAsFixed(1)}%', Colors.green),
+                _buildScoreStat(AppLocalizations.of(context)!.gameTime, '${_todaysResult!.timeSpent.inSeconds}s', Colors.orange),
               ],
             ),
             
@@ -397,7 +398,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                   Column(
                     children: [
                       Text(
-                        'Your Guess',
+                        AppLocalizations.of(context)!.yourGuess,
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 12,
