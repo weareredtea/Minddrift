@@ -9,7 +9,6 @@ import 'package:minddrift/screens/tutorial_screen.dart';
 import 'package:minddrift/screens/settings_screen.dart';
 
 import '../services/firebase_service.dart';
-import '../theme/app_theme.dart';
 import '../widgets/animated_background.dart';
 import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
@@ -69,14 +68,18 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _loadWallet() async {
     try {
       final wallet = await WalletService.getWallet();
-      setState(() {
-        _wallet = wallet;
-      });
+      if (mounted) {
+        setState(() {
+          _wallet = wallet;
+        });
+      }
       
       // Initialize quests in background (don't await to avoid blocking UI)
       _initializeQuests();
     } catch (e) {
-      print('Error loading wallet: $e');
+      if (kDebugMode) {
+        print('Error loading wallet: $e');
+      }
     }
   }
 
@@ -88,9 +91,13 @@ class _HomeScreenState extends State<HomeScreen>
         QuestService.refreshWeeklyQuests(),
         QuestService.initializeAchievementQuests(),
       ]);
-      print('Quests initialized successfully');
+      if (kDebugMode) {
+        print('Quests initialized successfully');
+      }
     } catch (e) {
-      print('Error initializing quests: $e');
+      if (kDebugMode) {
+        print('Error initializing quests: $e');
+      }
     }
   }
 
@@ -223,12 +230,9 @@ class _HomeScreenState extends State<HomeScreen>
                                 setState(() {
                                   if (value == true) {
                                     _selectedBundles.add(bundleId);
-                                    print('✅ Selected bundle: $bundleId');
                                   } else {
                                     _selectedBundles.remove(bundleId);
-                                    print('❌ Deselected bundle: $bundleId');
                                   }
-                                  print('📦 Current selected bundles: $_selectedBundles');
                                 });
                               },
                               title: Row(
@@ -293,7 +297,6 @@ class _HomeScreenState extends State<HomeScreen>
                   child: ElevatedButton(
                     onPressed: _selectedBundles.isNotEmpty
                       ? () {
-                          print('🎮 Starting game with bundles: $_selectedBundles');
                           Navigator.of(context).pop(_selectedBundles.toList()); // Pass all selected bundles
                         }
                       : null,
@@ -387,11 +390,10 @@ class _HomeScreenState extends State<HomeScreen>
                               }
                             } catch (e) {
                               setState(() {
-                                _error = ExceptionHandler.getUserFriendlyMessage(e);
+                                _error = e.toString();
                                 _loading = false;
                               });
-                              ExceptionHandler.logError('home_screen_create_room', 'Room creation failed in UI',
-                                  extraData: {'error': ExceptionHandler.getDeveloperMessage(e), 'bundles': selectedBundles?.join(',') ?? 'unknown'});
+                              print('Room creation failed: $e');
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -460,10 +462,10 @@ class _HomeScreenState extends State<HomeScreen>
                                   await context.read<FirebaseService>().joinRoom(code);
                                 } catch (e) {
                                   setState(() {
-                                    _error = ExceptionHandler.getUserFriendlyMessage(e);
+                                    _error = e.toString();
                                     _loading = false;
                                   });
-                                  ExceptionHandler.logError('home_screen_join_room', 'Room join failed in UI', extraData: {'error': ExceptionHandler.getDeveloperMessage(e), 'roomCode': code});
+                                  print('Room join failed: $e');
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -618,6 +620,146 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  // NEW: Widget for the new profile header
+  Widget _buildProfileHeader(BuildContext context) {
+    // Placeholder username - in a real app, this would come from a user service
+    final username = 'MindDrifter'; 
+  
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfileEditScreen()),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.25),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: Colors.white.withOpacity(0.2)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min, // Fit content
+          children: [
+            const CircleAvatar(
+              radius: 20,
+              backgroundColor: Color(0xFF4A00E0), // Using a theme color
+              child: Icon(Icons.person, color: Colors.white, size: 24),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  username,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                if (_wallet != null)
+                  Row(
+                    children: [
+                      const Icon(Icons.diamond, color: Colors.amber, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${_wallet!.mindGems}',
+                        style: const TextStyle(
+                          fontFamily: 'LuckiestGuy',
+                          fontSize: 14,
+                          color: Colors.amber,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // NEW: Widget for the bottom navigation bar items
+  Widget _buildNavBarItem(BuildContext context, {required IconData icon, required String label, required Color color, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // NEW: Widget for the whole bottom navigation bar
+  Widget _buildBottomNavBar(BuildContext context) {
+    return Positioned(
+      bottom: MediaQuery.of(context).padding.bottom + 10,
+      left: 20,
+      right: 20,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F0F1A).withOpacity(0.85),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: Colors.white.withOpacity(0.15)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavBarItem(
+              context,
+              icon: Icons.diamond_outlined,
+              label: 'Gems', // Using simplified label
+              color: Colors.amber,
+              onTap: () async {
+                await Navigator.pushNamed(context, GemStoreScreen.routeName);
+                _loadWallet();
+              },
+            ),
+            _buildNavBarItem(
+              context,
+              icon: Icons.assignment_turned_in_outlined,
+              label: 'Quests', // Using simplified label
+              color: Colors.green,
+              onTap: () => Navigator.pushNamed(context, QuestScreen.routeName),
+            ),
+            _buildNavBarItem(
+              context,
+              icon: Icons.store_outlined,
+              label: 'Store', // Using simplified label
+              color: Colors.cyan,
+              onTap: () => Navigator.pushNamed(context, StoreScreen.routeName),
+            ),
+            _buildNavBarItem(
+              context,
+              icon: Icons.settings_outlined,
+              label: 'Settings', // Using simplified label
+              color: Colors.grey.shade400,
+              onTap: () => Navigator.pushNamed(context, SettingsScreen.routeName),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -625,267 +767,214 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        leadingWidth: 140,
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: kToolbarHeight,
-              child: TextButton.icon(
-                onPressed: () =>
-                    Navigator.pushNamed(context, TutorialScreen.routeName),
-                icon: const Icon(Icons.school, color: Colors.white),
-                            label: Text(
-              loc.howToPlay,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.white),
-                ),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  minimumSize: const Size(0, kToolbarHeight),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-        ),
-        actions: [
-          // Gem Balance Display
-          if (_wallet != null)
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.amber.withAlpha(50),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.amber.withAlpha(100)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.diamond, color: Colors.amber, size: 16),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${_wallet!.mindGems}',
-                    style: const TextStyle(
-                      fontFamily: 'LuckiestGuy',
-                      fontSize: 14,
-                      color: Colors.amber,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          
-          // Language Toggle Button
-          const LanguageToggle(),
-          IconButton(
-            icon: const Icon(Icons.person_rounded, color: Colors.white),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfileEditScreen()),
-            ),
-            tooltip: 'Edit Profile',
-          ),
-          IconButton(
-            icon: const Icon(Icons.diamond, color: Colors.amber),
-            onPressed: () async {
-              await Navigator.pushNamed(context, GemStoreScreen.routeName);
-              _loadWallet(); // Refresh wallet after returning from store
-            },
-            tooltip: 'Gem Store',
-          ),
-          IconButton(
-            icon: const Icon(Icons.assignment, color: Colors.green),
-            onPressed: () => Navigator.pushNamed(context, QuestScreen.routeName),
-            tooltip: 'Quests',
-          ),
-          IconButton(
-            icon: const Icon(Icons.store_rounded, color: Colors.white),
-            onPressed: () =>
-                Navigator.pushNamed(context, StoreScreen.routeName),
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_rounded, color: Colors.white),
-            onPressed: () =>
-                Navigator.pushNamed(context, SettingsScreen.routeName),
-          ),
-          // Test button hidden as requested
-        ],
-      ),
+      // MODIFIED: AppBar removed to use a custom header layout
       body: Stack(
         children: [
           const AnimatedBackground(),
           SafeArea(
             bottom: false,
-            child: SingleChildScrollView(
-              padding: ResponsiveHelper.getResponsivePadding(
-                context,
-                mobile: 24,
-                tablet: 32,
-                desktop: 48,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 40),
-                  
-                  // Main App Logo/Animation
-                  SizedBox(
-                    height: 150,
-                    child: Lottie.asset(
-                      'assets/animations/Speedometer.json',
-                      fit: BoxFit.contain,
-                      animate: true,
-                      repeat: true,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    loc.appTitle,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      color: Colors.white,
-                      fontSize: 38,
-                      fontFamily: Localizations.localeOf(context).languageCode == 'ar'
-                          ? 'Oi'
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    loc.homeSubtitle,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 80),
-
-                  // --- Main 3 Buttons ---
-                  
-                  // 1. Play with Friends Button
-                  AnimatedBuilder(
-                    animation: _glowAnimation,
-                    builder: (context, child) => SizedBox(
-                      height: 60,
-                      child: ElevatedButton(
-                        onPressed: _showMultiplayerBottomSheet,
-                        style: ElevatedButton.styleFrom(
-                          elevation: _glowAnimation.value,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: Ink(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)]),
-                            borderRadius: BorderRadius.all(Radius.circular(30)),
+            child: Column(
+              children: [
+                // MODIFIED: New custom top bar layout
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildProfileHeader(context),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () => Navigator.pushNamed(context, TutorialScreen.routeName),
+                            icon: const Icon(Icons.school, color: Colors.white),
+                            label: Text(
+                              loc.howToPlay,
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.white),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              minimumSize: const Size(0, kToolbarHeight),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
                           ),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.people, color: Colors.white),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Play with Friends',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                          const LanguageToggle(),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // MODIFIED: Expanded to fill remaining space
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: ResponsiveHelper.getResponsivePadding(
+                      context,
+                      mobile: 24,
+                      tablet: 32,
+                      desktop: 48,
+                    ).copyWith(bottom: 100), // Added bottom padding to avoid overlap with new nav bar
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // MODIFIED: Reduced top spacing as header provides padding
+                        const SizedBox(height: 10),
+                        
+                        // Main App Logo/Animation
+                        SizedBox(
+                          height: 150,
+                          child: Lottie.asset(
+                            'assets/animations/Speedometer.json',
+                            fit: BoxFit.contain,
+                            animate: true,
+                            repeat: true,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          loc.appTitle,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            color: Colors.white,
+                            fontSize: 38,
+                            fontFamily: Localizations.localeOf(context).languageCode == 'ar'
+                                ? 'Oi'
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          loc.homeSubtitle,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 80),
+
+                        // --- Main 3 Buttons ---
+                        
+                        // 1. Play with Friends Button
+                        AnimatedBuilder(
+                          animation: _glowAnimation,
+                          builder: (context, child) => SizedBox(
+                            height: 60,
+                            child: ElevatedButton(
+                              onPressed: _showMultiplayerBottomSheet,
+                              style: ElevatedButton.styleFrom(
+                                elevation: _glowAnimation.value,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                padding: EdgeInsets.zero,
+                              ),
+                              child: Ink(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)]),
+                                  borderRadius: BorderRadius.all(Radius.circular(30)),
                                 ),
-                              ],
+                                child: Center(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.people, color: Colors.white),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Play with Friends',
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // 2. Play Solo Button
-                  SizedBox(
-                    height: 60,
-                    child: ElevatedButton(
-                      onPressed: _showSoloBottomSheet,
-                      style: ElevatedButton.styleFrom(
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: Ink(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(colors: [Color(0xFF00C851), Color(0xFF007E33)]),
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.person, color: Colors.white),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Play Solo',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                        
+                        const SizedBox(height: 20),
+                        
+                        // 2. Play Solo Button
+                        SizedBox(
+                          height: 60,
+                          child: ElevatedButton(
+                            onPressed: _showSoloBottomSheet,
+                            style: ElevatedButton.styleFrom(
+                              elevation: 8,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: Ink(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(colors: [Color(0xFF00C851), Color(0xFF007E33)]),
+                                borderRadius: BorderRadius.all(Radius.circular(30)),
                               ),
-                            ],
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.person, color: Colors.white),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Play Solo',
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // 3. Daily Challenge Button
-                  SizedBox(
-                    height: 60,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DailyChallengeScreen())),
-                      style: ElevatedButton.styleFrom(
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: Ink(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(colors: [Color(0xFFFFB300), Color(0xFFFF8F00)]),
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.calendar_today, color: Colors.white),
-                              const SizedBox(width: 8),
-                              Text(
-                                loc.dailyChallenge,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                        
+                        const SizedBox(height: 20),
+                        
+                        // 3. Daily Challenge Button
+                        SizedBox(
+                          height: 60,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DailyChallengeScreen())),
+                            style: ElevatedButton.styleFrom(
+                              elevation: 8,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: Ink(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(colors: [Color(0xFFFFB300), Color(0xFFFF8F00)]),
+                                borderRadius: BorderRadius.all(Radius.circular(30)),
                               ),
-                            ],
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.calendar_today, color: Colors.white),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      loc.dailyChallenge,
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
 
-                  const SizedBox(height: 40),
-                  
-                  if (_error != null) ...[
-                    Text(
-                      _error!,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.error),
+                        const SizedBox(height: 40),
+                        
+                        if (_error != null) ...[
+                          Text(
+                            _error!,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.red),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                        
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                  ],
-                  
-                  const SizedBox(height: 40), // Bottom spacing
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
           ),
+          // NEW: The custom bottom navigation bar is placed in the stack
+          _buildBottomNavBar(context),
         ],
       ),
     );
@@ -916,7 +1005,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
             ),
-            Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+            const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
           ],
         ),
       ),
