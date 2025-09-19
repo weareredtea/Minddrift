@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   // Wallet state
   PlayerWallet? _wallet;
+  bool _authenticationFailed = false;
   
   // User profile state
   String _userAvatarId = 'bear'; // Default avatar
@@ -71,12 +72,63 @@ class _HomeScreenState extends State<HomeScreen>
     _glowAnimation = Tween<double>(begin: 4, end: 16).animate(
       CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
     );
-    _loadWallet();
-    _loadUserProfile();
+    
+    // Initialize with delayed loading to ensure context is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeWithRetry();
+    });
+  }
+
+  Future<void> _initializeWithRetry() async {
+    // Try to load wallet and profile with retry logic
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await _loadWallet();
+        await _loadUserProfile();
+        
+        // Success - clear any previous auth failure state
+        if (mounted) {
+          setState(() {
+            _authenticationFailed = false;
+          });
+        }
+        break; // Success, exit retry loop
+      } catch (e) {
+        if (kDebugMode) {
+          print('Initialization attempt $attempt failed: $e');
+        }
+        
+        if (attempt == 3) {
+          // Final attempt failed - mark auth as failed
+          if (mounted) {
+            setState(() {
+              _authenticationFailed = true;
+            });
+          }
+        } else {
+          // Wait before retrying
+          await Future.delayed(Duration(seconds: attempt * 2));
+        }
+      }
+    }
+    
+    // Initialize quests in background regardless of wallet/profile loading
+    _initializeQuests();
   }
 
   Future<void> _loadWallet() async {
     try {
+      // Ensure user is authenticated before loading wallet
+      final firebaseService = context.read<FirebaseService>();
+      final isAuthenticated = await firebaseService.ensureUserAuthenticated();
+      
+      if (!isAuthenticated) {
+        if (kDebugMode) {
+          print('Cannot load wallet: User not authenticated');
+        }
+        return;
+      }
+
       final wallet = await WalletService.getWallet();
       if (mounted) {
         setState(() {
@@ -89,6 +141,21 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       if (kDebugMode) {
         print('Error loading wallet: $e');
+      }
+      // Set default wallet to prevent UI issues
+      if (mounted) {
+        setState(() {
+          _wallet = PlayerWallet(
+            userId: '',
+            mindGems: 0,
+            totalGemsEarned: 0,
+            totalGemsSpent: 0,
+            lastDailyBonus: DateTime(2000), // Default old date
+            ownedBadges: const [],
+            ownedSpectrumSkins: const [],
+            activeSpectrumSkin: 'default',
+          );
+        });
       }
     }
   }
@@ -432,6 +499,24 @@ class _HomeScreenState extends State<HomeScreen>
                             
                             List<String>? selectedBundles;
                             try {
+                              // Test Firebase connectivity first
+                              print('🔍 Testing Firebase connectivity before room creation...');
+                              final connectivityOk = await firebaseService.testFirebaseConnectivity();
+                              print('📶 Firebase connectivity: $connectivityOk');
+                              
+                              if (!connectivityOk) {
+                                throw Exception('Cannot connect to Firebase. Please check your internet connection.');
+                              }
+
+                              // Ensure user is authenticated before creating room
+                              print('🔐 Checking user authentication...');
+                              final isAuthenticated = await firebaseService.ensureUserAuthenticated();
+                              print('👤 User authenticated: $isAuthenticated');
+                              
+                              if (!isAuthenticated) {
+                                throw Exception('Authentication required to create room. Please restart the app.');
+                              }
+
                               selectedBundles = await _showBundleSelectionDialog();
                               if (selectedBundles != null && selectedBundles.isNotEmpty) {
                                 final settings = await firebaseService.fetchRoomCreationSettings();
@@ -724,21 +809,47 @@ class _HomeScreenState extends State<HomeScreen>
                     fontSize: 16,
                   ),
                 ),
-                if (_wallet != null)
-                  Row(
-                    children: [
-                      const Icon(Icons.diamond, color: Colors.amber, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${_wallet!.mindGems}',
-                        style: const TextStyle(
-                          fontFamily: 'LuckiestGuy',
-                          fontSize: 14,
-                          color: Colors.amber,
-                        ),
-                      ),
-                    ],
-                  ),
+                Row(
+                  children: [
+                    const Icon(Icons.diamond, color: Colors.amber, size: 16),
+                    const SizedBox(width: 4),
+                    _wallet != null
+                        ? Text(
+                            '${_wallet!.mindGems}',
+                            style: const TextStyle(
+                              fontFamily: 'LuckiestGuy',
+                              fontSize: 14,
+                              color: Colors.amber,
+                            ),
+                          )
+                        : _authenticationFailed
+                            ? GestureDetector(
+                                onTap: _initializeWithRetry,
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.refresh, color: Colors.amber, size: 12),
+                                    SizedBox(width: 2),
+                                    Text(
+                                      'Retry',
+                                      style: TextStyle(
+                                        fontFamily: 'Chewy',
+                                        fontSize: 10,
+                                        color: Colors.amber,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : const SizedBox(
+                                width: 12,
+                                height: 12,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+                                ),
+                              ),
+                  ],
+                ),
               ],
             ),
           ],

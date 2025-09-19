@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:minddrift/screens/tutorial_screen.dart';
-import 'package:minddrift/services/audio_service.dart';
+// Audio service moved to lobby screen
 import '../services/firebase_service.dart';
 import '../providers/locale_provider.dart';
 import '../providers/purchase_provider_new.dart';
@@ -25,8 +25,6 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _saboteurEnabled = false;
   bool _diceRollEnabled = false;
-  int _numRounds = 5; // <-- NEW state variable
-  bool _musicEnabled = true; // <-- NEW state variable
   Set<String> _selectedBundles = {'bundle.free'}; // <-- NEW: Selected bundles for gameplay
   bool _loadingBundles = true; // <-- NEW: Loading state for bundle selections
 
@@ -38,20 +36,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadSettings() async {
     final fb = context.read<FirebaseService>();
-    final audio = AudioService();
 
     final settings = await fb.fetchRoomCreationSettings();
     final bundleSelections = await fb.loadBundleSelections();
-    
-    // Load music setting from Firebase
-    await audio.initializeMusicSetting(fb);
-    final musicEnabled = audio.isMusicEnabled();
 
     setState(() {
       _saboteurEnabled = settings['saboteurEnabled'] ?? false;
       _diceRollEnabled = settings['diceRollEnabled'] ?? false;
-      _numRounds = (settings['numRounds'] as int?) ?? 5;
-      _musicEnabled = musicEnabled;
       _selectedBundles = bundleSelections;
       _loadingBundles = false;
     });
@@ -59,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _saveGameSettings() async {
     final fb = context.read<FirebaseService>();
-    await fb.saveRoomCreationSettings(_saboteurEnabled, _diceRollEnabled, _numRounds, _selectedBundles);
+    await fb.saveRoomCreationSettings(_saboteurEnabled, _diceRollEnabled, 5, _selectedBundles);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context)!.settingsSaved)),
     );
@@ -136,7 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final loc = AppLocalizations.of(context)!;
     final localeProvider = context.watch<LocaleProvider>();
     final currentCode = localeProvider.locale.languageCode;
-    final audio = AudioService(); // Get instance for the music switch
+    // Audio service moved to lobby screen
 
     return Scaffold(
       appBar: AppBar(
@@ -174,43 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(),
 
-          // --- NEW: Number of Rounds Selector ---
-          ListTile(
-            title: Text(loc.roundsPerMatch),
-            trailing: DropdownButton<int>(
-              value: _numRounds,
-              dropdownColor: Colors.grey[900],
-              underline: const SizedBox(),
-                              items: [
-                  DropdownMenuItem(value: 3, child: Text(loc.threeRounds)),
-                  DropdownMenuItem(value: 5, child: Text(loc.fiveRounds)),
-                  DropdownMenuItem(value: 7, child: Text(loc.sevenRounds)),
-                ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _numRounds = value);
-                  _saveGameSettings();
-                }
-              },
-            ),
-          ),
-          const Divider(),
-
-          // --- NEW: Music On/Off Switch ---
-          ListTile(
-            title: Text(loc.gameMusic),
-            trailing: Switch(
-              value: _musicEnabled,
-                          onChanged: (value) async {
-              setState(() => _musicEnabled = value);
-              audio.setMusicEnabled(value);
-              
-              // Persist the music setting to Firebase
-              final fb = context.read<FirebaseService>();
-              await audio.persistMusicSetting(fb);
-            },
-            ),
-          ),
+          // Match settings (rounds, music, spectrum skins) have been moved to lobby screen
           const Divider(),
 
           // --- NEW: Bundle Selection ---

@@ -6,6 +6,7 @@ import '../services/campaign_service.dart';
 import '../models/campaign_models.dart';
 import '../l10n/app_localizations.dart';
 import 'campaign_level_screen.dart';
+// Removed unused import
 
 class CampaignScreen extends StatefulWidget {
   static const routeName = '/campaign';
@@ -26,6 +27,17 @@ class _CampaignScreenState extends State<CampaignScreen> {
   void initState() {
     super.initState();
     _loadCampaignData();
+  }
+
+  // Helper methods to get correct font family based on locale
+  String _getHeaderFont() {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'ar' ? 'Beiruti' : 'LuckiestGuy';
+  }
+
+  String _getBodyFont() {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'ar' ? 'Harmattan' : 'Chewy';
   }
 
   Future<void> _loadCampaignData() async {
@@ -58,8 +70,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
       appBar: AppBar(
         title: Text(
           AppLocalizations.of(context)!.campaignMode,
-          style: const TextStyle(
-            fontFamily: 'LuckiestGuy',
+          style: TextStyle(
+            fontFamily: _getHeaderFont(),
             fontSize: 24,
             color: Colors.white,
           ),
@@ -82,8 +94,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
                     const SizedBox(width: 4),
                     Text(
                       '${_progress!.totalStars}',
-                      style: const TextStyle(
-                        fontFamily: 'LuckiestGuy',
+                      style: TextStyle(
+                        fontFamily: _getHeaderFont(),
                         fontSize: 16,
                         color: Colors.amber,
                       ),
@@ -108,8 +120,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.loadingCampaign,
-              style: const TextStyle(
-                fontFamily: 'Chewy',
+              style: TextStyle(
+                fontFamily: _getBodyFont(),
                 fontSize: 18,
                 color: Colors.white70,
               ),
@@ -135,8 +147,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   ? '${AppLocalizations.of(context)!.failedToLoadCampaign}: ${_error!.split(': ').skip(1).join(': ')}'
                   : _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontFamily: 'Chewy',
+              style: TextStyle(
+                fontFamily: _getBodyFont(),
                 fontSize: 16,
                 color: Colors.white70,
               ),
@@ -150,7 +162,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
               ),
               child: Text(
                 AppLocalizations.of(context)!.retry,
-                style: const TextStyle(fontFamily: 'LuckiestGuy'),
+                style: TextStyle(fontFamily: _getHeaderFont()),
               ),
             ),
           ],
@@ -200,8 +212,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
         children: [
             Text(
               AppLocalizations.of(context)!.progress,
-              style: const TextStyle(
-                fontFamily: 'LuckiestGuy',
+              style: TextStyle(
+                fontFamily: _getHeaderFont(),
               fontSize: 20,
               color: Colors.white,
             ),
@@ -215,16 +227,16 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   children: [
                     Text(
                       'Section ${_progress!.currentSection}',
-                      style: const TextStyle(
-                        fontFamily: 'Chewy',
+                      style: TextStyle(
+                        fontFamily: _getBodyFont(),
                         fontSize: 16,
                         color: Colors.white70,
                       ),
                     ),
                     Text(
                       '${AppLocalizations.of(context)!.level} ${_progress!.currentLevel}',
-                      style: const TextStyle(
-                        fontFamily: 'LuckiestGuy',
+                      style: TextStyle(
+                        fontFamily: _getHeaderFont(),
                         fontSize: 18,
                         color: Colors.white,
                       ),
@@ -242,8 +254,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
                       const SizedBox(width: 4),
                       Text(
                         '${_progress!.totalStars}/${_progress!.maxStars}',
-                        style: const TextStyle(
-                          fontFamily: 'LuckiestGuy',
+                        style: TextStyle(
+                          fontFamily: _getHeaderFont(),
                           fontSize: 16,
                           color: Colors.amber,
                         ),
@@ -253,8 +265,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   const SizedBox(height: 4),
                   Text(
                     '${_progress!.levelsCompleted}/${_progress!.totalLevels} ${AppLocalizations.of(context)!.levels}',
-                    style: const TextStyle(
-                      fontFamily: 'Chewy',
+                    style: TextStyle(
+                      fontFamily: _getBodyFont(),
                       fontSize: 14,
                       color: Colors.white70,
                     ),
@@ -272,8 +284,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
           const SizedBox(height: 8),
           Text(
             '${(_progress!.overallProgress * 100).toInt()}% ${AppLocalizations.of(context)!.complete}',
-            style: const TextStyle(
-              fontFamily: 'Chewy',
+            style: TextStyle(
+              fontFamily: _getBodyFont(),
               fontSize: 14,
               color: Colors.white70,
             ),
@@ -289,8 +301,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
       children: [
         Text(
           AppLocalizations.of(context)!.campaignSections,
-          style: const TextStyle(
-            fontFamily: 'LuckiestGuy',
+          style: TextStyle(
+            fontFamily: _getHeaderFont(),
             fontSize: 24,
             color: Colors.white,
           ),
@@ -344,8 +356,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
                       ),
                       child: Text(
                         '${AppLocalizations.of(context)!.section} ${section.sectionNumber}',
-                        style: const TextStyle(
-                          fontFamily: 'LuckiestGuy',
+                        style: TextStyle(
+                          fontFamily: _getHeaderFont(),
                           fontSize: 14,
                           color: Colors.white,
                         ),
@@ -360,7 +372,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                       Text(
                         '${section.totalStars}/${section.maxStars}',
                         style: TextStyle(
-                          fontFamily: 'LuckiestGuy',
+                          fontFamily: _getHeaderFont(),
                           fontSize: 16,
                           color: Colors.amber,
                         ),
@@ -371,7 +383,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                 Text(
                   section.title,
                   style: TextStyle(
-                    fontFamily: 'LuckiestGuy',
+                    fontFamily: _getHeaderFont(),
                     fontSize: 20,
                     color: isLocked ? Colors.grey : Colors.white,
                   ),
@@ -380,7 +392,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                 Text(
                   section.description,
                   style: TextStyle(
-                    fontFamily: 'Chewy',
+                    fontFamily: _getBodyFont(),
                     fontSize: 14,
                     color: isLocked ? Colors.grey[600] : Colors.white70,
                   ),
@@ -395,8 +407,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   const SizedBox(height: 8),
                   Text(
                     '${(section.completionPercentage * 100).toInt()}% ${AppLocalizations.of(context)!.complete}',
-                    style: const TextStyle(
-                      fontFamily: 'Chewy',
+                    style: TextStyle(
+                      fontFamily: _getBodyFont(),
                       fontSize: 12,
                       color: Colors.white70,
                     ),
@@ -405,7 +417,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   Text(
                     AppLocalizations.of(context)!.completePreviousSectionToUnlock,
                     style: TextStyle(
-                      fontFamily: 'Chewy',
+                      fontFamily: _getBodyFont(),
                       fontSize: 12,
                       color: Colors.grey[600],
                     ),
@@ -468,16 +480,16 @@ class _CampaignScreenState extends State<CampaignScreen> {
                     children: [
                       Text(
                         section.title,
-                        style: const TextStyle(
-                          fontFamily: 'LuckiestGuy',
+                        style: TextStyle(
+                          fontFamily: _getHeaderFont(),
                           fontSize: 24,
                           color: Colors.white,
                         ),
                       ),
                       Text(
                         section.description,
-                        style: const TextStyle(
-                          fontFamily: 'Chewy',
+                        style: TextStyle(
+                          fontFamily: _getBodyFont(),
                           fontSize: 14,
                           color: Colors.white70,
                         ),
@@ -498,8 +510,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
                       const SizedBox(width: 4),
                       Text(
                         '${section.totalStars}/${section.maxStars}',
-                        style: const TextStyle(
-                          fontFamily: 'LuckiestGuy',
+                        style: TextStyle(
+                          fontFamily: _getHeaderFont(),
                           fontSize: 14,
                           color: Colors.white,
                         ),
@@ -566,7 +578,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
               Text(
                 '${level.levelNumber}',
                 style: TextStyle(
-                  fontFamily: 'LuckiestGuy',
+                  fontFamily: _getHeaderFont(),
                   fontSize: 16,
                   color: isCompleted ? Colors.white : Colors.white70,
                 ),

@@ -135,13 +135,13 @@ class CosmeticCatalog {
   /// All available avatar packs
   static const List<AvatarPack> avatarPacks = [
     AvatarPack(
-      packId: 'pack_robots',
-      name: 'Robot Collection',
-      description: 'Futuristic robot avatars with metallic designs',
-      avatarIds: ['robot_01', 'robot_02', 'robot_03', 'robot_04', 'robot_05', 'robot_06'],
+      packId: 'pack_batch1',
+      name: 'Batch1 Collection',
+      description: 'Premium avatar collection with unique designs',
+      avatarIds: ['batch1_01', 'batch1_02', 'batch1_03', 'batch1_04', 'batch1_05', 'batch1_06', 'batch1_07', 'batch1_08', 'batch1_09'],
       gemPrice: 2500,
       themeColor: '#00BCD4', // Cyan
-      previewIcon: 'assets/avatar_packs/robots_preview.png',
+      previewIcon: 'assets/avatar_packs/batch1_preview.png',
     ),
     AvatarPack(
       packId: 'pack_monsters',

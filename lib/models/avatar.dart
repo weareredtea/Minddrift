@@ -45,24 +45,27 @@ class Avatars {
     const Avatar(id: 'tiger', svgPath: 'assets/avatars/tiger.svg', packId: 'free'),
   ];
 
-  // Premium Robot Pack (2500 gems)
-  static final List<Avatar> _robotPackAvatars = [
-    const Avatar(id: 'robot_01', svgPath: 'assets/avatars/robot_01.svg', packId: 'pack_robots', isLocked: true),
-    const Avatar(id: 'robot_02', svgPath: 'assets/avatars/robot_02.svg', packId: 'pack_robots', isLocked: true),
-    const Avatar(id: 'robot_03', svgPath: 'assets/avatars/robot_03.svg', packId: 'pack_robots', isLocked: true),
-    const Avatar(id: 'robot_04', svgPath: 'assets/avatars/robot_04.svg', packId: 'pack_robots', isLocked: true),
-    const Avatar(id: 'robot_05', svgPath: 'assets/avatars/robot_05.svg', packId: 'pack_robots', isLocked: true),
-    const Avatar(id: 'robot_06', svgPath: 'assets/avatars/robot_06.svg', packId: 'pack_robots', isLocked: true),
+  // Premium Batch1 Pack (2500 gems)
+  static final List<Avatar> _batch1PackAvatars = [
+    const Avatar(id: 'batch1_01', svgPath: 'assets/avatars/batch1_01.svg', packId: 'pack_batch1', isLocked: true),
+    const Avatar(id: 'batch1_02', svgPath: 'assets/avatars/batch1_02.svg', packId: 'pack_batch1', isLocked: true),
+    const Avatar(id: 'batch1_03', svgPath: 'assets/avatars/batch1_03.svg', packId: 'pack_batch1', isLocked: true),
+    const Avatar(id: 'batch1_04', svgPath: 'assets/avatars/batch1_04.svg', packId: 'pack_batch1', isLocked: true),
+    const Avatar(id: 'batch1_05', svgPath: 'assets/avatars/batch1_05.svg', packId: 'pack_batch1', isLocked: true),
+    const Avatar(id: 'batch1_06', svgPath: 'assets/avatars/batch1_06.svg', packId: 'pack_batch1', isLocked: true),
+    const Avatar(id: 'batch1_07', svgPath: 'assets/avatars/batch1_07.svg', packId: 'pack_batch1', isLocked: true),
+    const Avatar(id: 'batch1_08', svgPath: 'assets/avatars/batch1_08.svg', packId: 'pack_batch1', isLocked: true),
+    const Avatar(id: 'batch1_09', svgPath: 'assets/avatars/batch1_09.svg', packId: 'pack_batch1', isLocked: true),
   ];
 
   // Get all free avatars (always available)
   static List<Avatar> get freeAvatars => _freeAvatars;
 
-  // Get all robot pack avatars
-  static List<Avatar> get robotPackAvatars => _robotPackAvatars;
+  // Get all batch1 pack avatars
+  static List<Avatar> get batch1PackAvatars => _batch1PackAvatars;
 
   // Get all avatars (free + premium)
-  static List<Avatar> get all => [..._freeAvatars, ..._robotPackAvatars];
+  static List<Avatar> get all => [..._freeAvatars, ..._batch1PackAvatars];
 
   /// Get available avatars based on user's owned packs
   static List<Avatar> getAvailableAvatars(List<String> ownedPacks) {
@@ -71,12 +74,12 @@ class Avatars {
     // Always add free avatars
     available.addAll(_freeAvatars);
     
-    // Add robot pack avatars if owned
-    if (ownedPacks.contains('pack_robots')) {
-      available.addAll(_robotPackAvatars.map((avatar) => avatar.copyWith(isLocked: false)));
+    // Add batch1 pack avatars if owned
+    if (ownedPacks.contains('pack_batch1')) {
+      available.addAll(_batch1PackAvatars.map((avatar) => avatar.copyWith(isLocked: false)));
     } else {
-      // Add locked robot pack avatars for display
-      available.addAll(_robotPackAvatars);
+      // Add locked batch1 pack avatars for display
+      available.addAll(_batch1PackAvatars);
     }
     
     return available;
@@ -87,8 +90,8 @@ class Avatars {
     switch (packId) {
       case 'free':
         return _freeAvatars;
-      case 'pack_robots':
-        return _robotPackAvatars;
+      case 'pack_batch1':
+        return _batch1PackAvatars;
       default:
         return [];
     }

@@ -79,7 +79,7 @@ class _ResultScreenState extends State<ResultScreen> {
           }
 
           final currentRound = snap.data![0] as Round;
-          final roomData = snap.data![1] as Map<String, dynamic>;
+          // final roomData = snap.data![1] as Map<String, dynamic>; // Unused for now
           final navigator = snap.data![2] as PlayerStatus?;
 
           if (currentRound.secretPosition == null || currentRound.groupGuessPosition == null || navigator == null) {

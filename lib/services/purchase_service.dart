@@ -153,11 +153,16 @@ class PurchaseService {
       try {
         print('🔧 Ensuring user document exists...');
         final callable = _functions.httpsCallable('ensureUserDocument');
-        await callable.call();
+        await callable.call().timeout(const Duration(seconds: 10));
         print('✅ User document ensured');
       } catch (ensureError) {
         print('⚠️ Could not ensure user document: $ensureError');
-        // Continue anyway, the document might already exist
+        // Continue anyway - create user document locally if needed
+        try {
+          await _createUserDocumentLocally(currentUser);
+        } catch (localError) {
+          print('⚠️ Could not create user document locally: $localError');
+        }
       }
       
       // Now load the owned bundles
@@ -322,5 +327,29 @@ class PurchaseService {
   void dispose() {
     _ownedBundlesController.close();
     _errorController.close();
+  }
+
+  /// Create user document locally when Firebase Functions are unavailable
+  Future<void> _createUserDocumentLocally(User user) async {
+    try {
+      final userDoc = _db.collection('users').doc(user.uid);
+      final docSnapshot = await userDoc.get();
+      
+      if (!docSnapshot.exists) {
+        await userDoc.set({
+          'uid': user.uid,
+          'email': user.email,
+          'displayName': user.displayName ?? 'Anonymous',
+          'isAnonymous': user.isAnonymous,
+          'createdAt': FieldValue.serverTimestamp(),
+          'ownedBundles': ['bundle.free'], // Default free bundle
+          'lastSeen': FieldValue.serverTimestamp(),
+        });
+        print('✅ User document created locally');
+      }
+    } catch (e) {
+      print('❌ Failed to create user document locally: $e');
+      rethrow;
+    }
   }
 }

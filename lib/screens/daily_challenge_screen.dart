@@ -10,6 +10,7 @@ import '../models/avatar.dart';
 import '../widgets/solo_spectrum_card.dart';
 import '../widgets/radial_spectrum.dart';
 import '../l10n/app_localizations.dart';
+// Removed unused import
 
 class DailyChallengeScreen extends StatefulWidget {
   static const routeName = '/daily-challenge';
@@ -39,6 +40,17 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _loadDailyChallenge();
+  }
+
+  // Helper methods to get correct font family based on locale
+  String _getHeaderFont() {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'ar' ? 'Beiruti' : 'LuckiestGuy';
+  }
+
+  String _getBodyFont() {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'ar' ? 'Harmattan' : 'Chewy';
   }
 
   @override
@@ -177,7 +189,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                                 color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                fontFamily: 'LuckiestGuy',
+                                fontFamily: _getHeaderFont(),
                               ),
                             ),
                             Text(
@@ -185,7 +197,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                               style: TextStyle(
                                 color: Colors.grey[400],
                                 fontSize: 14,
-                                fontFamily: 'Chewy',
+                                fontFamily: _getBodyFont(),
                               ),
                             ),
                           ],
@@ -200,11 +212,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                         ),
                         child: Text(
                           _todaysChallenge!.difficulty.toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'LuckiestGuy',
+                            fontFamily: _getHeaderFont(),
                           ),
                         ),
                       ),
@@ -222,10 +234,10 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                     ),
                     child: Text(
                       '${_todaysChallenge!.leftLabel} ↔ ${_todaysChallenge!.rightLabel}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'LuckiestGuy',
+                        fontFamily: _getHeaderFont(),
                       ),
                     ),
                   ),
@@ -248,7 +260,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 14,
-                            fontFamily: 'Chewy',
+                            fontFamily: _getBodyFont(),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -258,7 +270,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                             color: Colors.amber[300],
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'LuckiestGuy',
+                            fontFamily: _getHeaderFont(),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -337,10 +349,10 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                       )
                     : Text(
                         AppLocalizations.of(context)!.submitAnswer,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'LuckiestGuy',
+                          fontFamily: _getHeaderFont(),
                         ),
                       ),
               ),
@@ -364,11 +376,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
           children: [
             Text(
               AppLocalizations.of(context)!.todaysResult,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'LuckiestGuy',
+                fontFamily: _getHeaderFont(),
               ),
             ),
             
@@ -403,15 +415,16 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 12,
-                          fontFamily: 'Chewy',
+                          fontFamily: _getBodyFont(),
                         ),
                       ),
                       Text(
                         '${(_todaysResult!.userGuess * 100).toStringAsFixed(0)}%',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.blue,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          fontFamily: _getHeaderFont(),
                         ),
                       ),
                     ],
@@ -423,15 +436,16 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 12,
-                          fontFamily: 'Chewy',
+                          fontFamily: _getBodyFont(),
                         ),
                       ),
                       Text(
                         '${(_todaysChallenge!.secretPosition * 100).toStringAsFixed(0)}%',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.green,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          fontFamily: _getHeaderFont(),
                         ),
                       ),
                     ],
@@ -459,7 +473,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                       color: Colors.amber[600],
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'LuckiestGuy',
+                      fontFamily: _getHeaderFont(),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -468,7 +482,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                     style: TextStyle(
                       color: Colors.amber[300],
                       fontSize: 14,
-                      fontFamily: 'Chewy',
+                      fontFamily: _getBodyFont(),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -493,11 +507,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
               const SizedBox(width: 12),
               Text(
                 AppLocalizations.of(context)!.todaysLeaderboard,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'LuckiestGuy',
+                  fontFamily: _getHeaderFont(),
                 ),
               ),
             ],
@@ -518,7 +532,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                         style: TextStyle(
                           color: Colors.grey[400],
                           fontSize: 16,
-                          fontFamily: 'Chewy',
+                          fontFamily: _getBodyFont(),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -527,7 +541,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 14,
-                          fontFamily: 'Chewy',
+                          fontFamily: _getBodyFont(),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -558,10 +572,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                               child: Center(
                                 child: Text(
                                   '${entry.rank}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
+                                    fontFamily: _getHeaderFont(),
                                   ),
                                 ),
                               ),
@@ -584,14 +599,14 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-                            fontFamily: 'LuckiestGuy',
+                            fontFamily: _getHeaderFont(),
                           ),
                         ),
                         subtitle: Text(
                           '${(entry.accuracy * 100).toStringAsFixed(1)}% • ${entry.timeSpent.inSeconds}s',
                           style: TextStyle(
                             color: Colors.grey[400],
-                            fontFamily: 'Chewy',
+                            fontFamily: _getBodyFont(),
                           ),
                         ),
                         trailing: Container(
@@ -602,10 +617,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                           ),
                           child: Text(
                             '${entry.score}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              fontFamily: _getHeaderFont(),
                             ),
                           ),
                         ),
@@ -638,11 +654,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                       const SizedBox(width: 12),
                       Text(
                         AppLocalizations.of(context)!.yourStatistics,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'LuckiestGuy',
+                          fontFamily: _getHeaderFont(),
                         ),
                       ),
                     ],
@@ -667,7 +683,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                             color: Colors.orange[600],
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            fontFamily: 'LuckiestGuy',
+                            fontFamily: _getHeaderFont(),
                           ),
                         ),
                         Text(
@@ -675,7 +691,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                           style: TextStyle(
                             color: Colors.orange[300],
                             fontSize: 14,
-                            fontFamily: 'Chewy',
+                            fontFamily: _getBodyFont(),
                           ),
                         ),
                       ],
@@ -734,7 +750,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
             color: color,
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            fontFamily: 'LuckiestGuy',
+            fontFamily: _getHeaderFont(),
           ),
         ),
         Text(
@@ -742,7 +758,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
           style: TextStyle(
             color: Colors.grey[400],
             fontSize: 12,
-            fontFamily: 'Chewy',
+            fontFamily: _getBodyFont(),
           ),
           textAlign: TextAlign.center,
         ),
@@ -786,7 +802,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
       appBar: AppBar(
         title: Text(
           AppLocalizations.of(context)!.dailyChallenge,
-          style: const TextStyle(fontFamily: 'LuckiestGuy'),
+          style: TextStyle(fontFamily: _getHeaderFont()),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,

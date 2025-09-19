@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 import '../services/analytics_service.dart';
 import '../models/analytics_data.dart';
-import '../l10n/app_localizations.dart';
+// Removed unused import
 
 class AnalyticsDashboardScreen extends StatefulWidget {
   static const routeName = '/analytics-dashboard';

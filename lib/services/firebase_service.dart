@@ -13,6 +13,7 @@ import '../services/test_bot_service.dart';
 import '../models/avatar.dart';
 import '../pigeon/pigeon.dart';
 import '../services/category_service.dart';
+import '../models/match_settings.dart';
 
 // Custom exception classes for better error handling
 class FirebaseServiceException implements Exception {
@@ -265,10 +266,21 @@ class FirebaseService with ChangeNotifier {
       // Clean up any stale room data after authentication
       await _cleanupStaleRoomData();
 
-      // Set up auth state listener
+      // Set up auth state listener with detailed logging
       _auth.authStateChanges().listen((User? user) {
         ExceptionHandler.logError('auth_state_change', 'Auth state changed', 
-          extraData: {'user': user?.uid ?? 'null'});
+          extraData: {
+            'user': user?.uid ?? 'null',
+            'isAnonymous': user?.isAnonymous ?? false,
+            'displayName': user?.displayName ?? 'none',
+          });
+        
+        if (user != null) {
+          print('✅ User authenticated: ${user.uid} (anonymous: ${user.isAnonymous})');
+        } else {
+          print('❌ User signed out or authentication lost');
+        }
+        
         notifyListeners();
       });
 
@@ -431,14 +443,16 @@ class FirebaseService with ChangeNotifier {
   }
 
   Future<void> _performAnonymousAuth() async {
-    const int maxRetries = 3;
-    const Duration retryDelay = Duration(seconds: 2);
+    const int maxRetries = 5; // Increased retries
+    const Duration baseRetryDelay = Duration(seconds: 2);
     
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         ExceptionHandler.logError('auth_anonymous', 'Attempting anonymous authentication (attempt $attempt/$maxRetries)');
         
-        await _auth.signInAnonymously().timeout(const Duration(seconds: 10));
+        // Progressive timeout increase
+        final timeout = Duration(seconds: 15 + (attempt * 5)); // 20s, 25s, 30s, 35s, 40s
+        await _auth.signInAnonymously().timeout(timeout);
         
         ExceptionHandler.logError('auth_anonymous', 'Anonymous authentication successful', 
           extraData: {'uid': _auth.currentUser!.uid, 'attempt': attempt});
@@ -448,22 +462,92 @@ class FirebaseService with ChangeNotifier {
         ExceptionHandler.logError('auth_anonymous', 'Anonymous authentication failed (attempt $attempt/$maxRetries)', 
           extraData: {'error': e.toString(), 'attempt': attempt});
         
+        // Check for specific network errors
+        if (e.toString().contains('network-request-failed')) {
+          print('🌐 Network issue detected on attempt $attempt. Checking connectivity...');
+          
+          // Quick connectivity check
+          try {
+            final connectivityResult = await Connectivity().checkConnectivity();
+            print('📶 Current connectivity: $connectivityResult');
+            
+            if (connectivityResult == ConnectivityResult.none) {
+              throw NetworkException(
+                'No internet connection. Please check your network and try again.',
+                code: 'NO_NETWORK',
+                details: 'No connectivity detected',
+                stackTrace: StackTrace.current,
+              );
+            }
+          } catch (connectivityError) {
+            print('⚠️ Connectivity check failed: $connectivityError');
+          }
+        }
+        
         if (attempt == maxRetries) {
           throw AuthenticationException(
-            'Failed to sign in anonymously after $maxRetries attempts',
+            'Failed to sign in after $maxRetries attempts. Please check your internet connection and try again.',
             code: 'ANONYMOUS_AUTH_FAILED',
             details: e.toString(),
             stackTrace: StackTrace.current,
           );
         }
         
-        // Wait before retrying
-        await Future.delayed(retryDelay);
+        // Progressive delay: 2s, 4s, 6s, 8s
+        final delay = Duration(seconds: baseRetryDelay.inSeconds * attempt);
+        print('⏳ Waiting ${delay.inSeconds}s before retry...');
+        await Future.delayed(delay);
       }
     }
   }
 
   String get currentUserUid => _auth.currentUser?.uid ?? '';
+
+  /// Enhanced authentication check with retry
+  Future<bool> ensureUserAuthenticated() async {
+    try {
+      // Check if user is already authenticated
+      if (_auth.currentUser != null) {
+        print('✅ User already authenticated: ${_auth.currentUser!.uid}');
+        return true;
+      }
+
+      print('🔐 User not authenticated, attempting to sign in...');
+      
+      // Try to authenticate
+      await _performAnonymousAuth();
+      
+      final isAuthenticated = _auth.currentUser != null;
+      if (isAuthenticated) {
+        print('✅ Authentication successful: ${_auth.currentUser!.uid}');
+      } else {
+        print('❌ Authentication failed: No user after sign in');
+      }
+      
+      return isAuthenticated;
+    } catch (e) {
+      ExceptionHandler.logError('ensure_auth', 'Failed to ensure authentication', 
+        extraData: {'error': e.toString()});
+      print('❌ Authentication error: $e');
+      return false;
+    }
+  }
+
+  /// Check Firebase project connectivity
+  Future<bool> testFirebaseConnectivity() async {
+    try {
+      print('🔍 Testing Firebase connectivity...');
+      
+      // Try a simple read operation
+      await _db.collection('test').limit(1).get().timeout(const Duration(seconds: 10));
+      
+      print('✅ Firebase connectivity test successful');
+      return true;
+    } catch (e) {
+      print('❌ Firebase connectivity test failed: $e');
+      return false;
+    }
+  }
 
   Future<bool> _validateBundleOwnership(String bundleId) async {
     try {
@@ -498,16 +582,35 @@ class FirebaseService with ChangeNotifier {
           'selectedBundle': selectedBundle,
         });
 
-      // Step 1: Check network connectivity (skip on emulator)
+      // Step 1: Check network connectivity and Firebase access
       final isEmulator = await _isRunningOnEmulator();
       if (!isEmulator) {
         await _checkNetworkConnectivity();
+        
+        // Test Firebase connectivity specifically
+        final firebaseConnected = await testFirebaseConnectivity();
+        if (!firebaseConnected) {
+          throw NetworkException(
+            'Cannot connect to Firebase servers. Please check your internet connection.',
+            code: 'FIREBASE_UNREACHABLE',
+            details: 'Firebase connectivity test failed',
+            stackTrace: StackTrace.current,
+          );
+        }
       } else {
         ExceptionHandler.logError(operation, 'Skipping network connectivity check on emulator');
       }
 
-      // Step 2: Validate authentication
-      await _ensureUserAuthenticated(operation);
+      // Step 2: Validate authentication with enhanced check
+      final isAuthenticated = await ensureUserAuthenticated();
+      if (!isAuthenticated) {
+        throw AuthenticationException(
+          'Unable to authenticate user. Please restart the app and try again.',
+          code: 'AUTH_REQUIRED',
+          details: 'User authentication failed during room creation',
+          stackTrace: StackTrace.current,
+        );
+      }
 
       // Step 3: Validate bundle ownership
       await _validateBundleOwnershipWithException(selectedBundle, operation);
@@ -606,11 +709,15 @@ class FirebaseService with ChangeNotifier {
     try {
       String roomId;
       int attempts = 0;
-      const maxAttempts = 10;
+      const maxAttempts = 20; // Increased from 10 to 20
       
       do {
-        roomId = _randomCode(4);
+        // Use longer room codes for better uniqueness
+        roomId = _randomCode(attempts < 10 ? 4 : 5); // Start with 4, then 5 characters
         attempts++;
+        
+        ExceptionHandler.logError(operation, 'Attempting to generate room ID', 
+          extraData: {'attempt': attempts, 'roomId': roomId});
         
         if (attempts > maxAttempts) {
           throw RoomOperationException(
@@ -620,7 +727,19 @@ class FirebaseService with ChangeNotifier {
             stackTrace: StackTrace.current,
           );
         }
-      } while (await roomExists(roomId));
+        
+        // Add timeout to roomExists check
+        final exists = await roomExists(roomId).timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            ExceptionHandler.logError(operation, 'Room existence check timed out');
+            return false; // Assume room doesn't exist if check times out
+          },
+        );
+        
+        if (!exists) break;
+        
+      } while (true);
       
       ExceptionHandler.logError(operation, 'Generated unique room ID', 
         extraData: {'roomId': roomId, 'attempts': attempts});
@@ -814,8 +933,11 @@ class FirebaseService with ChangeNotifier {
     final roomRef = _db.collection('rooms').doc(roomId);
     final playerRef = roomRef.collection('players').doc(currentUserUid);
 
+    // Get user's custom username or fallback to default
+    final displayName = await _getUserDisplayName();
+
     await playerRef.set({
-      'displayName': 'Player-${currentUserUid.substring(0, 4)}',
+      'displayName': displayName,
       'isReady': false,
       'guessReady': false,
       'online': true,
@@ -864,6 +986,75 @@ class FirebaseService with ChangeNotifier {
 
   DocumentReference<Map<String,dynamic>> userDocRef(String userId) =>
       _db.collection('users').doc(userId);
+
+  /// Get user's display name from custom_usernames or fallback to default
+  Future<String> _getUserDisplayName() async {
+    try {
+      // First, try to get custom username
+      final customUsernameQuery = await _db
+          .collection('custom_usernames')
+          .where('userId', isEqualTo: currentUserUid)
+          .where('isActive', isEqualTo: true)
+          .limit(1)
+          .get();
+
+      if (customUsernameQuery.docs.isNotEmpty) {
+        final customUsername = customUsernameQuery.docs.first.data()['username'] as String?;
+        if (customUsername != null && customUsername.isNotEmpty) {
+          return customUsername;
+        }
+      }
+
+      // Fallback to Firebase Auth display name
+      final authDisplayName = _auth.currentUser?.displayName;
+      if (authDisplayName != null && authDisplayName.isNotEmpty) {
+        return authDisplayName;
+      }
+
+      // Final fallback to Player-XXXX format
+      return 'Player-${currentUserUid.substring(0, 4)}';
+    } catch (e) {
+      // If anything fails, use the fallback
+      return 'Player-${currentUserUid.substring(0, 4)}';
+    }
+  }
+
+  /// Save match settings for the user
+  Future<void> saveMatchSettings(MatchSettings settings) async {
+    if (currentUserUid.isEmpty) return;
+
+    try {
+      await _db
+          .collection('users')
+          .doc(currentUserUid)
+          .set({
+        'matchSettings': settings.toMap(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      throw Exception('Failed to save match settings: $e');
+    }
+  }
+
+  /// Load match settings for the user
+  Future<MatchSettings> loadMatchSettings() async {
+    if (currentUserUid.isEmpty) return MatchSettings.defaultSettings;
+
+    try {
+      final doc = await _db.collection('users').doc(currentUserUid).get();
+      
+      if (!doc.exists) return MatchSettings.defaultSettings;
+      
+      final data = doc.data() as Map<String, dynamic>;
+      final settingsData = data['matchSettings'] as Map<String, dynamic>?;
+      
+      if (settingsData == null) return MatchSettings.defaultSettings;
+      
+      return MatchSettings.fromMap(settingsData);
+    } catch (e) {
+      return MatchSettings.defaultSettings;
+    }
+  }
 
   Future<List<PigeonUserDetails>> fetchPlayers(String roomId) async {
     final querySnapshot = await playersColRef(roomId).get();
@@ -1440,11 +1631,26 @@ class FirebaseService with ChangeNotifier {
 
   DocumentReference<Map<String, dynamic>> _userSettingsDocRef() {
     final appId = _canvasAppId;
-    return _db.collection('artifacts').doc(appId).collection('users').doc(currentUserUid).collection('settings').doc('roomCreation');
+    final uid = currentUserUid;
+    
+    if (uid.isEmpty) {
+      throw Exception('User not authenticated - cannot access user settings');
+    }
+    
+    return _db.collection('artifacts').doc(appId).collection('users').doc(uid).collection('settings').doc('roomCreation');
   }
 
   Future<Map<String, bool>> fetchRoomCreationSettings() async {
     try {
+      // Ensure user is authenticated before accessing settings
+      if (currentUserUid.isEmpty) {
+        print('Warning: Cannot fetch room settings - user not authenticated');
+        return {
+          'saboteurEnabled': false,
+          'diceRollEnabled': false,
+        };
+      }
+
       final docSnap = await _userSettingsDocRef().get();
       if (docSnap.exists) {
         final data = docSnap.data();

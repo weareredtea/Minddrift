@@ -14,7 +14,19 @@ class WalletService {
   /// Get user's wallet, creating one if it doesn't exist
   static Future<PlayerWallet> getWallet() async {
     final user = _auth.currentUser;
-    if (user == null) throw Exception('User not authenticated');
+    if (user == null) {
+      // Return default wallet for unauthenticated users
+      return PlayerWallet(
+        userId: '',
+        mindGems: 0,
+        totalGemsEarned: 0,
+        totalGemsSpent: 0,
+        lastDailyBonus: DateTime(2000), // Default old date
+        ownedBadges: const [],
+        ownedSpectrumSkins: const [],
+        activeSpectrumSkin: 'default',
+      );
+    }
 
     try {
       final doc = await _db

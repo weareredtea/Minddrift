@@ -8,6 +8,7 @@ import '../data/category_data.dart';
 import '../widgets/solo_spectrum_card.dart';
 import '../widgets/radial_spectrum.dart';
 import '../l10n/app_localizations.dart';
+// Removed unused import
 
 class CampaignLevelScreen extends StatefulWidget {
   static const routeName = '/campaign-level';
@@ -73,6 +74,17 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
     ));
   }
 
+  // Helper methods to get correct font family based on locale
+  String _getHeaderFont() {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'ar' ? 'Beiruti' : 'LuckiestGuy';
+  }
+
+  String _getBodyFont() {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'ar' ? 'Harmattan' : 'Chewy';
+  }
+
   @override
   void dispose() {
     _pulseController.dispose();
@@ -101,8 +113,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
       appBar: AppBar(
         title: Text(
           _level!.title,
-          style: const TextStyle(
-            fontFamily: 'LuckiestGuy',
+          style: TextStyle(
+            fontFamily: _getHeaderFont(),
             fontSize: 20,
             color: Colors.white,
           ),
@@ -123,8 +135,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
             ),
             child: Text(
               _level!.difficulty.toUpperCase(),
-              style: const TextStyle(
-                fontFamily: 'LuckiestGuy',
+              style: TextStyle(
+                fontFamily: _getHeaderFont(),
                 fontSize: 12,
                 color: Colors.white,
               ),
@@ -172,8 +184,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
               children: [
                 Text(
                   'Level ${_level!.levelNumber}',
-                  style: const TextStyle(
-                    fontFamily: 'LuckiestGuy',
+                  style: TextStyle(
+                    fontFamily: _getHeaderFont(),
                     fontSize: 24,
                     color: Colors.white,
                   ),
@@ -182,8 +194,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                 Text(
                   _level!.description,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'Chewy',
+                  style: TextStyle(
+                    fontFamily: _getBodyFont(),
                     fontSize: 16,
                     color: Colors.white,
                   ),
@@ -211,8 +223,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                         const SizedBox(width: 8),
                         Text(
                           'Best: ${_level!.bestScore}',
-                          style: const TextStyle(
-                            fontFamily: 'LuckiestGuy',
+                          style: TextStyle(
+                            fontFamily: _getHeaderFont(),
                             fontSize: 14,
                             color: Colors.white,
                           ),
@@ -239,8 +251,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
               children: [
                 Text(
                   _getCategoryDisplayName(_level!.categoryId),
-                  style: const TextStyle(
-                    fontFamily: 'LuckiestGuy',
+                  style: TextStyle(
+                    fontFamily: _getHeaderFont(),
                     fontSize: 20,
                     color: Colors.white,
                   ),
@@ -251,16 +263,16 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                   children: [
                     Text(
                       category.getLeftText('en'),
-                      style: const TextStyle(
-                        fontFamily: 'Chewy',
+                      style: TextStyle(
+                        fontFamily: _getBodyFont(),
                         fontSize: 16,
                         color: Colors.blue,
                       ),
                     ),
                     Text(
                       category.getRightText('en'),
-                      style: const TextStyle(
-                        fontFamily: 'Chewy',
+                      style: TextStyle(
+                        fontFamily: _getBodyFont(),
                         fontSize: 16,
                         color: Colors.red,
                       ),
@@ -298,10 +310,10 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                   ),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         'Your Clue',
                         style: TextStyle(
-                          fontFamily: 'LuckiestGuy',
+                          fontFamily: _getHeaderFont(),
                           fontSize: 18,
                           color: Colors.white,
                         ),
@@ -310,8 +322,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                       Text(
                         '"${_level!.getClue(Localizations.localeOf(context).languageCode)}"',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: 'Chewy',
+                        style: TextStyle(
+                          fontFamily: _getBodyFont(),
                           fontSize: 24,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -370,10 +382,10 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                         strokeWidth: 2,
                       ),
                     )
-                  : const Text(
+                  : Text(
                       'Submit Guess',
                       style: TextStyle(
-                        fontFamily: 'LuckiestGuy',
+                        fontFamily: _getHeaderFont(),
                         fontSize: 18,
                       ),
                     ),
@@ -420,8 +432,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                   children: [
                     Text(
                       _getResultTitle(_result!.starsEarned),
-                      style: const TextStyle(
-                        fontFamily: 'LuckiestGuy',
+                      style: TextStyle(
+                        fontFamily: _getHeaderFont(),
                         fontSize: 28,
                         color: Colors.white,
                       ),
@@ -464,10 +476,10 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                 _buildScoreRow('Time', '${_result!.timeSpent.inSeconds}s'),
                 if (_result!.isNewBest) ...[
                   const Divider(color: Colors.white24),
-                  const Text(
+                  Text(
                     '🎉 New Personal Best!',
                     style: TextStyle(
-                      fontFamily: 'LuckiestGuy',
+                      fontFamily: _getHeaderFont(),
                       fontSize: 16,
                       color: Colors.amber,
                     ),
@@ -494,10 +506,10 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Try Again',
                     style: TextStyle(
-                      fontFamily: 'LuckiestGuy',
+                      fontFamily: _getHeaderFont(),
                       fontSize: 18,
                     ),
                   ),
@@ -516,10 +528,10 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Back to Campaign',
                     style: TextStyle(
-                      fontFamily: 'LuckiestGuy',
+                      fontFamily: _getHeaderFont(),
                       fontSize: 18,
                     ),
                   ),
@@ -540,16 +552,16 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
         children: [
           Text(
             label,
-            style: const TextStyle(
-              fontFamily: 'Chewy',
+            style: TextStyle(
+              fontFamily: _getBodyFont(),
               fontSize: 16,
               color: Colors.white70,
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
-              fontFamily: 'LuckiestGuy',
+            style: TextStyle(
+              fontFamily: _getHeaderFont(),
               fontSize: 16,
               color: Colors.white,
             ),

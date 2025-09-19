@@ -7,6 +7,7 @@ import '../models/practice_models.dart';
 import '../widgets/solo_spectrum_card.dart';
 import '../widgets/radial_spectrum.dart';
 import '../l10n/app_localizations.dart';
+// Removed unused import
 
 class PracticeModeScreen extends StatefulWidget {
   static const routeName = '/practice';
@@ -51,6 +52,17 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
       _lastResult = null;
       _challengeStartTime = DateTime.now();
     });
+  }
+
+  // Helper methods to get correct font family based on locale
+  String _getHeaderFont() {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'ar' ? 'Beiruti' : 'LuckiestGuy';
+  }
+
+  String _getBodyFont() {
+    final locale = Localizations.localeOf(context);
+    return locale.languageCode == 'ar' ? 'Harmattan' : 'Chewy';
   }
 
   void _submitGuess() {
@@ -106,10 +118,10 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
               ),
               child: Text(
                 '${_currentChallenge!.leftLabel} ↔ ${_currentChallenge!.rightLabel}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'LuckiestGuy',
+                  fontFamily: _getHeaderFont(),
                 ),
               ),
             ),
@@ -132,17 +144,17 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
                     style: TextStyle(
                       color: Colors.grey[400],
                       fontSize: 14,
-                      fontFamily: 'Chewy',
+                      fontFamily: _getBodyFont(),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     '"${_currentChallenge!.clue}"',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'LuckiestGuy',
+                      fontFamily: _getHeaderFont(),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -166,18 +178,6 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Text(
-              'Where does this clue belong?',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontFamily: 'Chewy',
-              ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Spectrum slider
             SizedBox(
               height: 300, // Standard height from original
               child: SoloSpectrumCard(
@@ -214,12 +214,12 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 12,
-                            fontFamily: 'Chewy',
+                            fontFamily: _getBodyFont(),
                           ),
                         ),
                         Text(
                           '${(_userGuess * 100).toStringAsFixed(0)}%',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.blue,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -234,12 +234,12 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
                           style: TextStyle(
                             color: Colors.grey[400],
                             fontSize: 12,
-                            fontFamily: 'Chewy',
+                            fontFamily: _getBodyFont(),
                           ),
                         ),
                         Text(
                           '${(_currentChallenge!.secretPosition * 100).toStringAsFixed(0)}%',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.green,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -267,12 +267,12 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Submit Guess',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'LuckiestGuy',
+                      fontFamily: _getHeaderFont(),
                     ),
                   ),
                 ),
@@ -323,7 +323,7 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
                   color: _getScoreColor(_lastResult!.score),
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'Chewy',
+                  fontFamily: _getBodyFont(),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -337,7 +337,7 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
               style: TextStyle(
                 color: Colors.grey[400],
                 fontSize: 14,
-                fontFamily: 'Chewy',
+                fontFamily: _getBodyFont(),
               ),
               textAlign: TextAlign.center,
             ),
@@ -356,12 +356,12 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   'Next Challenge',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'LuckiestGuy',
+                    fontFamily: _getHeaderFont(),
                   ),
                 ),
               ),
@@ -381,7 +381,7 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
             color: color,
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            fontFamily: 'LuckiestGuy',
+            fontFamily: _getHeaderFont(),
           ),
         ),
         Text(
@@ -389,7 +389,7 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
           style: TextStyle(
             color: Colors.grey[400],
             fontSize: 12,
-            fontFamily: 'Chewy',
+            fontFamily: _getBodyFont(),
           ),
         ),
       ],
@@ -410,7 +410,7 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
       appBar: AppBar(
         title: Text(
           AppLocalizations.of(context)!.practiceMode,
-          style: const TextStyle(fontFamily: 'LuckiestGuy'),
+          style: TextStyle(fontFamily: _getHeaderFont()),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
