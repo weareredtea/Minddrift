@@ -3,12 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../services/daily_challenge_service.dart';
 import '../models/daily_challenge_models.dart';
 import '../models/avatar.dart';
 import '../widgets/solo_spectrum_card.dart';
 import '../widgets/radial_spectrum.dart';
+import '../providers/user_profile_provider.dart';
 import '../l10n/app_localizations.dart';
 // Removed unused import
 
@@ -561,11 +562,19 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                   itemCount: _leaderboard.length,
                   itemBuilder: (context, index) {
                     final entry = _leaderboard[index];
-                    final isCurrentUser = entry.userId == FirebaseAuth.instance.currentUser?.uid;
+                    // Use UserProfileProvider for consistent user identification
+                    final userProfile = context.watch<UserProfileProvider>().userProfile;
+                    final isCurrentUser = entry.userId == userProfile?.uid;
                     
                     return Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      color: isCurrentUser ? Colors.blue[900] : Colors.grey[850],
+                      color: isCurrentUser ? Colors.blue.withOpacity(0.3) : Colors.grey[850],
+                      shape: isCurrentUser 
+                          ? RoundedRectangleBorder(
+                              side: const BorderSide(color: Colors.blueAccent, width: 2),
+                              borderRadius: BorderRadius.circular(12),
+                            )
+                          : null,
                       child: ListTile(
                         leading: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -606,7 +615,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                         title: Text(
                           entry.displayName,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: isCurrentUser ? Colors.blueAccent : Colors.white,
                             fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
                             fontFamily: _getHeaderFont(),
                           ),
@@ -618,21 +627,34 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                             fontFamily: _getBodyFont(),
                           ),
                         ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _getScoreColor(entry.score),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '${entry.score}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              fontFamily: _getHeaderFont(),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _getScoreColor(entry.score),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '${entry.score}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  fontFamily: _getHeaderFont(),
+                                ),
+                              ),
                             ),
-                          ),
+                            if (isCurrentUser) ...[
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 20,
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     );

@@ -114,6 +114,21 @@ class DailyChallengeService {
     final score = _calculateScore(userGuess, challenge.secretPosition);
     final accuracy = _calculateAccuracy(userGuess, challenge.secretPosition);
 
+    // Get user's current profile information for leaderboard
+    String displayName = 'MindDrifter';
+    String avatarId = 'bear';
+    
+    try {
+      final userDoc = await _db.collection('users').doc(user.uid).get();
+      if (userDoc.exists && userDoc.data() != null) {
+        final userData = userDoc.data()!;
+        displayName = userData['displayName'] ?? 'MindDrifter';
+        avatarId = userData['avatarId'] ?? 'bear';
+      }
+    } catch (e) {
+      print('Warning: Could not fetch user profile for leaderboard: $e');
+    }
+
     final result = DailyResult(
       challengeId: challenge.id,
       userId: user.uid,
@@ -129,12 +144,19 @@ class DailyChallengeService {
       print('Submitting daily result for ${challenge.id}, user: ${user.uid}, score: $score');
       
       // Store result in leaderboard collection (for global rankings)
+      // Include profile information for display
+      final leaderboardData = {
+        ...result.toFirestore(),
+        'displayName': displayName,
+        'avatarId': avatarId,
+      };
+      
       await _db
           .collection('daily_leaderboard')
           .doc(challenge.id)
           .collection('scores')
           .doc(user.uid)
-          .set(result.toFirestore());
+          .set(leaderboardData);
       
       print('Successfully saved to leaderboard: daily_leaderboard/${challenge.id}/scores/${user.uid}');
 
@@ -283,33 +305,15 @@ class DailyChallengeService {
         final doc = querySnapshot.docs[i];
         final data = doc.data();
         
-        // Get user profile for display name and avatar
-        final userDoc = await _db.collection('users').doc(doc.id).get();
-        final userData = userDoc.data() ?? {};
-        
-        // Check for custom username first
-        String displayName = 'Anonymous';
-        try {
-          final customUsernameQuery = await _db
-              .collection('custom_usernames')
-              .where('userId', isEqualTo: doc.id)
-              .where('isActive', isEqualTo: true)
-              .limit(1)
-              .get();
-          
-          if (customUsernameQuery.docs.isNotEmpty) {
-            displayName = customUsernameQuery.docs.first.data()['username'] ?? 'Anonymous';
-          } else {
-            displayName = userData['displayName'] ?? 'Anonymous';
-          }
-        } catch (e) {
-          displayName = userData['displayName'] ?? 'Anonymous';
-        }
+        // Use display name and avatar ID stored directly in leaderboard document
+        // This is more reliable than fetching from users collection
+        final displayName = data['displayName'] ?? 'MindDrifter';
+        final avatarId = data['avatarId'] ?? 'bear';
         
         final entry = DailyLeaderboardEntry(
           userId: doc.id,
           displayName: displayName,
-          avatarId: userData['avatarId'] ?? 'bear',
+          avatarId: avatarId,
           score: data['score'] ?? 0,
           accuracy: data['accuracy']?.toDouble() ?? 0.0,
           timeSpent: Duration(seconds: data['timeSpentSeconds'] ?? 0),

@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import '../models/avatar.dart';
 import '../models/custom_username.dart';
 import '../models/player_wallet.dart';
+import '../models/user_profile.dart';
 import '../services/wallet_service.dart';
+import '../providers/user_profile_provider.dart';
 import '../l10n/app_localizations.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -59,25 +62,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       // Build the list of available avatars based on owned packs
       final availableAvatars = Avatars.getAvailableAvatars(wallet.ownedAvatarPacks);
 
-      // Load current username
-      final usernameQuery = await FirebaseFirestore.instance
-          .collection('custom_usernames')
-          .where('userId', isEqualTo: user.uid)
-          .where('isActive', isEqualTo: true)
-          .limit(1)
-          .get();
+      // Get current profile from UserProfileProvider
+      final userProfileProvider = context.read<UserProfileProvider>();
+      final userProfile = userProfileProvider.userProfile;
 
-      if (usernameQuery.docs.isNotEmpty) {
-        _currentUsername = CustomUsername.fromFirestore(usernameQuery.docs.first);
-        _usernameController.text = _currentUsername!.username;
+      if (userProfile != null) {
+        // Use profile data from the provider
+        _usernameController.text = userProfile.displayName;
+        _selectedAvatarId = userProfile.avatarId;
       } else {
-        _usernameController.text = user.displayName ?? '';
+        // Fallback to loading from Firestore if provider doesn't have data yet
+        final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        final userData = userDoc.data();
+        _selectedAvatarId = userData?['avatarId'] as String? ?? 'bear';
+        _usernameController.text = userData?['displayName'] as String? ?? 'MindDrifter';
       }
-
-      // Load current avatar from Firebase user profile or default
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      final userData = userDoc.data();
-      _selectedAvatarId = userData?['avatarId'] as String? ?? 'bear';
       
       // Ensure selected avatar is available (fallback to first free avatar if not)
       if (!availableAvatars.any((avatar) => avatar.id == _selectedAvatarId)) {
@@ -163,13 +162,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     try {
       final username = _usernameController.text.trim();
 
-      // Update avatar in user document
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'avatarId': _selectedAvatarId,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      // Create updated profile
+      final updatedProfile = UserProfile(
+        uid: user.uid,
+        displayName: username,
+        avatarId: _selectedAvatarId,
+      );
 
-      // Update username if changed
+      // Update profile using ProfileService (this will update Firestore)
+      final userProfileProvider = context.read<UserProfileProvider>();
+      await userProfileProvider.updateProfile(updatedProfile);
+
+      // Handle custom username if needed (for backward compatibility)
       if (_currentUsername?.username != username.toLowerCase()) {
         // Deactivate current username if exists
         if (_currentUsername != null) {

@@ -20,12 +20,14 @@ import 'providers/locale_provider.dart';
 import 'providers/purchase_provider_new.dart';
 import 'providers/chat_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/user_profile_provider.dart';
 import 'services/analytics_service.dart';
 import 'services/navigation_service.dart';
 import 'services/room_service.dart';
 import 'services/player_service.dart';
 import 'services/game_service.dart';
 import 'services/user_service.dart';
+import 'services/profile_service.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -75,25 +77,44 @@ class MyApp extends StatelessWidget {
         // 1. NavigationService for centralized navigation logic
         Provider<NavigationService>(create: (_) => NavigationService()),
         
-        // 2. AuthProvider is now the first and primary provider.
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        // 2. ProfileService (no dependencies)
+        Provider<ProfileService>(create: (_) => ProfileService()),
         
-        // 3. RoomService for room creation and management
+        // 3. AuthProvider depends on ProfileService
+        ChangeNotifierProvider<AuthProvider>(
+          create: (context) => AuthProvider(
+            profileService: context.read<ProfileService>(),
+          ),
+        ),
+        
+        // 4. UserProfileProvider depends on AuthProvider and ProfileService
+        ChangeNotifierProxyProvider<AuthProvider, UserProfileProvider>(
+          create: (context) => UserProfileProvider(
+            profileService: context.read<ProfileService>(),
+          ),
+          update: (context, authProvider, previousProvider) {
+            // When the user logs in or out, tell the provider to listen to the new UID.
+            previousProvider?.listenToProfile(authProvider.uid);
+            return previousProvider!;
+          },
+        ),
+        
+        // 5. RoomService for room creation and management
         ProxyProvider<AuthProvider, RoomService>(
           update: (_, authProvider, __) => RoomService(authProvider),
         ),
         
-        // 4. PlayerService for player management
+        // 6. PlayerService for player management
         ProxyProvider<AuthProvider, PlayerService>(
           update: (_, authProvider, __) => PlayerService(authProvider),
         ),
         
-        // 5. GameService for game flow management
+        // 7. GameService for game flow management
         ProxyProvider<AuthProvider, GameService>(
           update: (_, authProvider, __) => GameService(authProvider),
         ),
         
-        // 6. UserService for user settings and current room tracking
+        // 8. UserService for user settings and current room tracking
         ProxyProvider<AuthProvider, UserService>(
           update: (_, authProvider, __) => UserService(authProvider),
         ),

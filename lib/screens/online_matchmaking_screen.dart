@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/matchmaking_user.dart';
 import '../providers/premium_provider.dart';
 import '../providers/auth_provider.dart' as auth;
+import '../providers/user_profile_provider.dart';
 import '../l10n/app_localizations.dart';
 
 class OnlineMatchmakingScreen extends StatefulWidget {
@@ -408,24 +409,41 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
   }
 
   Widget _buildUserCard(MatchmakingUser user) {
+    // Get the current user's profile to highlight them
+    final userProfile = context.watch<UserProfileProvider>().userProfile;
+    final isMe = user.userId == userProfile?.uid;
+    
     return Card(
-      color: Colors.grey[900],
+      color: isMe ? Colors.blue.withOpacity(0.2) : Colors.grey[900],
       margin: const EdgeInsets.only(bottom: 12),
+      shape: isMe 
+          ? RoundedRectangleBorder(
+              side: const BorderSide(color: Colors.blueAccent, width: 2),
+              borderRadius: BorderRadius.circular(12),
+            )
+          : null,
       child: ListTile(
         leading: CircleAvatar(
+          backgroundColor: isMe ? Colors.blueAccent.withOpacity(0.3) : null,
           backgroundImage: user.avatarUrl != null
               ? NetworkImage(user.avatarUrl!)
               : null,
           child: user.avatarUrl == null
               ? Text(
                   user.displayName.isNotEmpty ? user.displayName[0].toUpperCase() : '?',
-                  style: const TextStyle(fontSize: 16),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: isMe ? Colors.blueAccent : null,
+                  ),
                 )
               : null,
         ),
         title: Text(
           user.displayName,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: isMe ? Colors.blueAccent : Colors.white,
+            fontWeight: isMe ? FontWeight.bold : FontWeight.w600,
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -438,17 +456,45 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
               'Last seen: ${user.formattedLastSeen}',
               style: TextStyle(color: Colors.grey[500], fontSize: 11),
             ),
+            if (isMe)
+              const Padding(
+                padding: EdgeInsets.only(top: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                      size: 12,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'You',
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
-        trailing: ElevatedButton(
-          onPressed: _isLoading ? null : () => _createRoomWithUser(user),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.purple,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          ),
-          child: const Text('Play'),
-        ),
+        trailing: isMe 
+            ? const Icon(
+                Icons.person,
+                color: Colors.blueAccent,
+                size: 20,
+              )
+            : ElevatedButton(
+                onPressed: _isLoading ? null : () => _createRoomWithUser(user),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                ),
+                child: const Text('Play'),
+              ),
       ),
     );
   }

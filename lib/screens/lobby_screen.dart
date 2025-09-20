@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/user_service.dart';
 import '../services/navigation_service.dart';
 import '../providers/game_state_provider.dart';
+import '../providers/user_profile_provider.dart';
 import '../models/game_state.dart';
 import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
@@ -490,13 +491,49 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     itemCount: players.length,
                     itemBuilder: (_, i) {
                       final player = players[i];
-                      return ListTile(
-                        leading: const Icon(Icons.person),
-                        title: Text(player.displayName),
-                        subtitle: Text('${loc.uid(player.uid.substring(0, 8))}...'),
-                        trailing: player.ready 
-                            ? const Icon(Icons.check_circle, color: Colors.green)
-                            : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
+                      // Get the current user's profile to highlight them
+                      final userProfile = context.watch<UserProfileProvider>().userProfile;
+                      final isMe = player.uid == userProfile?.uid;
+                      
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        decoration: isMe 
+                            ? BoxDecoration(
+                                color: Colors.blue.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.blueAccent, width: 1),
+                              )
+                            : null,
+                        child: ListTile(
+                          leading: Icon(
+                            Icons.person,
+                            color: isMe ? Colors.blueAccent : null,
+                          ),
+                          title: Text(
+                            player.displayName,
+                            style: TextStyle(
+                              fontWeight: isMe ? FontWeight.bold : null,
+                              color: isMe ? Colors.blueAccent : null,
+                            ),
+                          ),
+                          subtitle: Text('${loc.uid(player.uid.substring(0, 8))}...'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              player.ready 
+                                  ? const Icon(Icons.check_circle, color: Colors.green)
+                                  : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
+                              if (isMe) ...[
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 16,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       );
                     },
                   ),

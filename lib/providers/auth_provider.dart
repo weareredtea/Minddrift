@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../services/profile_service.dart';
 
 // Enum to represent the authentication status
 enum AuthStatus {
@@ -14,12 +15,19 @@ enum AuthStatus {
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth;
+  final ProfileService _profileService;
   StreamSubscription<User?>? _authStateSubscription;
 
   // Private state variables
   User? _user;
   AuthStatus _status = AuthStatus.uninitialized;
   String? _errorMessage;
+
+  AuthProvider({FirebaseAuth? firebaseAuth, ProfileService? profileService})
+      : _auth = firebaseAuth ?? FirebaseAuth.instance,
+        _profileService = profileService ?? ProfileService() {
+    _initialize();
+  }
 
   // Public getters
   User? get user => _user;
@@ -28,10 +36,6 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthenticated => _status == AuthStatus.authenticated;
   String? get uid => _user?.uid;
 
-  AuthProvider({FirebaseAuth? firebaseAuth})
-      : _auth = firebaseAuth ?? FirebaseAuth.instance {
-    _initialize();
-  }
 
   /// Initializes the provider and starts listening to auth state changes.
   void _initialize() {
@@ -57,6 +61,13 @@ class AuthProvider extends ChangeNotifier {
     } else {
       _user = user;
       _status = AuthStatus.authenticated;
+      // When a user is authenticated, create their initial profile if it doesn't exist.
+      try {
+        await _profileService.createInitialProfile(user);
+      } catch (e) {
+        print('🚨 Profile Creation Error: $e');
+        // Don't fail authentication if profile creation fails
+      }
     }
     notifyListeners();
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:confetti/confetti.dart';
 import 'package:minddrift/providers/game_state_provider.dart';
+import 'package:minddrift/providers/user_profile_provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/navigation_service.dart';
 import '../theme/app_theme.dart';
@@ -84,11 +85,45 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
                     itemCount: players.length,
                     itemBuilder: (context, index) {
                       final player = players[index];
+                      // Get the current user's profile to highlight them
+                      final userProfile = context.watch<UserProfileProvider>().userProfile;
+                      final isMe = player.uid == userProfile?.uid;
+                      
                       return Card(
+                        // Add visual indicator if it's the current user
+                        color: isMe ? Colors.blue.withOpacity(0.3) : null,
+                        shape: isMe 
+                            ? RoundedRectangleBorder(
+                                side: const BorderSide(color: Colors.blueAccent, width: 2),
+                                borderRadius: BorderRadius.circular(12),
+                              )
+                            : null,
                         child: ListTile(
-                          leading: const Icon(Icons.person),
-                          title: Text(player.displayName),
-                          trailing: const Text('💎 0'), // TODO: Add tokens to PlayerStatus model
+                          leading: Icon(
+                            Icons.person,
+                            color: isMe ? Colors.blueAccent : null,
+                          ),
+                          title: Text(
+                            player.displayName,
+                            style: TextStyle(
+                              fontWeight: isMe ? FontWeight.bold : null,
+                              color: isMe ? Colors.blueAccent : null,
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text('💎 0'), // TODO: Add tokens to PlayerStatus model
+                              if (isMe) ...[
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 16,
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
                       );
                     },

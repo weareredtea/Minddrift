@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:minddrift/screens/store_screen.dart';
 import 'package:minddrift/screens/tutorial_screen.dart';
@@ -33,7 +31,7 @@ import '../services/wallet_service.dart';
 import '../services/quest_service.dart';
 import '../models/player_wallet.dart';
 import '../models/avatar.dart';
-import '../models/custom_username.dart';
+import '../providers/user_profile_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/';
@@ -58,8 +56,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool _authenticationFailed = false;
   
   // User profile state
-  String _userAvatarId = 'bear'; // Default avatar
-  String _username = 'MindDrifter'; // Default username
+  // Profile data is now managed by UserProfileProvider
 
   late final AnimationController _glowController;
   late final Animation<double> _glowAnimation;
@@ -86,7 +83,6 @@ class _HomeScreenState extends State<HomeScreen>
     for (int attempt = 1; attempt <= 3; attempt++) {
       try {
         await _loadWallet();
-        await _loadUserProfile();
         
         // Success - clear any previous auth failure state
         if (mounted) {
@@ -179,45 +175,6 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  Future<void> _loadUserProfile() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    try {
-      // Load username from custom_usernames collection
-      final usernameQuery = await FirebaseFirestore.instance
-          .collection('custom_usernames')
-          .where('userId', isEqualTo: user.uid)
-          .where('isActive', isEqualTo: true)
-          .limit(1)
-          .get();
-
-      String username = 'MindDrifter'; // Default
-      if (usernameQuery.docs.isNotEmpty) {
-        final customUsername = CustomUsername.fromFirestore(usernameQuery.docs.first);
-        username = customUsername.username;
-      } else if (user.displayName != null && user.displayName!.isNotEmpty) {
-        username = user.displayName!;
-      }
-
-      // Load avatar from user document - now handled by UserService
-      // Avatar loading logic moved to UserService
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-      final userData = userDoc.data();
-      final avatarId = userData?['avatarId'] as String? ?? 'bear';
-
-      if (mounted) {
-        setState(() {
-          _username = username;
-          _userAvatarId = avatarId;
-        });
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error loading user profile: $e');
-      }
-    }
-  }
 
   @override
   void dispose() {
@@ -776,14 +733,17 @@ class _HomeScreenState extends State<HomeScreen>
 
   // NEW: Widget for the new profile header
   Widget _buildProfileHeader(BuildContext context) {
-    return GestureDetector(
+    return Consumer<UserProfileProvider>(
+      builder: (context, userProfileProvider, child) {
+        final userProfile = userProfileProvider.userProfile;
+        
+        return GestureDetector(
       onTap: () async {
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ProfileEditScreen()),
         );
-        // Reload profile after returning from edit screen
-        _loadUserProfile();
+        // Profile will automatically update via UserProfileProvider stream
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -801,7 +761,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: SvgPicture.asset(
-                  Avatars.getPathFromId(_userAvatarId),
+                  Avatars.getPathFromId(userProfile?.avatarId ?? 'bear'),
                   width: 32,
                   height: 32,
                   fit: BoxFit.cover,
@@ -814,7 +774,7 @@ class _HomeScreenState extends State<HomeScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  _username,
+                  userProfile?.displayName ?? 'MindDrifter',
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -867,6 +827,8 @@ class _HomeScreenState extends State<HomeScreen>
           ],
         ),
       ),
+    );
+      },
     );
   }
 
