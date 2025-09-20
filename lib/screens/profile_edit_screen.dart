@@ -2,12 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/avatar.dart';
 import '../models/custom_username.dart';
-import '../services/user_service.dart';
+import '../models/player_wallet.dart';
+import '../services/wallet_service.dart';
 import '../l10n/app_localizations.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -29,6 +29,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   bool _isUsernameAvailable = true;
   String? _usernameError;
   CustomUsername? _currentUsername;
+  
+  // Wallet-aware avatar system
+  PlayerWallet? _wallet;
+  List<Avatar> _availableAvatars = [];
 
   @override
   void initState() {
@@ -49,6 +53,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Load the player wallet to get owned avatar packs
+      final wallet = await WalletService.getWallet();
+      
+      // Build the list of available avatars based on owned packs
+      final availableAvatars = Avatars.getAvailableAvatars(wallet.ownedAvatarPacks);
+
       // Load current username
       final usernameQuery = await FirebaseFirestore.instance
           .collection('custom_usernames')
@@ -68,6 +78,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       final userData = userDoc.data();
       _selectedAvatarId = userData?['avatarId'] as String? ?? 'bear';
+      
+      // Ensure selected avatar is available (fallback to first free avatar if not)
+      if (!availableAvatars.any((avatar) => avatar.id == _selectedAvatarId)) {
+        _selectedAvatarId = Avatars.freeAvatars.first.id;
+      }
+
+      // Update state
+      if (mounted) {
+        setState(() {
+          _wallet = wallet;
+          _availableAvatars = availableAvatars;
+        });
+      }
 
     } catch (e) {
       if (mounted) {
@@ -221,7 +244,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        Container(
+        SizedBox(
           height: 120,
           child: GridView.builder(
             scrollDirection: Axis.horizontal,
@@ -231,32 +254,58 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               crossAxisSpacing: 8,
               mainAxisSpacing: 8,
             ),
-            itemCount: Avatars.all.length,
+            itemCount: _availableAvatars.length,
             itemBuilder: (context, index) {
-              final avatar = Avatars.all[index];
+              final avatar = _availableAvatars[index];
               final isSelected = avatar.id == _selectedAvatarId;
+              final isLocked = avatar.isLocked;
               
               return GestureDetector(
                 onTap: () {
-                  setState(() {
-                    _selectedAvatarId = avatar.id;
-                  });
+                  if (!isLocked) {
+                    setState(() {
+                      _selectedAvatarId = avatar.id;
+                    });
+                  }
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isSelected ? Colors.blue[600] : Colors.grey[800],
-                    borderRadius: BorderRadius.circular(12),
-                    border: isSelected 
-                        ? Border.all(color: Colors.blue[300]!, width: 3)
-                        : Border.all(color: Colors.grey[600]!, width: 1),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SvgPicture.asset(
-                      avatar.svgPath,
-                      fit: BoxFit.contain,
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.blue[600] : Colors.grey[800],
+                        borderRadius: BorderRadius.circular(12),
+                        border: isSelected 
+                            ? Border.all(color: Colors.blue[300]!, width: 3)
+                            : Border.all(color: Colors.grey[600]!, width: 1),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Opacity(
+                          opacity: isLocked ? 0.5 : 1.0,
+                          child: SvgPicture.asset(
+                            avatar.svgPath,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    if (isLocked)
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               );
             },
@@ -398,6 +447,32 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             fontFamily: 'LuckiestGuy',
                           ),
                         ),
+                        if (_wallet != null) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.amber.withAlpha(50),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.amber.withAlpha(150)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.diamond, color: Colors.amber, size: 16),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${_wallet!.mindGems}',
+                                  style: const TextStyle(
+                                    fontFamily: 'LuckiestGuy',
+                                    fontSize: 16,
+                                    color: Colors.amber,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

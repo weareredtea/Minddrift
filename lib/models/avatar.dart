@@ -121,4 +121,13 @@ class Avatars {
       return false; // If avatar not found, assume unlocked
     }
   }
+
+  /// Get avatar by ID
+  static Avatar? getAvatarById(String avatarId) {
+    try {
+      return all.firstWhere((avatar) => avatar.id == avatarId);
+    } catch (e) {
+      return null;
+    }
+  }
 }

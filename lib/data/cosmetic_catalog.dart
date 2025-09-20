@@ -201,19 +201,19 @@ class CosmeticCatalog {
     ];
   }
 
-  /// Get item by ID
-  static CosmeticItem? getItemById(String itemId) {
+  /// Get avatar pack by ID
+  static AvatarPack? getAvatarPackById(String packId) {
     try {
-      return getAllItems().firstWhere((item) => item.id == itemId);
+      return avatarPacks.firstWhere((pack) => pack.packId == packId);
     } catch (e) {
       return null;
     }
   }
 
-  /// Get avatar pack by ID
-  static AvatarPack? getAvatarPackById(String packId) {
+  /// Get item by ID
+  static CosmeticItem? getItemById(String itemId) {
     try {
-      return avatarPacks.firstWhere((pack) => pack.packId == packId);
+      return getAllItems().firstWhere((item) => item.id == itemId);
     } catch (e) {
       return null;
     }
