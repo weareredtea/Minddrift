@@ -1,7 +1,6 @@
 // lib/providers/purchase_provider_new.dart
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../services/purchase_service.dart';
 
 /// New simplified PurchaseProvider that delegates to PurchaseService
@@ -89,35 +88,6 @@ class PurchaseProviderNew extends ChangeNotifier {
     return _purchaseService.getProduct(productId);
   }
 
-  /// Ensure user is authenticated (for testing)
-  Future<bool> ensureAuthentication() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        await FirebaseAuth.instance.signInAnonymously();
-      }
-      return true;
-    } catch (e) {
-      _error = 'Authentication failed: $e';
-      notifyListeners();
-      return false;
-    }
-  }
-
-  /// Get ID token for testing
-  Future<String?> getIdToken() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        return await user.getIdToken();
-      }
-      return null;
-    } catch (e) {
-      _error = 'Failed to get ID token: $e';
-      notifyListeners();
-      return null;
-    }
-  }
 
   /// Check billing availability
   Future<bool> checkBillingAvailability() async {

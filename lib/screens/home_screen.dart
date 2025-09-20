@@ -118,11 +118,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> _loadWallet() async {
     try {
-      // Ensure user is authenticated before loading wallet
+      // Authentication is now handled by AuthProvider
       final firebaseService = context.read<FirebaseService>();
-      final isAuthenticated = await firebaseService.ensureUserAuthenticated();
       
-      if (!isAuthenticated) {
+      if (firebaseService.currentUserUid.isEmpty) {
         if (kDebugMode) {
           print('Cannot load wallet: User not authenticated');
         }
@@ -508,12 +507,11 @@ class _HomeScreenState extends State<HomeScreen>
                                 throw Exception('Cannot connect to Firebase. Please check your internet connection.');
                               }
 
-                              // Ensure user is authenticated before creating room
+                              // Authentication is now handled by AuthProvider
                               print('🔐 Checking user authentication...');
-                              final isAuthenticated = await firebaseService.ensureUserAuthenticated();
-                              print('👤 User authenticated: $isAuthenticated');
+                              print('👤 User authenticated: ${firebaseService.currentUserUid.isNotEmpty}');
                               
-                              if (!isAuthenticated) {
+                              if (firebaseService.currentUserUid.isEmpty) {
                                 throw Exception('Authentication required to create room. Please restart the app.');
                               }
 

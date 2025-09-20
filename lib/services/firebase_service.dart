@@ -14,6 +14,7 @@ import '../models/avatar.dart';
 import '../pigeon/pigeon.dart';
 import '../services/category_service.dart';
 import '../models/match_settings.dart';
+import '../providers/auth_provider.dart' as auth;
 
 // Custom exception classes for better error handling
 class FirebaseServiceException implements Exception {
@@ -199,18 +200,20 @@ class ReadyScreenViewModel {
 }
 
 class FirebaseService with ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final Random _rnd = Random();
   
-  // We'll get PurchaseProvider from context when needed for real bundle filtering
+  // --- NEW: Dependency Injection ---
+  // The service now depends on AuthProvider for auth state.
+  final auth.AuthProvider _authProvider;
+
+  // --- UPDATED: Constructor ---
+  // It now requires an AuthProvider instance.
+  FirebaseService(this._authProvider) {
+    // The auth initialization is now handled by AuthProvider.
+  }
 
   final String _canvasAppId = const String.fromEnvironment('app_id', defaultValue: 'default-app-id');
-  final String _canvasInitialAuthToken = const String.fromEnvironment('initial_auth_token');
-
-  FirebaseService() {
-    _initializeFirebaseAndAuth();
-  }
 
   // Performance optimization: Clean up caches when leaving room
   void _cleanupCaches(String roomId) {
@@ -224,73 +227,6 @@ class FirebaseService with ChangeNotifier {
     _pendingUpdates.remove(roomId);
   }
 
-  Future<void> _initializeFirebaseAndAuth() async {
-    try {
-      ExceptionHandler.logError('auth_initialization', 'Starting authentication initialization');
-      
-      // Skip network connectivity check for faster startup
-      // await _checkNetworkConnectivity();
-      
-      final auth = FirebaseAuth.instance;
-      
-      // Check if user is already authenticated
-      if (auth.currentUser != null) {
-        ExceptionHandler.logError('auth_initialization', 'User already authenticated', 
-          extraData: {'uid': auth.currentUser!.uid});
-        
-        // Clean up any stale room data on startup
-        await _cleanupStaleRoomData();
-        return;
-      }
-
-      // Try custom token authentication first with timeout
-      if (_canvasInitialAuthToken.isNotEmpty) {
-        try {
-          ExceptionHandler.logError('auth_initialization', 'Attempting custom token authentication');
-          await auth.signInWithCustomToken(_canvasInitialAuthToken).timeout(
-            const Duration(seconds: 5), // Add timeout for faster fallback
-          );
-          ExceptionHandler.logError('auth_initialization', 'Custom token authentication successful', 
-            extraData: {'uid': auth.currentUser!.uid});
-        } catch (e) {
-          ExceptionHandler.logError('auth_initialization', 'Custom token authentication failed', 
-            extraData: {'error': e.toString()});
-          // Fall back to anonymous authentication
-          await _performAnonymousAuth();
-        }
-      } else {
-        // No custom token, use anonymous authentication
-        await _performAnonymousAuth();
-      }
-
-      // Clean up any stale room data after authentication
-      await _cleanupStaleRoomData();
-
-      // Set up auth state listener with detailed logging
-      _auth.authStateChanges().listen((User? user) {
-        ExceptionHandler.logError('auth_state_change', 'Auth state changed', 
-          extraData: {
-            'user': user?.uid ?? 'null',
-            'isAnonymous': user?.isAnonymous ?? false,
-            'displayName': user?.displayName ?? 'none',
-          });
-        
-        if (user != null) {
-          print('✅ User authenticated: ${user.uid} (anonymous: ${user.isAnonymous})');
-        } else {
-          print('❌ User signed out or authentication lost');
-        }
-        
-        notifyListeners();
-      });
-
-    } catch (e) {
-      ExceptionHandler.logError('auth_initialization', 'Authentication initialization failed', 
-        extraData: {'error': e.toString()});
-      // Don't throw exception - let the app start and handle auth later
-      print('Auth initialization failed, app will continue: $e');
-    }
-  }
 
   Future<void> _checkNetworkConnectivity() async {
     try {
@@ -442,96 +378,11 @@ class FirebaseService with ChangeNotifier {
     }
   }
 
-  Future<void> _performAnonymousAuth() async {
-    const int maxRetries = 5; // Increased retries
-    const Duration baseRetryDelay = Duration(seconds: 2);
-    
-    for (int attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        ExceptionHandler.logError('auth_anonymous', 'Attempting anonymous authentication (attempt $attempt/$maxRetries)');
-        
-        // Progressive timeout increase
-        final timeout = Duration(seconds: 15 + (attempt * 5)); // 20s, 25s, 30s, 35s, 40s
-        await _auth.signInAnonymously().timeout(timeout);
-        
-        ExceptionHandler.logError('auth_anonymous', 'Anonymous authentication successful', 
-          extraData: {'uid': _auth.currentUser!.uid, 'attempt': attempt});
-        return;
-        
-      } catch (e) {
-        ExceptionHandler.logError('auth_anonymous', 'Anonymous authentication failed (attempt $attempt/$maxRetries)', 
-          extraData: {'error': e.toString(), 'attempt': attempt});
-        
-        // Check for specific network errors
-        if (e.toString().contains('network-request-failed')) {
-          print('🌐 Network issue detected on attempt $attempt. Checking connectivity...');
-          
-          // Quick connectivity check
-          try {
-            final connectivityResult = await Connectivity().checkConnectivity();
-            print('📶 Current connectivity: $connectivityResult');
-            
-            if (connectivityResult == ConnectivityResult.none) {
-              throw NetworkException(
-                'No internet connection. Please check your network and try again.',
-                code: 'NO_NETWORK',
-                details: 'No connectivity detected',
-                stackTrace: StackTrace.current,
-              );
-            }
-          } catch (connectivityError) {
-            print('⚠️ Connectivity check failed: $connectivityError');
-          }
-        }
-        
-        if (attempt == maxRetries) {
-          throw AuthenticationException(
-            'Failed to sign in after $maxRetries attempts. Please check your internet connection and try again.',
-            code: 'ANONYMOUS_AUTH_FAILED',
-            details: e.toString(),
-            stackTrace: StackTrace.current,
-          );
-        }
-        
-        // Progressive delay: 2s, 4s, 6s, 8s
-        final delay = Duration(seconds: baseRetryDelay.inSeconds * attempt);
-        print('⏳ Waiting ${delay.inSeconds}s before retry...');
-        await Future.delayed(delay);
-      }
-    }
-  }
 
-  String get currentUserUid => _auth.currentUser?.uid ?? '';
+  // --- UPDATED: currentUserUid getter ---
+  // It gets the UID directly from the AuthProvider.
+  String get currentUserUid => _authProvider.uid ?? '';
 
-  /// Enhanced authentication check with retry
-  Future<bool> ensureUserAuthenticated() async {
-    try {
-      // Check if user is already authenticated
-      if (_auth.currentUser != null) {
-        print('✅ User already authenticated: ${_auth.currentUser!.uid}');
-        return true;
-      }
-
-      print('🔐 User not authenticated, attempting to sign in...');
-      
-      // Try to authenticate
-      await _performAnonymousAuth();
-      
-      final isAuthenticated = _auth.currentUser != null;
-      if (isAuthenticated) {
-        print('✅ Authentication successful: ${_auth.currentUser!.uid}');
-      } else {
-        print('❌ Authentication failed: No user after sign in');
-      }
-      
-      return isAuthenticated;
-    } catch (e) {
-      ExceptionHandler.logError('ensure_auth', 'Failed to ensure authentication', 
-        extraData: {'error': e.toString()});
-      print('❌ Authentication error: $e');
-      return false;
-    }
-  }
 
   /// Check Firebase project connectivity
   Future<bool> testFirebaseConnectivity() async {
@@ -601,13 +452,12 @@ class FirebaseService with ChangeNotifier {
         ExceptionHandler.logError(operation, 'Skipping network connectivity check on emulator');
       }
 
-      // Step 2: Validate authentication with enhanced check
-      final isAuthenticated = await ensureUserAuthenticated();
-      if (!isAuthenticated) {
+      // Step 2: Validate authentication - now handled by AuthProvider
+      if (currentUserUid.isEmpty) {
         throw AuthenticationException(
-          'Unable to authenticate user. Please restart the app and try again.',
+          'User authentication required. Please restart the app and try again.',
           code: 'AUTH_REQUIRED',
-          details: 'User authentication failed during room creation',
+          details: 'currentUserUid is empty - authentication handled by AuthProvider',
           stackTrace: StackTrace.current,
         );
       }
@@ -660,25 +510,12 @@ class FirebaseService with ChangeNotifier {
     if (currentUserUid.isEmpty) {
       ExceptionHandler.logError(operation, 'User not authenticated');
       
-      // Try to re-authenticate
-      try {
-        await _performAnonymousAuth();
-        if (currentUserUid.isEmpty) {
-          throw AuthenticationException(
-            'User authentication failed. Please restart the app and try again.',
-            code: 'AUTH_REQUIRED',
-            details: 'currentUserUid is empty after authentication attempt',
-            stackTrace: StackTrace.current,
-          );
-        }
-      } catch (e) {
-        throw AuthenticationException(
-          'Unable to authenticate user. Please check your internet connection and restart the app.',
-          code: 'AUTH_FAILED',
-          details: e.toString(),
-          stackTrace: StackTrace.current,
-        );
-      }
+      throw AuthenticationException(
+        'User authentication required. Please restart the app and try again.',
+        code: 'AUTH_REQUIRED',
+        details: 'currentUserUid is empty - authentication handled by AuthProvider',
+        stackTrace: StackTrace.current,
+      );
     }
   }
 
@@ -956,7 +793,7 @@ class FirebaseService with ChangeNotifier {
 
   Future<void> leaveRoom(String roomId) async {
     TestBotService.stop();
-    if (_auth.currentUser == null) return;
+    if (_authProvider.user == null) return;
     final currentUserDisplayName = (await playersColRef(roomId).doc(currentUserUid).get()).data()?['displayName'] as String? ?? 'A player';
 
     await playersColRef(roomId).doc(currentUserUid).delete();
@@ -1006,7 +843,7 @@ class FirebaseService with ChangeNotifier {
       }
 
       // Fallback to Firebase Auth display name
-      final authDisplayName = _auth.currentUser?.displayName;
+      final authDisplayName = _authProvider.user?.displayName;
       if (authDisplayName != null && authDisplayName.isNotEmpty) {
         return authDisplayName;
       }
@@ -1586,7 +1423,7 @@ class FirebaseService with ChangeNotifier {
   }
 
   Future<void> updateOnlineStatus(String roomId, bool online) async {
-    if (_auth.currentUser == null) return;
+    if (_authProvider.user == null) return;
     await playersColRef(roomId).doc(currentUserUid).update({
       'online': online,
       'lastSeen': FieldValue.serverTimestamp(),
@@ -1603,7 +1440,7 @@ class FirebaseService with ChangeNotifier {
     return playersColRef(roomId).snapshots().map((snap) {
       final players = snap.docs.map((d) => PlayerStatus.fromSnapshot(d)).toList();
       final onlinePlayers = players.where((p) => p.online).toList();
-      final currentUserId = _auth.currentUser?.uid;
+      final currentUserId = _authProvider.user?.uid;
 
       final currentUserDisplayName = players.firstWhere(
         (p) => p.uid == currentUserId,
@@ -1752,7 +1589,7 @@ class FirebaseService with ChangeNotifier {
   }
 
   Future<void> saveCurrentRoomId(String? roomId) async {
-    if (_auth.currentUser == null) return;
+    if (_authProvider.user == null) return;
     try {
       if (roomId != null) {
         await _userCurrentRoomIdDocRef().set({

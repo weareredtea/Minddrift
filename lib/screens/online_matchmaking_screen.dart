@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/matchmaking_user.dart';
 import '../providers/premium_provider.dart';
+import '../providers/auth_provider.dart' as auth;
 import '../l10n/app_localizations.dart';
 
 class OnlineMatchmakingScreen extends StatefulWidget {
@@ -28,7 +28,8 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
   }
 
   Future<void> _initializeMatchmaking() async {
-    final user = FirebaseAuth.instance.currentUser;
+    // --- UPDATED ---
+    final user = context.read<auth.AuthProvider>().user;
     if (user == null) return;
 
     // Create or update current user's matchmaking profile
@@ -36,7 +37,8 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
   }
 
   Future<void> _updateUserStatus(MatchmakingStatus status) async {
-    final user = FirebaseAuth.instance.currentUser;
+    // --- UPDATED ---
+    final user = context.read<auth.AuthProvider>().user;
     if (user == null) return;
 
     try {
@@ -127,9 +129,9 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
         'status': 'waiting',
         'players': [
           {
-            'userId': FirebaseAuth.instance.currentUser!.uid,
-            'name': FirebaseAuth.instance.currentUser!.displayName ?? 'Anonymous',
-            'avatar': FirebaseAuth.instance.currentUser!.photoURL,
+            'userId': context.read<auth.AuthProvider>().user!.uid,
+            'name': context.read<auth.AuthProvider>().user!.displayName ?? 'Anonymous',
+            'avatar': context.read<auth.AuthProvider>().user!.photoURL,
             'isHost': true,
             'isReady': true,
           },
@@ -308,7 +310,7 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
                         stream: FirebaseFirestore.instance
                             .collection('matchmaking_users')
                             .where('status', isEqualTo: 'online')
-                            .where('userId', isNotEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                            .where('userId', isNotEqualTo: context.read<auth.AuthProvider>().user?.uid)
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
