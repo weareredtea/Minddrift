@@ -22,6 +22,7 @@ import 'providers/purchase_provider_new.dart';
 import 'providers/chat_provider.dart';
 import 'providers/auth_provider.dart';
 import 'services/analytics_service.dart';
+import 'services/navigation_service.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -68,12 +69,15 @@ class MyApp extends StatelessWidget {
     // FirebaseService now depends on AuthProvider.
     return MultiProvider(
       providers: [
-        // 1. AuthProvider is now the first and primary provider.
+        // 1. NavigationService for centralized navigation logic
+        Provider<NavigationService>(create: (_) => NavigationService()),
+        
+        // 2. AuthProvider is now the first and primary provider.
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         
-        // 2. ChangeNotifierProxyProvider correctly injects AuthProvider into FirebaseService.
+        // 3. ChangeNotifierProxyProvider correctly injects AuthProvider into FirebaseService.
         ChangeNotifierProxyProvider<AuthProvider, FirebaseService>(
-          create: (_) => throw UnimplementedError(),
+          create: (_) => FirebaseService(AuthProvider()),
           update: (_, authProvider, previous) => previous ?? FirebaseService(authProvider),
         ),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
