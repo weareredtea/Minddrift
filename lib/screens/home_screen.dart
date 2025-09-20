@@ -519,10 +519,10 @@ class _HomeScreenState extends State<HomeScreen>
 
                               // Get service references BEFORE the dialog to avoid context issues
                               final roomService = context.read<RoomService>();
+                              final settings = await firebaseService.fetchRoomCreationSettings();
                               
                               selectedBundles = await _showBundleSelectionDialog();
                               if (selectedBundles != null && selectedBundles.isNotEmpty) {
-                                final settings = await firebaseService.fetchRoomCreationSettings();
                                 await roomService.createRoom(
                                   saboteurEnabled: settings['saboteurEnabled'] ?? false,
                                   diceRollEnabled: settings['diceRollEnabled'] ?? false,
