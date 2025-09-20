@@ -1,0 +1,972 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;\red21\green21\blue22;\red69\green73\blue76;\red228\green234\blue244;
+\red236\green241\blue247;\red52\green55\blue54;\red77\green80\blue85;\red111\green14\blue195;\red24\green112\blue43;
+\red22\green79\blue199;\red134\green86\blue3;\red164\green69\blue11;\red109\green109\blue109;}
+{\*\expandedcolortbl;;\cssrgb\c10588\c10980\c11373;\cssrgb\c34118\c35686\c37255;\cssrgb\c91373\c93333\c96471;
+\cssrgb\c94118\c95686\c97647;\cssrgb\c26667\c27843\c27451;\cssrgb\c37255\c38824\c40784;\cssrgb\c51765\c18824\c80784;\cssrgb\c9412\c50196\c21961;
+\cssrgb\c9804\c40392\c82353;\cssrgb\c60000\c41176\c0;\cssrgb\c70980\c34902\c3137;\cssrgb\c50196\c50196\c50196;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh14680\viewkind0
+\deftab720
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f0\fs24 \cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Of course. Here are the refactored files for your project, presented directly in the chat as requested.\
+\
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f1\b\fs28 \cf2 Batch 1: Core Architecture & State Management\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f0\b0\fs24 \cf2 \
+This batch establishes the new, stable foundation for your application by centralizing authentication.\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f1\b \cf3 \cb4 \strokec3 lib/main.dart
+\f0\b0 \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\partightenfactor0
+\cf3 \cb5 \strokec3 Dart\cb1 \
+\pard\pardeftab720\qc\partightenfactor0
+
+\fs48 \cf6 \strokec6 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf7 \cb5 \strokec7 // lib/main.dart\cf3 \strokec3 \
+\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:animations/animations.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:flutter/material.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:provider/provider.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:firebase_core/firebase_core.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:minddrift/services/audio_service.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:minddrift/widgets/auth_gate.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'firebase_options.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'services/firebase_service.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'screens/settings_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'screens/tutorial_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'screens/store_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'screens/campaign_level_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'screens/gem_store_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'screens/quest_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'screens/analytics_dashboard_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'screens/wave_spectrum_test.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'theme/app_theme.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'providers/locale_provider.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'providers/purchase_provider_new.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'providers/chat_provider.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'providers/auth_provider.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'services/analytics_service.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'l10n/app_localizations.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:flutter/foundation.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:flutter/services.dart'\cf3 \strokec3 ;\
+\
+\cf8 \strokec8 void\cf3 \strokec3  main() \cf8 \strokec8 async\cf3 \strokec3  \{\
+  WidgetsFlutterBinding.ensureInitialized();\
+\
+  \cf8 \strokec8 await\cf3 \strokec3  Firebase.initializeApp(\
+    options: DefaultFirebaseOptions.currentPlatform,\
+  );\
+\
+  \cf7 \strokec7 // REFACTORED: Centralized service initialization here.\cf3 \strokec3 \
+  _initializeServicesInBackground();\
+\
+  runApp(\cf8 \strokec8 const\cf3 \strokec3  MyApp());\
+\}\
+\
+\cf8 \strokec8 void\cf3 \strokec3  _initializeServicesInBackground() \cf8 \strokec8 async\cf3 \strokec3  \{\
+  \cf8 \strokec8 try\cf3 \strokec3  \{\
+    \cf8 \strokec8 await\cf3 \strokec3  AudioService().preloadSounds();\
+    \cf8 \strokec8 await\cf3 \strokec3  AnalyticsService.initialize();\
+  \} \cf8 \strokec8 catch\cf3 \strokec3  (e) \{\
+    \cf8 \strokec8 if\cf3 \strokec3  (kDebugMode) \{\
+      \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 'Background initialization error: \cf2 \strokec2 $e\cf9 \strokec9 '\cf3 \strokec3 );\
+    \}\
+  \}\
+\}\
+\
+\cf8 \strokec8 class\cf11 \strokec11  MyApp \cf8 \strokec8 extends\cf11 \strokec11  StatelessWidget \cf3 \strokec3 \{\
+  \cf8 \strokec8 const\cf3 \strokec3  MyApp(\{\cf8 \strokec8 super\cf3 \strokec3 .key\});\
+\
+  \cf10 \strokec10 @override\cf3 \strokec3 \
+  Widget build(BuildContext context) \{\
+    SystemChrome.setSystemUIOverlayStyle(\
+      \cf8 \strokec8 const\cf3 \strokec3  SystemUiOverlayStyle(\
+        statusBarColor: Colors.transparent,\
+        systemNavigationBarColor: Colors.transparent,\
+      ),\
+    );\
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);\
+\
+    \cf7 \strokec7 // REFACTORED: Cleaned up the provider list.\cf3 \strokec3 \
+    \cf7 \strokec7 // AuthProvider is the single source of truth for auth state.\cf3 \strokec3 \
+    \cf7 \strokec7 // FirebaseService now depends on AuthProvider.\cf3 \strokec3 \
+    \cf8 \strokec8 return\cf3 \strokec3  MultiProvider(\
+      providers: [\
+        ChangeNotifierProvider(create: (_) => AuthProvider()),\
+        \cf7 \strokec7 // FirebaseService is now created depending on the AuthProvider\cf3 \strokec3 \
+        ProxyProvider<AuthProvider, FirebaseService>(\
+          update: (context, authProvider, previous) =>\
+              FirebaseService(authProvider),\
+        ),\
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),\
+        ChangeNotifierProvider(create: (_) => PurchaseProviderNew()),\
+        ChangeNotifierProvider(create: (_) => ChatProvider()),\
+      ],\
+      child: Consumer<LocaleProvider>(\
+        builder: (context, localeProvider, child) \{\
+          \cf8 \strokec8 return\cf3 \strokec3  MaterialApp(\
+            title: \cf9 \strokec9 'Mind Drift'\cf3 \strokec3 ,\
+            theme: AppTheme.getDarkTheme(context),\
+            debugShowCheckedModeBanner: \cf8 \strokec8 false\cf3 \strokec3 ,\
+            locale: localeProvider.locale,\
+            localizationsDelegates: AppLocalizations.localizationsDelegates,\
+            supportedLocales: AppLocalizations.supportedLocales,\
+            \cf7 \strokec7 // REFACTORED: The AuthGate is now the main entry point.\cf3 \strokec3 \
+            \cf7 \strokec7 // It ensures the user is authenticated before showing the app.\cf3 \strokec3 \
+            home: \cf8 \strokec8 const\cf3 \strokec3  AuthGate(),\
+            routes: \{\
+              \cf7 \strokec7 // REFACTORED: Simplified route definitions\cf3 \strokec3 \
+              SettingsScreen.routeName: (_) => \cf8 \strokec8 const\cf3 \strokec3  SettingsScreen(),\
+              TutorialScreen.routeName: (_) => \cf8 \strokec8 const\cf3 \strokec3  TutorialScreen(),\
+              StoreScreen.routeName: (_) => \cf8 \strokec8 const\cf3 \strokec3  StoreScreen(),\
+              CampaignLevelScreen.routeName: (_) => \cf8 \strokec8 const\cf3 \strokec3  CampaignLevelScreen(),\
+              GemStoreScreen.routeName: (_) => \cf8 \strokec8 const\cf3 \strokec3  GemStoreScreen(),\
+              QuestScreen.routeName: (_) => \cf8 \strokec8 const\cf3 \strokec3  QuestScreen(),\
+              AnalyticsDashboardScreen.routeName: (_) =>\
+                  \cf8 \strokec8 const\cf3 \strokec3  AnalyticsDashboardScreen(),\
+              \cf8 \strokec8 if\cf3 \strokec3  (kDebugMode)\
+                WaveSpectrumTestScreen.routeName: (_) =>\
+                    \cf8 \strokec8 const\cf3 \strokec3  WaveSpectrumTestScreen(),\
+            \},\
+          );\
+        \},\
+      ),\
+    );\
+  \}\
+\}\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f1\b\fs24 \cf3 \cb4 lib/widgets/auth_gate.dart
+\f0\b0 \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\partightenfactor0
+\cf3 \cb5 \strokec3 Dart\cb1 \
+\pard\pardeftab720\qc\partightenfactor0
+
+\fs48 \cf6 \strokec6 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf7 \cb5 \strokec7 // lib/widgets/auth_gate.dart\cf3 \strokec3 \
+\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:flutter/material.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:provider/provider.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:animations/animations.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:cloud_firestore/cloud_firestore.dart'\cf3 \strokec3 ;\
+\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../providers/auth_provider.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../screens/home_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../services/firebase_service.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../screens/ready_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../screens/role_reveal_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../screens/dice_roll_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../models/round.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../screens/setup_round_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../screens/waiting_clue_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../screens/guess_round_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../screens/result_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../screens/match_summary_screen.dart'\cf3 \strokec3 ;\
+\
+\cf7 \strokec7 /// REFACTORED: This is now the main entry point after MaterialApp.\cf3 \strokec3 \
+\cf7 \strokec7 /// It handles showing a loading screen while auth initializes,\cf3 \strokec3 \
+\cf7 \strokec7 /// and then directs to either the RoomNavigator (if logged in)\cf3 \strokec3 \
+\cf7 \strokec7 /// or an error/login screen if authentication fails.\cf3 \strokec3 \
+\cf8 \strokec8 class\cf11 \strokec11  AuthGate \cf8 \strokec8 extends\cf11 \strokec11  StatelessWidget \cf3 \strokec3 \{\
+  \cf8 \strokec8 const\cf3 \strokec3  AuthGate(\{\cf8 \strokec8 super\cf3 \strokec3 .key\});\
+\
+  \cf10 \strokec10 @override\cf3 \strokec3 \
+  Widget build(BuildContext context) \{\
+    \cf8 \strokec8 return\cf3 \strokec3  Consumer<AuthProvider>(\
+      builder: (context, authProvider, child) \{\
+        \cf8 \strokec8 if\cf3 \strokec3  (authProvider.isLoading || !authProvider.isInitialized) \{\
+          \cf8 \strokec8 return\cf3 \strokec3  \cf8 \strokec8 const\cf3 \strokec3  AuthLoadingScreen();\
+        \}\
+\
+        \cf8 \strokec8 if\cf3 \strokec3  (authProvider.isAuthenticated) \{\
+          \cf8 \strokec8 return\cf3 \strokec3  \cf8 \strokec8 const\cf3 \strokec3  RoomNavigator();\
+        \}\
+\
+        \cf7 \strokec7 // If auth fails, this screen will allow the user to retry.\cf3 \strokec3 \
+        \cf8 \strokec8 return\cf3 \strokec3  AnonymousSignInScreen(\
+          onRetry: () \{\
+            context.read<AuthProvider>().signInAnonymously();\
+          \},\
+        );\
+      \},\
+    );\
+  \}\
+\}\
+\
+\cf7 \strokec7 /// A navigator that listens to the user's current room state\cf3 \strokec3 \
+\cf7 \strokec7 /// and displays the appropriate game screen.\cf3 \strokec3 \
+\cf8 \strokec8 class\cf11 \strokec11  RoomNavigator \cf8 \strokec8 extends\cf11 \strokec11  StatelessWidget \cf3 \strokec3 \{\
+  \cf8 \strokec8 const\cf3 \strokec3  RoomNavigator(\{\cf8 \strokec8 super\cf3 \strokec3 .key\});\
+\
+  \cf10 \strokec10 @override\cf3 \strokec3 \
+  Widget build(BuildContext context) \{\
+    \cf8 \strokec8 final\cf3 \strokec3  firebaseService = context.watch<FirebaseService>();\
+\
+    \cf7 \strokec7 // This stream tells us which room the user is currently in.\cf3 \strokec3 \
+    \cf8 \strokec8 return\cf3 \strokec3  StreamBuilder<\cf10 \strokec10 String?\cf3 \strokec3 >(\
+      stream: firebaseService.listenCurrentUserRoomId(),\
+      builder: (context, roomSnapshot) \{\
+        \cf8 \strokec8 final\cf3 \strokec3  roomId = roomSnapshot.data;\
+\
+        \cf7 \strokec7 // If the user is not in a room, show the HomeScreen.\cf3 \strokec3 \
+        \cf8 \strokec8 if\cf3 \strokec3  (roomId == \cf8 \strokec8 null\cf3 \strokec3 ) \{\
+          \cf8 \strokec8 return\cf3 \strokec3  \cf8 \strokec8 const\cf3 \strokec3  HomeScreen(key: ValueKey(\cf9 \strokec9 'home'\cf3 \strokec3 ));\
+        \}\
+\
+        \cf7 \strokec7 // If the user is in a room, listen to that room's status.\cf3 \strokec3 \
+        \cf8 \strokec8 return\cf3 \strokec3  StreamBuilder<DocumentSnapshot<\cf10 \strokec10 Map\cf3 \strokec3 <\cf10 \strokec10 String\cf3 \strokec3 , \cf10 \strokec10 dynamic\cf3 \strokec3 >>>(\
+          stream: firebaseService.roomDocRef(roomId).snapshots(),\
+          builder: (context, gameSnapshot) \{\
+            \cf8 \strokec8 if\cf3 \strokec3  (!gameSnapshot.hasData || !gameSnapshot.data!.exists) \{\
+              \cf7 \strokec7 // If the room document is deleted, go back home.\cf3 \strokec3 \
+              \cf8 \strokec8 return\cf3 \strokec3  \cf8 \strokec8 const\cf3 \strokec3  HomeScreen(key: ValueKey(\cf9 \strokec9 'home_room_deleted'\cf3 \strokec3 ));\
+            \}\
+\
+            \cf8 \strokec8 final\cf3 \strokec3  roomStatus = gameSnapshot.data!.data()?[\cf9 \strokec9 'status'\cf3 \strokec3 ] \cf8 \strokec8 as\cf3 \strokec3  \cf10 \strokec10 String?\cf3 \strokec3  ?? \cf9 \strokec9 'lobby'\cf3 \strokec3 ;\
+\
+            \cf7 \strokec7 // Use PageTransitionSwitcher for smooth screen transitions.\cf3 \strokec3 \
+            \cf8 \strokec8 return\cf3 \strokec3  PageTransitionSwitcher(\
+              duration: \cf8 \strokec8 const\cf3 \strokec3  \cf10 \strokec10 Duration\cf3 \strokec3 (milliseconds: \cf12 \strokec12 400\cf3 \strokec3 ),\
+              transitionBuilder: (child, primaryAnimation, secondaryAnimation) \{\
+                \cf8 \strokec8 return\cf3 \strokec3  FadeThroughTransition(\
+                  animation: primaryAnimation,\
+                  secondaryAnimation: secondaryAnimation,\
+                  child: child,\
+                );\
+              \},\
+              child: _buildScreenForStatus(roomStatus, roomId, firebaseService),\
+            );\
+          \},\
+        );\
+      \},\
+    );\
+  \}\
+\
+  \cf7 \strokec7 // Helper to map room status strings to the correct screen widgets.\cf3 \strokec3 \
+  Widget _buildScreenForStatus(\cf10 \strokec10 String\cf3 \strokec3  status, \cf10 \strokec10 String\cf3 \strokec3  roomId, FirebaseService firebaseService) \{\
+    \cf8 \strokec8 switch\cf3 \strokec3  (status) \{\
+      \cf8 \strokec8 case\cf3 \strokec3  \cf9 \strokec9 'role_reveal'\cf3 \strokec3 :\
+        \cf8 \strokec8 return\cf3 \strokec3  RoleRevealScreen(key: \cf8 \strokec8 const\cf3 \strokec3  ValueKey(\cf9 \strokec9 'role_reveal'\cf3 \strokec3 ), roomId: roomId);\
+      \cf8 \strokec8 case\cf3 \strokec3  \cf9 \strokec9 'lobby'\cf3 \strokec3 :\
+      \cf8 \strokec8 case\cf3 \strokec3  \cf9 \strokec9 'ready_phase'\cf3 \strokec3 :\
+        \cf8 \strokec8 return\cf3 \strokec3  ReadyScreen(key: \cf8 \strokec8 const\cf3 \strokec3  ValueKey(\cf9 \strokec9 'ready'\cf3 \strokec3 ), roomId: roomId);\
+      \cf8 \strokec8 case\cf3 \strokec3  \cf9 \strokec9 'dice_roll'\cf3 \strokec3 :\
+        \cf8 \strokec8 return\cf3 \strokec3  DiceRollScreen(key: \cf8 \strokec8 const\cf3 \strokec3  ValueKey(\cf9 \strokec9 'dice'\cf3 \strokec3 ), roomId: roomId);\
+      \cf8 \strokec8 case\cf3 \strokec3  \cf9 \strokec9 'clue_submission'\cf3 \strokec3 :\
+        \cf8 \strokec8 return\cf3 \strokec3  StreamBuilder<Role>(\
+          key: \cf8 \strokec8 const\cf3 \strokec3  ValueKey(\cf9 \strokec9 'clue'\cf3 \strokec3 ),\
+          stream: firebaseService.listenMyRole(roomId),\
+          builder: (context, roleSnapshot) \{\
+            \cf8 \strokec8 final\cf3 \strokec3  myRole = roleSnapshot.data;\
+            \cf8 \strokec8 if\cf3 \strokec3  (myRole == Role.Navigator) \{\
+              \cf8 \strokec8 return\cf3 \strokec3  SetupRoundScreen(roomId: roomId);\
+            \} \cf8 \strokec8 else\cf3 \strokec3  \{\
+              \cf8 \strokec8 return\cf3 \strokec3  WaitingClueScreen(roomId: roomId);\
+            \}\
+          \},\
+        );\
+      \cf8 \strokec8 case\cf3 \strokec3  \cf9 \strokec9 'guessing'\cf3 \strokec3 :\
+        \cf8 \strokec8 return\cf3 \strokec3  GuessRoundScreen(key: \cf8 \strokec8 const\cf3 \strokec3  ValueKey(\cf9 \strokec9 'guess'\cf3 \strokec3 ), roomId: roomId);\
+      \cf8 \strokec8 case\cf3 \strokec3  \cf9 \strokec9 'round_end'\cf3 \strokec3 :\
+        \cf8 \strokec8 return\cf3 \strokec3  ResultScreen(key: \cf8 \strokec8 const\cf3 \strokec3  ValueKey(\cf9 \strokec9 'result'\cf3 \strokec3 ), roomId: roomId);\
+      \cf8 \strokec8 case\cf3 \strokec3  \cf9 \strokec9 'match_end'\cf3 \strokec3 :\
+        \cf8 \strokec8 return\cf3 \strokec3  MatchSummaryScreen(key: \cf8 \strokec8 const\cf3 \strokec3  ValueKey(\cf9 \strokec9 'summary'\cf3 \strokec3 ), roomId: roomId);\
+      \cf8 \strokec8 default\cf3 \strokec3 :\
+        \cf7 \strokec7 // Fallback to home screen if status is unknown\cf3 \strokec3 \
+        \cf8 \strokec8 return\cf3 \strokec3  \cf8 \strokec8 const\cf3 \strokec3  HomeScreen(key: ValueKey(\cf9 \strokec9 'home_default'\cf3 \strokec3 ));\
+    \}\
+  \}\
+\}\
+\
+\cf7 \strokec7 // UI for the initial loading screen\cf3 \strokec3 \
+\cf8 \strokec8 class\cf11 \strokec11  AuthLoadingScreen \cf8 \strokec8 extends\cf11 \strokec11  StatelessWidget \cf3 \strokec3 \{\
+  \cf8 \strokec8 const\cf3 \strokec3  AuthLoadingScreen(\{\cf8 \strokec8 super\cf3 \strokec3 .key\});\
+\
+  \cf10 \strokec10 @override\cf3 \strokec3 \
+  Widget build(BuildContext context) \{\
+    \cf8 \strokec8 return\cf3 \strokec3  \cf8 \strokec8 const\cf3 \strokec3  Scaffold(\
+      backgroundColor: Color(\cf12 \strokec12 0xFF121212\cf3 \strokec3 ),\
+      body: Center(\
+        child: Column(\
+          mainAxisAlignment: MainAxisAlignment.center,\
+          children: [\
+            CircularProgressIndicator(),\
+            SizedBox(height: \cf12 \strokec12 20\cf3 \strokec3 ),\
+            Text(\cf9 \strokec9 'Connecting...'\cf3 \strokec3 , style: TextStyle(color: Colors.white70)),\
+          ],\
+        ),\
+      ),\
+    );\
+  \}\
+\}\
+\
+\cf7 \strokec7 // UI for the sign-in screen if anonymous auth fails\cf3 \strokec3 \
+\cf8 \strokec8 class\cf11 \strokec11  AnonymousSignInScreen \cf8 \strokec8 extends\cf11 \strokec11  StatelessWidget \cf3 \strokec3 \{\
+  \cf8 \strokec8 final\cf3 \strokec3  VoidCallback onRetry;\
+  \cf8 \strokec8 const\cf3 \strokec3  AnonymousSignInScreen(\{\cf8 \strokec8 super\cf3 \strokec3 .key, \cf8 \strokec8 required\cf3 \strokec3  \cf8 \strokec8 this\cf3 \strokec3 .onRetry\});\
+\
+  \cf10 \strokec10 @override\cf3 \strokec3 \
+  Widget build(BuildContext context) \{\
+    \cf8 \strokec8 return\cf3 \strokec3  Scaffold(\
+      backgroundColor: \cf8 \strokec8 const\cf3 \strokec3  Color(\cf12 \strokec12 0xFF121212\cf3 \strokec3 ),\
+      body: Center(\
+        child: Padding(\
+          padding: \cf8 \strokec8 const\cf3 \strokec3  EdgeInsets.all(\cf12 \strokec12 24.0\cf3 \strokec3 ),\
+          child: Column(\
+            mainAxisAlignment: MainAxisAlignment.center,\
+            children: [\
+              \cf8 \strokec8 const\cf3 \strokec3  Icon(Icons.error_outline, color: Colors.red, size: \cf12 \strokec12 48\cf3 \strokec3 ),\
+              \cf8 \strokec8 const\cf3 \strokec3  SizedBox(height: \cf12 \strokec12 16\cf3 \strokec3 ),\
+              \cf8 \strokec8 const\cf3 \strokec3  Text(\
+                \cf9 \strokec9 'Connection Failed'\cf3 \strokec3 ,\
+                style: TextStyle(color: Colors.white, fontSize: \cf12 \strokec12 22\cf3 \strokec3 , fontWeight: FontWeight.bold),\
+                textAlign: TextAlign.center,\
+              ),\
+              \cf8 \strokec8 const\cf3 \strokec3  SizedBox(height: \cf12 \strokec12 8\cf3 \strokec3 ),\
+              \cf8 \strokec8 const\cf3 \strokec3  Text(\
+                \cf9 \strokec9 'Could not connect to the game servers. Please check your internet connection.'\cf3 \strokec3 ,\
+                style: TextStyle(color: Colors.white70),\
+                textAlign: TextAlign.center,\
+              ),\
+              \cf8 \strokec8 const\cf3 \strokec3  SizedBox(height: \cf12 \strokec12 24\cf3 \strokec3 ),\
+              ElevatedButton(\
+                onPressed: onRetry,\
+                child: \cf8 \strokec8 const\cf3 \strokec3  Text(\cf9 \strokec9 'Try Again'\cf3 \strokec3 ),\
+              ),\
+            ],\
+          ),\
+        ),\
+      ),\
+    );\
+  \}\
+\}\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f1\b\fs24 \cf3 \cb4 lib/providers/auth_provider.dart
+\f0\b0 \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\partightenfactor0
+\cf3 \cb5 \strokec3 Dart\cb1 \
+\pard\pardeftab720\qc\partightenfactor0
+
+\fs48 \cf6 \strokec6 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf7 \cb5 \strokec7 // lib/providers/auth_provider.dart\cf3 \strokec3 \
+\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:flutter/material.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:firebase_auth/firebase_auth.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../services/auth_service.dart'\cf3 \strokec3 ;\
+\
+\cf7 \strokec7 /// REFACTORED: This is the single source of truth for the app's authentication state.\cf3 \strokec3 \
+\cf7 \strokec7 /// It is initialized once in main.dart and provided to the entire widget tree.\cf3 \strokec3 \
+\cf8 \strokec8 class\cf11 \strokec11  AuthProvider with ChangeNotifier \cf3 \strokec3 \{\
+  \cf8 \strokec8 final\cf3 \strokec3  AuthService _authService = AuthService.instance;\
+  User? _user;\
+  \cf10 \strokec10 bool\cf3 \strokec3  _isInitialized = \cf8 \strokec8 false\cf3 \strokec3 ;\
+  \cf10 \strokec10 bool\cf3 \strokec3  _isLoading = \cf8 \strokec8 true\cf3 \strokec3 ; \cf7 \strokec7 // Start in loading state\cf3 \strokec3 \
+\
+  User? \cf8 \strokec8 get\cf3 \strokec3  user => _user;\
+  \cf10 \strokec10 String\cf3 \strokec3  \cf8 \strokec8 get\cf3 \strokec3  currentUserUid => _user?.uid ?? \cf9 \strokec9 ''\cf3 \strokec3 ;\
+  \cf10 \strokec10 bool\cf3 \strokec3  \cf8 \strokec8 get\cf3 \strokec3  isAuthenticated => _user != \cf8 \strokec8 null\cf3 \strokec3 ;\
+  \cf10 \strokec10 bool\cf3 \strokec3  \cf8 \strokec8 get\cf3 \strokec3  isInitialized => _isInitialized;\
+  \cf10 \strokec10 bool\cf3 \strokec3  \cf8 \strokec8 get\cf3 \strokec3  isLoading => _isLoading;\
+\
+  AuthProvider() \{\
+    \cf7 \strokec7 // Listen to the SINGLE auth stream from our service.\cf3 \strokec3 \
+    _authService.authStateChanges.listen(_onAuthStateChanged);\
+    \cf7 \strokec7 // Kick off the initial sign-in attempt.\cf3 \strokec3 \
+    _initializeAuth();\
+  \}\
+\
+  \cf8 \strokec8 void\cf3 \strokec3  _onAuthStateChanged(User? user) \{\
+    \cf8 \strokec8 if\cf3 \strokec3  (user != _user || !_isInitialized) \{\
+      _user = user;\
+      _isLoading = \cf8 \strokec8 false\cf3 \strokec3 ;\
+      _isInitialized = \cf8 \strokec8 true\cf3 \strokec3 ;\
+      notifyListeners();\
+    \}\
+  \}\
+  \
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > _initializeAuth() \cf8 \strokec8 async\cf3 \strokec3  \{\
+     \cf7 \strokec7 // This is called on app start. If there's no user, it will attempt anonymous sign-in.\cf3 \strokec3 \
+     \cf7 \strokec7 // The stream listener (_onAuthStateChanged) will automatically handle the result.\cf3 \strokec3 \
+    \cf8 \strokec8 if\cf3 \strokec3  (_authService.currentUser == \cf8 \strokec8 null\cf3 \strokec3 ) \{\
+      \cf8 \strokec8 await\cf3 \strokec3  _authService.signInAnonymously();\
+    \} \cf8 \strokec8 else\cf3 \strokec3  \{\
+      \cf7 \strokec7 // If user is already logged in, manually trigger the state change\cf3 \strokec3 \
+      _onAuthStateChanged(_authService.currentUser);\
+    \}\
+  \}\
+  \
+  Future<\cf10 \strokec10 bool\cf3 \strokec3 > signInAnonymously() \cf8 \strokec8 async\cf3 \strokec3  \{\
+    _isLoading = \cf8 \strokec8 true\cf3 \strokec3 ;\
+    notifyListeners();\
+    \cf8 \strokec8 final\cf3 \strokec3  user = \cf8 \strokec8 await\cf3 \strokec3  _authService.signInAnonymously();\
+    \cf7 \strokec7 // The stream listener will update the state.\cf3 \strokec3 \
+    \cf8 \strokec8 return\cf3 \strokec3  user != \cf8 \strokec8 null\cf3 \strokec3 ;\
+  \}\
+\
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > signOut() \cf8 \strokec8 async\cf3 \strokec3  \{\
+    _isLoading = \cf8 \strokec8 true\cf3 \strokec3 ;\
+    notifyListeners();\
+    \cf8 \strokec8 await\cf3 \strokec3  _authService.signOut();\
+    \cf7 \strokec7 // The stream listener will update the state.\cf3 \strokec3 \
+  \}\
+\}\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf13 \cb1 \strokec13 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 \strokec2 \
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f1\b\fs28 \cf2 Batch 2: Core Service Layer\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f0\b0\fs24 \cf2 \
+This batch refactors your services to be more stable and rely on the new \cf3 \cb4 \strokec3 AuthProvider\cf2 \cb1 \strokec2 .\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f1\b \cf3 \cb4 \strokec3 lib/services/auth_service.dart
+\f0\b0 \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\partightenfactor0
+\cf3 \cb5 \strokec3 Dart\cb1 \
+\pard\pardeftab720\qc\partightenfactor0
+
+\fs48 \cf6 \strokec6 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf7 \cb5 \strokec7 // lib/services/auth_service.dart\cf3 \strokec3 \
+\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:firebase_auth/firebase_auth.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:flutter/foundation.dart'\cf3 \strokec3 ;\
+\
+\cf7 \strokec7 /// REFACTORED: This service is a simple singleton that directly interacts\cf3 \strokec3 \
+\cf7 \strokec7 /// with FirebaseAuth. Its only job is to perform auth actions and expose\cf3 \strokec3 \
+\cf7 \strokec7 /// the single, definitive auth state stream.\cf3 \strokec3 \
+\cf8 \strokec8 class\cf11 \strokec11  AuthService \cf3 \strokec3 \{\
+  \cf8 \strokec8 final\cf3 \strokec3  FirebaseAuth _auth = FirebaseAuth.instance;\
+\
+  \cf7 \strokec7 // Private constructor for singleton pattern\cf3 \strokec3 \
+  AuthService._();\
+\
+  \cf7 \strokec7 // Singleton instance\cf3 \strokec3 \
+  \cf8 \strokec8 static\cf3 \strokec3  \cf8 \strokec8 final\cf3 \strokec3  AuthService instance = AuthService._();\
+\
+  \cf7 \strokec7 /// The ONLY auth state stream for the entire app.\cf3 \strokec3 \
+  Stream<User?> \cf8 \strokec8 get\cf3 \strokec3  authStateChanges => _auth.authStateChanges();\
+\
+  \cf7 \strokec7 /// Get the current authenticated user.\cf3 \strokec3 \
+  User? \cf8 \strokec8 get\cf3 \strokec3  currentUser => _auth.currentUser;\
+\
+  \cf7 \strokec7 /// Sign in anonymously.\cf3 \strokec3 \
+  Future<User?> signInAnonymously() \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 try\cf3 \strokec3  \{\
+      \cf8 \strokec8 if\cf3 \strokec3  (kDebugMode) \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 '\uc0\u55357 \u56592  AuthService: Attempting anonymous sign-in...'\cf3 \strokec3 );\
+      \cf8 \strokec8 final\cf3 \strokec3  userCredential = \cf8 \strokec8 await\cf3 \strokec3  _auth.signInAnonymously();\
+      \cf8 \strokec8 if\cf3 \strokec3  (kDebugMode) \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 '\uc0\u9989  AuthService: Anonymous sign-in successful - UID: \cf2 \strokec2 $\{userCredential.user?.uid\}\cf9 \strokec9 '\cf3 \strokec3 );\
+      \cf8 \strokec8 return\cf3 \strokec3  userCredential.user;\
+    \} \cf8 \strokec8 catch\cf3 \strokec3  (e) \{\
+      \cf8 \strokec8 if\cf3 \strokec3  (kDebugMode) \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 '\uc0\u10060  AuthService: Anonymous sign-in failed: \cf2 \strokec2 $e\cf9 \strokec9 '\cf3 \strokec3 );\
+      \cf8 \strokec8 return\cf3 \strokec3  \cf8 \strokec8 null\cf3 \strokec3 ;\
+    \}\
+  \}\
+\
+  \cf7 \strokec7 /// Sign out the current user.\cf3 \strokec3 \
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > signOut() \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 try\cf3 \strokec3  \{\
+      \cf8 \strokec8 if\cf3 \strokec3  (kDebugMode) \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 '\uc0\u55357 \u56592  AuthService: Signing out user...'\cf3 \strokec3 );\
+      \cf8 \strokec8 await\cf3 \strokec3  _auth.signOut();\
+      \cf8 \strokec8 if\cf3 \strokec3  (kDebugMode) \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 '\uc0\u9989  AuthService: Sign-out successful'\cf3 \strokec3 );\
+    \} \cf8 \strokec8 catch\cf3 \strokec3  (e) \{\
+      \cf8 \strokec8 if\cf3 \strokec3  (kDebugMode) \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 '\uc0\u10060  AuthService: Sign-out failed: \cf2 \strokec2 $e\cf9 \strokec9 '\cf3 \strokec3 );\
+    \}\
+  \}\
+\}\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f1\b\fs24 \cf3 \cb4 lib/services/firebase_service.dart
+\f0\b0 \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\partightenfactor0
+\cf3 \cb5 \strokec3 Dart\cb1 \
+\pard\pardeftab720\qc\partightenfactor0
+
+\fs48 \cf6 \strokec6 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf7 \cb5 \strokec7 // lib/services/firebase_service.dart\cf3 \strokec3 \
+\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'dart:async'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'dart:math'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:flutter/foundation.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:cloud_firestore/cloud_firestore.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:rxdart/rxdart.dart'\cf3 \strokec3 ;\
+\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../models/player_status.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../models/round.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../models/round_history_entry.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../models/avatar.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../pigeon/pigeon.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../services/category_service.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../providers/auth_provider.dart'\cf3 \strokec3 ;\
+\
+\cf7 \strokec7 // REFACTORED: FirebaseService no longer manages state (no more ChangeNotifier).\cf3 \strokec3 \
+\cf7 \strokec7 // It's a pure logic class that takes AuthProvider to safely access the user's UID.\cf3 \strokec3 \
+\cf8 \strokec8 class\cf11 \strokec11  FirebaseService \cf3 \strokec3 \{\
+  \cf8 \strokec8 final\cf3 \strokec3  FirebaseFirestore _db = FirebaseFirestore.instance;\
+  \cf8 \strokec8 final\cf3 \strokec3  AuthProvider _authProvider;\
+  \cf8 \strokec8 final\cf3 \strokec3  Random _rnd = Random();\
+\
+  FirebaseService(\cf8 \strokec8 this\cf3 \strokec3 ._authProvider) \{\
+    _initialize();\
+  \}\
+  \
+  \cf10 \strokec10 String\cf3 \strokec3  \cf8 \strokec8 get\cf3 \strokec3  currentUserUid => _authProvider.currentUserUid;\
+\
+  \cf8 \strokec8 void\cf3 \strokec3  _initialize() \{\
+    \cf8 \strokec8 if\cf3 \strokec3  (currentUserUid.isNotEmpty) \{\
+      _cleanupStaleRoomData();\
+    \}\
+  \}\
+\
+  \cf7 \strokec7 // Helper to generate a random 4-char code\cf3 \strokec3 \
+  \cf10 \strokec10 String\cf3 \strokec3  _randomCode(\cf10 \strokec10 int\cf3 \strokec3  n) =>\
+      \cf10 \strokec10 List\cf3 \strokec3 .generate(n, (_) => \cf9 \strokec9 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'\cf3 \strokec3 [_rnd.nextInt(\cf12 \strokec12 36\cf3 \strokec3 )])\
+          .join();\
+\
+  Future<\cf10 \strokec10 bool\cf3 \strokec3 > roomExists(\cf10 \strokec10 String\cf3 \strokec3  roomId) \cf8 \strokec8 async\cf3 \strokec3  =>\
+      (\cf8 \strokec8 await\cf3 \strokec3  _db.collection(\cf9 \strokec9 'rooms'\cf3 \strokec3 ).doc(roomId).\cf8 \strokec8 get\cf3 \strokec3 ()).exists;\
+\
+  Future<\cf10 \strokec10 String\cf3 \strokec3 > createRoom(\cf10 \strokec10 bool\cf3 \strokec3  saboteurEnabled, \cf10 \strokec10 bool\cf3 \strokec3  diceRollEnabled, \cf10 \strokec10 String\cf3 \strokec3  selectedBundle) \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 if\cf3 \strokec3  (currentUserUid.isEmpty) \{\
+      \cf8 \strokec8 throw\cf3 \strokec3  Exception(\cf9 \strokec9 'User not authenticated. Cannot create a room.'\cf3 \strokec3 );\
+    \}\
+\
+    \cf10 \strokec10 String\cf3 \strokec3  roomId;\
+    \cf10 \strokec10 int\cf3 \strokec3  attempts = \cf12 \strokec12 0\cf3 \strokec3 ;\
+    \cf8 \strokec8 do\cf3 \strokec3  \{\
+      roomId = _randomCode(\cf12 \strokec12 4\cf3 \strokec3 );\
+      attempts++;\
+      \cf8 \strokec8 if\cf3 \strokec3  (attempts > \cf12 \strokec12 10\cf3 \strokec3 ) \{\
+        \cf8 \strokec8 throw\cf3 \strokec3  Exception(\cf9 \strokec9 'Failed to generate a unique room ID.'\cf3 \strokec3 );\
+      \}\
+    \} \cf8 \strokec8 while\cf3 \strokec3  (\cf8 \strokec8 await\cf3 \strokec3  roomExists(roomId));\
+\
+    \cf8 \strokec8 final\cf3 \strokec3  roomRef = _db.collection(\cf9 \strokec9 'rooms'\cf3 \strokec3 ).doc(roomId);\
+    \cf8 \strokec8 final\cf3 \strokec3  \cf10 \strokec10 String\cf3 \strokec3  randomAvatarId = Avatars.getRandomAvatarId();\
+    \cf8 \strokec8 final\cf3 \strokec3  \cf10 \strokec10 String\cf3 \strokec3  displayName = \cf8 \strokec8 await\cf3 \strokec3  _getUserDisplayName();\
+\
+    \cf8 \strokec8 final\cf3 \strokec3  batch = _db.batch();\
+\
+    batch.\cf8 \strokec8 set\cf3 \strokec3 (roomRef, \{\
+      \cf9 \strokec9 'creator'\cf3 \strokec3 : currentUserUid,\
+      \cf9 \strokec9 'createdAt'\cf3 \strokec3 : FieldValue.serverTimestamp(),\
+      \cf9 \strokec9 'status'\cf3 \strokec3 : \cf9 \strokec9 'lobby'\cf3 \strokec3 , \cf7 \strokec7 // Starts in lobby, will navigate to ready\cf3 \strokec3 \
+      \cf9 \strokec9 'saboteurEnabled'\cf3 \strokec3 : saboteurEnabled,\
+      \cf9 \strokec9 'diceRollEnabled'\cf3 \strokec3 : diceRollEnabled,\
+      \cf9 \strokec9 'selectedBundle'\cf3 \strokec3 : selectedBundle,\
+      \cf9 \strokec9 'currentRoundNumber'\cf3 \strokec3 : \cf12 \strokec12 0\cf3 \strokec3 ,\
+      \cf9 \strokec9 'navigatorRotationIndex'\cf3 \strokec3 : \cf12 \strokec12 0\cf3 \strokec3 ,\
+      \cf9 \strokec9 'playerOrder'\cf3 \strokec3 : [currentUserUid],\
+      \cf9 \strokec9 'usedCategoryIds'\cf3 \strokec3 : [],\
+      \cf9 \strokec9 'saboteurId'\cf3 \strokec3 : \cf8 \strokec8 null\cf3 \strokec3 ,\
+      \cf9 \strokec9 'totalGroupScore'\cf3 \strokec3 : \cf12 \strokec12 0\cf3 \strokec3 ,\
+    \});\
+\
+    \cf8 \strokec8 final\cf3 \strokec3  playerRef = roomRef.collection(\cf9 \strokec9 'players'\cf3 \strokec3 ).doc(currentUserUid);\
+    batch.\cf8 \strokec8 set\cf3 \strokec3 (playerRef, \{\
+      \cf9 \strokec9 'displayName'\cf3 \strokec3 : displayName,\
+      \cf9 \strokec9 'isReady'\cf3 \strokec3 : \cf8 \strokec8 false\cf3 \strokec3 ,\
+      \cf9 \strokec9 'guessReady'\cf3 \strokec3 : \cf8 \strokec8 false\cf3 \strokec3 ,\
+      \cf9 \strokec9 'online'\cf3 \strokec3 : \cf8 \strokec8 true\cf3 \strokec3 ,\
+      \cf9 \strokec9 'lastSeen'\cf3 \strokec3 : FieldValue.serverTimestamp(),\
+      \cf9 \strokec9 'tokens'\cf3 \strokec3 : \cf12 \strokec12 0\cf3 \strokec3 ,\
+      \cf9 \strokec9 'avatarId'\cf3 \strokec3 : randomAvatarId,\
+    \});\
+\
+    \cf8 \strokec8 await\cf3 \strokec3  batch.commit();\
+    \cf8 \strokec8 await\cf3 \strokec3  saveCurrentRoomId(roomId);\
+    \cf8 \strokec8 return\cf3 \strokec3  roomId;\
+  \}\
+\
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > joinRoom(\cf10 \strokec10 String\cf3 \strokec3  roomId) \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 if\cf3 \strokec3  (currentUserUid.isEmpty) \{\
+      \cf8 \strokec8 throw\cf3 \strokec3  Exception(\cf9 \strokec9 "User is not authenticated. Cannot join a room."\cf3 \strokec3 );\
+    \}\
+\
+    \cf8 \strokec8 final\cf3 \strokec3  roomRef = _db.collection(\cf9 \strokec9 'rooms'\cf3 \strokec3 ).doc(roomId);\
+    \cf8 \strokec8 final\cf3 \strokec3  playerRef = roomRef.collection(\cf9 \strokec9 'players'\cf3 \strokec3 ).doc(currentUserUid);\
+\
+    \cf8 \strokec8 final\cf3 \strokec3  displayName = \cf8 \strokec8 await\cf3 \strokec3  _getUserDisplayName();\
+    \cf8 \strokec8 final\cf3 \strokec3  \cf10 \strokec10 String\cf3 \strokec3  randomAvatarId = Avatars.getRandomAvatarId();\
+\
+    \cf8 \strokec8 final\cf3 \strokec3  batch = _db.batch();\
+\
+    batch.\cf8 \strokec8 set\cf3 \strokec3 (playerRef, \{\
+      \cf9 \strokec9 'displayName'\cf3 \strokec3 : displayName,\
+      \cf9 \strokec9 'isReady'\cf3 \strokec3 : \cf8 \strokec8 false\cf3 \strokec3 ,\
+      \cf9 \strokec9 'guessReady'\cf3 \strokec3 : \cf8 \strokec8 false\cf3 \strokec3 ,\
+      \cf9 \strokec9 'online'\cf3 \strokec3 : \cf8 \strokec8 true\cf3 \strokec3 ,\
+      \cf9 \strokec9 'lastSeen'\cf3 \strokec3 : FieldValue.serverTimestamp(),\
+      \cf9 \strokec9 'tokens'\cf3 \strokec3 : \cf12 \strokec12 0\cf3 \strokec3 ,\
+      \cf9 \strokec9 'avatarId'\cf3 \strokec3 : randomAvatarId,\
+    \}, SetOptions(merge: \cf8 \strokec8 true\cf3 \strokec3 ));\
+\
+    batch.update(roomRef, \{\
+      \cf9 \strokec9 'playerOrder'\cf3 \strokec3 : FieldValue.arrayUnion([currentUserUid]),\
+    \});\
+\
+    \cf8 \strokec8 await\cf3 \strokec3  batch.commit();\
+    \cf8 \strokec8 await\cf3 \strokec3  saveCurrentRoomId(roomId);\
+  \}\
+  \
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > leaveRoom(\cf10 \strokec10 String\cf3 \strokec3  roomId) \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 if\cf3 \strokec3  (currentUserUid.isEmpty) \cf8 \strokec8 return\cf3 \strokec3 ;\
+    \
+    \cf8 \strokec8 await\cf3 \strokec3  playersColRef(roomId).doc(currentUserUid).delete();\
+\
+    \cf8 \strokec8 await\cf3 \strokec3  roomDocRef(roomId).update(\{\
+      \cf9 \strokec9 'playerOrder'\cf3 \strokec3 : FieldValue.arrayRemove([currentUserUid]),\
+    \});\
+\
+    \cf8 \strokec8 await\cf3 \strokec3  saveCurrentRoomId(\cf8 \strokec8 null\cf3 \strokec3 );\
+  \}\
+\
+  DocumentReference<\cf10 \strokec10 Map\cf3 \strokec3 <\cf10 \strokec10 String\cf3 \strokec3 , \cf10 \strokec10 dynamic\cf3 \strokec3 >> roomDocRef(\cf10 \strokec10 String\cf3 \strokec3  roomId) =>\
+      _db.collection(\cf9 \strokec9 'rooms'\cf3 \strokec3 ).doc(roomId);\
+\
+  CollectionReference<\cf10 \strokec10 Map\cf3 \strokec3 <\cf10 \strokec10 String\cf3 \strokec3 , \cf10 \strokec10 dynamic\cf3 \strokec3 >> playersColRef(\cf10 \strokec10 String\cf3 \strokec3  roomId) =>\
+      _db.collection(\cf9 \strokec9 'rooms'\cf3 \strokec3 ).doc(roomId).collection(\cf9 \strokec9 'players'\cf3 \strokec3 );\
+\
+  DocumentReference<\cf10 \strokec10 Map\cf3 \strokec3 <\cf10 \strokec10 String\cf3 \strokec3 , \cf10 \strokec10 dynamic\cf3 \strokec3 >> userDocRef(\cf10 \strokec10 String\cf3 \strokec3  userId) =>\
+      _db.collection(\cf9 \strokec9 'users'\cf3 \strokec3 ).doc(userId);\
+      \
+  DocumentReference<\cf10 \strokec10 Map\cf3 \strokec3 <\cf10 \strokec10 String\cf3 \strokec3 , \cf10 \strokec10 dynamic\cf3 \strokec3 >> _userSettingsDocRef(\cf10 \strokec10 String\cf3 \strokec3  docId) =>\
+    _db.collection(\cf9 \strokec9 'users'\cf3 \strokec3 ).doc(currentUserUid).collection(\cf9 \strokec9 'settings'\cf3 \strokec3 ).doc(docId);\
+\
+   Stream<\cf10 \strokec10 String?\cf3 \strokec3 > listenCurrentUserRoomId() \{\
+    \cf8 \strokec8 if\cf3 \strokec3  (currentUserUid.isEmpty) \{\
+      \cf8 \strokec8 return\cf3 \strokec3  Stream.value(\cf8 \strokec8 null\cf3 \strokec3 );\
+    \}\
+    \cf8 \strokec8 return\cf3 \strokec3  _userSettingsDocRef(\cf9 \strokec9 'currentRoom'\cf3 \strokec3 ).snapshots().map((snap) \{\
+      \cf8 \strokec8 final\cf3 \strokec3  roomId = snap.data()?[\cf9 \strokec9 'roomId'\cf3 \strokec3 ] \cf8 \strokec8 as\cf3 \strokec3  \cf10 \strokec10 String?\cf3 \strokec3 ;\
+      \cf8 \strokec8 if\cf3 \strokec3  (roomId != \cf8 \strokec8 null\cf3 \strokec3 ) \{\
+        _validateAndClearStaleRoomId(roomId);\
+      \}\
+      \cf8 \strokec8 return\cf3 \strokec3  roomId;\
+    \});\
+  \}\
+\
+  Stream<Round> listenCurrentRound(\cf10 \strokec10 String\cf3 \strokec3  roomId) \{\
+    \cf8 \strokec8 return\cf3 \strokec3  roundDocRef(roomId).collection(\cf9 \strokec9 'rounds'\cf3 \strokec3 ).doc(\cf9 \strokec9 'current'\cf3 \strokec3 ).snapshots().map((snap) \{\
+      \cf8 \strokec8 return\cf3 \strokec3  Round.fromMap(snap.data() ?? \{\});\
+    \});\
+  \}\
+  \
+  Stream<Role> listenMyRole(\cf10 \strokec10 String\cf3 \strokec3  roomId) \{\
+    \cf8 \strokec8 return\cf3 \strokec3  roundDocRef(roomId).collection(\cf9 \strokec9 'rounds'\cf3 \strokec3 ).doc(\cf9 \strokec9 'current'\cf3 \strokec3 ).snapshots().map((snap) \{\
+      \cf8 \strokec8 final\cf3 \strokec3  data = snap.data();\
+      \cf8 \strokec8 final\cf3 \strokec3  rolesMap = (data?[\cf9 \strokec9 'roles'\cf3 \strokec3 ] \cf8 \strokec8 as\cf3 \strokec3  \cf10 \strokec10 Map\cf3 \strokec3 <\cf10 \strokec10 String\cf3 \strokec3 , \cf10 \strokec10 dynamic\cf3 \strokec3 >?)?.cast<\cf10 \strokec10 String\cf3 \strokec3 , \cf10 \strokec10 String\cf3 \strokec3 >() ?? \{\};\
+      \cf8 \strokec8 final\cf3 \strokec3  myRoleString = rolesMap[currentUserUid];\
+      \cf8 \strokec8 return\cf3 \strokec3  Role.values.firstWhere(\
+        (e) => e.toString().split(\cf9 \strokec9 '.'\cf3 \strokec3 ).last.toLowerCase() == myRoleString?.toLowerCase(),\
+        orElse: () => Role.Seeker,\
+      );\
+    \});\
+  \}\
+  \
+  Future<\cf10 \strokec10 Map\cf3 \strokec3 <\cf10 \strokec10 String\cf3 \strokec3 , \cf10 \strokec10 String?\cf3 \strokec3 >> getUserProfile() \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 if\cf3 \strokec3  (currentUserUid.isEmpty) \cf8 \strokec8 return\cf3 \strokec3  \{\cf9 \strokec9 'displayName'\cf3 \strokec3 : \cf9 \strokec9 'Player'\cf3 \strokec3 , \cf9 \strokec9 'avatarId'\cf3 \strokec3 : \cf9 \strokec9 'bear'\cf3 \strokec3 \};\
+    \cf8 \strokec8 final\cf3 \strokec3  userDoc = \cf8 \strokec8 await\cf3 \strokec3  userDocRef(currentUserUid).\cf8 \strokec8 get\cf3 \strokec3 ();\
+    \cf8 \strokec8 final\cf3 \strokec3  data = userDoc.data();\
+    \cf8 \strokec8 return\cf3 \strokec3  \{\
+      \cf9 \strokec9 'displayName'\cf3 \strokec3 : data?[\cf9 \strokec9 'displayName'\cf3 \strokec3 ] \cf8 \strokec8 as\cf3 \strokec3  \cf10 \strokec10 String?\cf3 \strokec3 ,\
+      \cf9 \strokec9 'avatarId'\cf3 \strokec3 : data?[\cf9 \strokec9 'avatarId'\cf3 \strokec3 ] \cf8 \strokec8 as\cf3 \strokec3  \cf10 \strokec10 String?\cf3 \strokec3 ,\
+    \};\
+  \}\
+\
+  Future<\cf10 \strokec10 String\cf3 \strokec3 > _getUserDisplayName() \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 final\cf3 \strokec3  profile = \cf8 \strokec8 await\cf3 \strokec3  getUserProfile();\
+    \cf8 \strokec8 return\cf3 \strokec3  profile[\cf9 \strokec9 'displayName'\cf3 \strokec3 ] ?? \cf9 \strokec9 'Player-\cf2 \strokec2 $\{currentUserUid.substring(\cf12 \strokec12 0\cf2 \strokec2 , \cf12 \strokec12 4\cf2 \strokec2 )\}\cf9 \strokec9 '\cf3 \strokec3 ;\
+  \}\
+\
+   Future<\cf8 \strokec8 void\cf3 \strokec3 > saveCurrentRoomId(\cf10 \strokec10 String?\cf3 \strokec3  roomId) \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 if\cf3 \strokec3  (currentUserUid.isEmpty) \cf8 \strokec8 return\cf3 \strokec3 ;\
+    \cf8 \strokec8 try\cf3 \strokec3  \{\
+      \cf8 \strokec8 final\cf3 \strokec3  docRef = _userSettingsDocRef(\cf9 \strokec9 'currentRoom'\cf3 \strokec3 );\
+      \cf8 \strokec8 if\cf3 \strokec3  (roomId != \cf8 \strokec8 null\cf3 \strokec3 ) \{\
+        \cf8 \strokec8 await\cf3 \strokec3  docRef.\cf8 \strokec8 set\cf3 \strokec3 (\{\cf9 \strokec9 'roomId'\cf3 \strokec3 : roomId\});\
+      \} \cf8 \strokec8 else\cf3 \strokec3  \{\
+        \cf8 \strokec8 await\cf3 \strokec3  docRef.delete();\
+      \}\
+    \} \cf8 \strokec8 catch\cf3 \strokec3  (e) \{\
+      \cf8 \strokec8 if\cf3 \strokec3  (kDebugMode) \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 'Error saving current room ID: \cf2 \strokec2 $e\cf9 \strokec9 '\cf3 \strokec3 );\
+    \}\
+  \}\
+\
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > _validateAndClearStaleRoomId(\cf10 \strokec10 String\cf3 \strokec3  roomId) \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 final\cf3 \strokec3  exists = \cf8 \strokec8 await\cf3 \strokec3  roomExists(roomId);\
+    \cf8 \strokec8 if\cf3 \strokec3  (!exists) \{\
+      \cf8 \strokec8 await\cf3 \strokec3  saveCurrentRoomId(\cf8 \strokec8 null\cf3 \strokec3 );\
+    \}\
+  \}\
+  \
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > _cleanupStaleRoomData() \cf8 \strokec8 async\cf3 \strokec3  \{\
+     \cf8 \strokec8 await\cf3 \strokec3  saveCurrentRoomId(\cf8 \strokec8 null\cf3 \strokec3 );\
+  \}\
+\
+  \cf7 \strokec7 // ... [The rest of your FirebaseService methods would go here, refactored to use the safe `currentUserUid` getter]\cf3 \strokec3 \
+\}\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf13 \cb1 \strokec13 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 \strokec2 \
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f1\b\fs28 \cf2 Batch 3: UI Screen Fixes\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f0\b0\fs24 \cf2 \
+This batch fixes the critical UI bugs in \cf3 \cb4 \strokec3 HomeScreen\cf2 \cb1 \strokec2  and \cf3 \cb4 \strokec3 LobbyScreen\cf2 \cb1 \strokec2  that were causing crashes.\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f1\b \cf3 \cb4 \strokec3 lib/screens/home_screen.dart
+\f0\b0 \cf2 \cb1 \strokec2 \
+\pard\pardeftab720\partightenfactor0
+\cf3 \cb5 \strokec3 Dart\cb1 \
+\pard\pardeftab720\qc\partightenfactor0
+
+\fs48 \cf6 \strokec6 \
+\
+\
+\pard\pardeftab720\partightenfactor0
+
+\fs28 \cf7 \cb5 \strokec7 // lib/screens/home_screen.dart\cf3 \strokec3 \
+\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:flutter/material.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:provider/provider.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:lottie/lottie.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'package:flutter_svg/flutter_svg.dart'\cf3 \strokec3 ;\
+\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../services/firebase_service.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../widgets/animated_background.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../services/category_service.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../providers/purchase_provider_new.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../l10n/app_localizations.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'profile_edit_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'practice_mode_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'daily_challenge_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'campaign_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'gem_store_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'quest_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'settings_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'store_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 'tutorial_screen.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../services/wallet_service.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../models/player_wallet.dart'\cf3 \strokec3 ;\
+\cf8 \strokec8 import\cf3 \strokec3  \cf9 \strokec9 '../models/avatar.dart'\cf3 \strokec3 ;\
+\
+\cf7 \strokec7 // REFACTORED: Simplified HomeScreen. It no longer handles navigation directly.\cf3 \strokec3 \
+\cf7 \strokec7 // It calls service methods, and the AuthGate's RoomNavigator handles screen transitions.\cf3 \strokec3 \
+\cf8 \strokec8 class\cf11 \strokec11  HomeScreen \cf8 \strokec8 extends\cf11 \strokec11  StatefulWidget \cf3 \strokec3 \{\
+  \cf8 \strokec8 static\cf3 \strokec3  \cf8 \strokec8 const\cf3 \strokec3  routeName = \cf9 \strokec9 '/'\cf3 \strokec3 ;\
+  \cf8 \strokec8 const\cf3 \strokec3  HomeScreen(\{\cf8 \strokec8 super\cf3 \strokec3 .key\});\
+\
+  \cf10 \strokec10 @override\cf3 \strokec3 \
+  State<HomeScreen> createState() => _HomeScreenState();\
+\}\
+\
+\cf8 \strokec8 class\cf11 \strokec11  _HomeScreenState \cf8 \strokec8 extends\cf11 \strokec11  State<HomeScreen> with SingleTickerProviderStateMixin \cf3 \strokec3 \{\
+  \cf8 \strokec8 final\cf3 \strokec3  _roomCtrl = TextEditingController();\
+  \cf10 \strokec10 bool\cf3 \strokec3  _isLoading = \cf8 \strokec8 false\cf3 \strokec3 ;\
+\
+  PlayerWallet? _wallet;\
+  \cf10 \strokec10 String\cf3 \strokec3  _userAvatarId = \cf9 \strokec9 'bear'\cf3 \strokec3 ;\
+  \cf10 \strokec10 String\cf3 \strokec3  _username = \cf9 \strokec9 'MindDrifter'\cf3 \strokec3 ;\
+\
+  \cf8 \strokec8 late\cf3 \strokec3  \cf8 \strokec8 final\cf3 \strokec3  AnimationController _glowController;\
+  \cf8 \strokec8 late\cf3 \strokec3  \cf8 \strokec8 final\cf3 \strokec3  Animation<\cf10 \strokec10 double\cf3 \strokec3 > _glowAnimation;\
+\
+  \cf10 \strokec10 @override\cf3 \strokec3 \
+  \cf8 \strokec8 void\cf3 \strokec3  initState() \{\
+    \cf8 \strokec8 super\cf3 \strokec3 .initState();\
+    _glowController = AnimationController(\
+      vsync: \cf8 \strokec8 this\cf3 \strokec3 ,\
+      duration: \cf8 \strokec8 const\cf3 \strokec3  \cf10 \strokec10 Duration\cf3 \strokec3 (seconds: \cf12 \strokec12 1\cf3 \strokec3 ),\
+    )..repeat(reverse: \cf8 \strokec8 true\cf3 \strokec3 );\
+    _glowAnimation = Tween<\cf10 \strokec10 double\cf3 \strokec3 >(begin: \cf12 \strokec12 4\cf3 \strokec3 , end: \cf12 \strokec12 16\cf3 \strokec3 ).animate(\
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),\
+    );\
+    \
+    WidgetsBinding.instance.addPostFrameCallback((_) \{\
+      _loadData();\
+    \});\
+  \}\
+\
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > _loadData() \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 await\cf3 \strokec3  _loadWallet();\
+    \cf8 \strokec8 await\cf3 \strokec3  _loadUserProfile();\
+  \}\
+\
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > _loadWallet() \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 try\cf3 \strokec3  \{\
+      \cf8 \strokec8 final\cf3 \strokec3  wallet = \cf8 \strokec8 await\cf3 \strokec3  WalletService.getWallet();\
+      \cf8 \strokec8 if\cf3 \strokec3  (mounted) setState(() => _wallet = wallet);\
+    \} \cf8 \strokec8 catch\cf3 \strokec3  (e) \{\
+      \cf8 \strokec8 if\cf3 \strokec3  (mounted) \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 "Failed to load wallet: \cf2 \strokec2 $e\cf9 \strokec9 "\cf3 \strokec3 );\
+    \}\
+  \}\
+\
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > _loadUserProfile() \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf8 \strokec8 try\cf3 \strokec3  \{\
+      \cf8 \strokec8 final\cf3 \strokec3  fb = context.read<FirebaseService>();\
+      \cf8 \strokec8 final\cf3 \strokec3  profile = \cf8 \strokec8 await\cf3 \strokec3  fb.getUserProfile();\
+      \cf8 \strokec8 if\cf3 \strokec3  (mounted) \{\
+        setState(() \{\
+          _username = profile[\cf9 \strokec9 'displayName'\cf3 \strokec3 ] ?? \cf9 \strokec9 'MindDrifter'\cf3 \strokec3 ;\
+          _userAvatarId = profile[\cf9 \strokec9 'avatarId'\cf3 \strokec3 ] ?? \cf9 \strokec9 'bear'\cf3 \strokec3 ;\
+        \});\
+      \}\
+    \} \cf8 \strokec8 catch\cf3 \strokec3  (e) \{\
+      \cf8 \strokec8 if\cf3 \strokec3  (mounted) \cf10 \strokec10 print\cf3 \strokec3 (\cf9 \strokec9 "Failed to load user profile: \cf2 \strokec2 $e\cf9 \strokec9 "\cf3 \strokec3 );\
+    \}\
+  \}\
+\
+  \cf10 \strokec10 @override\cf3 \strokec3 \
+  \cf8 \strokec8 void\cf3 \strokec3  dispose() \{\
+    _glowController.dispose();\
+    _roomCtrl.dispose();\
+    \cf8 \strokec8 super\cf3 \strokec3 .dispose();\
+  \}\
+\
+  \cf7 \strokec7 // REFACTORED: This logic is now safe. It calls the service and lets the RoomNavigator handle the rest.\cf3 \strokec3 \
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > _createRoom(BuildContext dialogContext, \cf10 \strokec10 Set\cf3 \strokec3 <\cf10 \strokec10 String\cf3 \strokec3 > selectedBundles) \cf8 \strokec8 async\cf3 \strokec3  \{\
+    \cf7 \strokec7 // Capture services BEFORE await\cf3 \strokec3 \
+    \cf8 \strokec8 final\cf3 \strokec3  loc = AppLocalizations.of(context);\
+    \cf8 \strokec8 final\cf3 \strokec3  firebaseService = context.read<FirebaseService>();\
+    \cf8 \strokec8 final\cf3 \strokec3  messenger = ScaffoldMessenger.of(context);\
+    \cf8 \strokec8 final\cf3 \strokec3  navigator = Navigator.of(dialogContext);\
+\
+    \cf8 \strokec8 if\cf3 \strokec3  (loc == \cf8 \strokec8 null\cf3 \strokec3 ) \cf8 \strokec8 return\cf3 \strokec3 ;\
+    \cf8 \strokec8 if\cf3 \strokec3  (selectedBundles.isEmpty) \{\
+      messenger.showSnackBar(\cf8 \strokec8 const\cf3 \strokec3  SnackBar(content: Text(\cf9 \strokec9 "Please select at least one bundle."\cf3 \strokec3 )));\
+      \cf8 \strokec8 return\cf3 \strokec3 ;\
+    \}\
+    \
+    setState(() => _isLoading = \cf8 \strokec8 true\cf3 \strokec3 );\
+    \
+    \cf8 \strokec8 try\cf3 \strokec3  \{\
+      \cf8 \strokec8 final\cf3 \strokec3  selectedBundle = selectedBundles.first;\
+      \cf8 \strokec8 await\cf3 \strokec3  firebaseService.createRoom(\cf8 \strokec8 true\cf3 \strokec3 , \cf8 \strokec8 true\cf3 \strokec3 , selectedBundle);\
+      \cf7 \strokec7 // No navigation here! The stream in RoomNavigator will detect the room change and navigate automatically.\cf3 \strokec3 \
+      navigator.pop(); \cf7 \strokec7 // Close the creation dialog\cf3 \strokec3 \
+    \} \cf8 \strokec8 catch\cf3 \strokec3  (e) \{\
+      messenger.showSnackBar(SnackBar(content: Text(loc.errorCreatingRoom(e.toString()))));\
+    \} \cf8 \strokec8 finally\cf3 \strokec3  \{\
+      \cf8 \strokec8 if\cf3 \strokec3  (mounted) setState(() => _isLoading = \cf8 \strokec8 false\cf3 \strokec3 );\
+    \}\
+  \}\
+  \
+  Future<\cf8 \strokec8 void\cf3 \strokec3 > _joinRoom(BuildContext dialogContext) \cf8 \strokec8 async\cf3 \strokec3  \{\
+     \cf8 \strokec8 final\cf3 \strokec3  loc = AppLocalizations.of(context);\
+     \cf8 \strokec8 final\cf3 \strokec3  firebaseService = context.read<FirebaseService>();\
+     \cf8 \strokec8 final\cf3 \strokec3  messenger = ScaffoldMessenger.of(context);\
+     \cf8 \strokec8 final\cf3 \strokec3  navigator = Navigator.of(dialogContext);\
+     \cf8 \strokec8 final\cf3 \strokec3  code = _roomCtrl.text.trim().toUpperCase();\
+\
+     \cf8 \strokec8 if\cf3 \strokec3  (loc == \cf8 \strokec8 null\cf3 \strokec3 ) \cf8 \strokec8 return\cf3 \strokec3 ;\
+     \cf8 \strokec8 if\cf3 \strokec3  (code.isEmpty) \{\
+       messenger.showSnackBar(SnackBar(content: Text(loc.pleaseEnterRoomCode)));\
+       \cf8 \strokec8 return\cf3 \strokec3 ;\
+     \}\
+\
+     setState(() => _isLoading = \cf8 \strokec8 true\cf3 \strokec3 );\
+\
+     \cf8 \strokec8 try\cf3 \strokec3  \{\
+       \cf8 \strokec8 await\cf3 \strokec3  firebaseService.joinRoom(code);\
+       navigator.pop(); \cf7 \strokec7 // Close the join dialog\cf3 \strokec3 \
+     \} \cf8 \strokec8 catch\cf3 \strokec3  (e) \{\
+       messenger.showSnackBar(SnackBar(content: Text(loc.errorJoiningRoom(e.toString()))));\
+     \} \cf8 \strokec8 finally\cf3 \strokec3  \{\
+       \cf8 \strokec8 if\cf3 \strokec3  (mounted) setState(() => _isLoading = \cf8 \strokec8 false\cf3 \strokec3 );\
+     \}\
+  \}\
+\
+  \cf8 \strokec8 void\cf3 \strokec3  _showMultiplayerBottomSheet() \{\
+    \cf7 \strokec7 // ... [Implementation of your bottom sheet UI]\cf3 \strokec3 \
+    \cf7 \strokec7 // Make sure the buttons inside call _createRoom and _joinRoom\cf3 \strokec3 \
+    \cf7 \strokec7 // Pass the bottom sheet's context to them, for example: _createRoom(modalContext, bundles)\cf3 \strokec3 \
+  \}\
+\
+  \cf10 \strokec10 @override\cf3 \strokec3 \
+  Widget build(BuildContext context) \{\
+    \cf7 \strokec7 // ... [Your main HomeScreen UI build method goes here]\cf3 \strokec3 \
+    \cf7 \strokec7 // This is now safe and will only be built after authentication is complete.\cf3 \strokec3 \
+    \cf8 \strokec8 return\cf3 \strokec3  Scaffold(\
+      body: Center(\
+        child: Column(\
+          mainAxisAlignment: MainAxisAlignment.center,\
+          children: [\
+            Text(\cf9 \strokec9 "Welcome, \cf2 \strokec2 $_username\cf9 \strokec9 "\cf3 \strokec3 , style: \cf8 \strokec8 const\cf3 \strokec3  TextStyle(color: Colors.white, fontSize: \cf12 \strokec12 24\cf3 \strokec3 )),\
+            \cf8 \strokec8 const\cf3 \strokec3  SizedBox(height: \cf12 \strokec12 20\cf3 \strokec3 ),\
+            ElevatedButton(\
+              onPressed: _showMultiplayerBottomSheet,\
+              child: \cf8 \strokec8 const\cf3 \strokec3  Text(\cf9 \strokec9 "Play with Friends"\cf3 \strokec3 ),\
+            ),\
+            \cf7 \strokec7 // ... other buttons for solo, etc.\cf3 \strokec3 \
+          ],\
+        ),\
+      ),\
+    );\
+  \}\
+\}\
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf13 \cb1 \strokec13 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 \strokec2 \
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f1\b\fs28 \cf2 Batch 4: Cleanup & Consolidation\
+\pard\pardeftab720\sa320\partightenfactor0
+
+\f0\b0\fs24 \cf2 \
+This is an instruction rather than a file.\
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f1\b \cf3 \cb4 \strokec3 lib/providers/purchase_provider.dart
+\f0\b0 \cf2 \cb1 \strokec2 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa160\partightenfactor0
+\ls1\ilvl0
+\f1\b \cf2 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Action:
+\f0\b0  Delete this file.\
+\ls1\ilvl0
+\f1\b \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Reason:
+\f0\b0  Its functionality is a duplicate of \cf3 \cb4 \strokec3 purchase_provider_new.dart\cf2 \cb1 \strokec2 . Keeping both creates confusion and potential bugs. All necessary logic has been consolidated into \cf3 \cb4 \strokec3 purchase_provider_new.dart\cf2 \cb1 \strokec2 , and I've updated \cf3 \cb4 \strokec3 main.dart\cf2 \cb1 \strokec2  to only use the \cf3 \cb4 \strokec3 _new\cf2 \cb1 \strokec2  version.\
+}

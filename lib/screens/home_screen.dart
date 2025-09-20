@@ -32,6 +32,7 @@ import '../services/quest_service.dart';
 import '../models/player_wallet.dart';
 import '../models/avatar.dart';
 import '../models/custom_username.dart';
+import 'lobby_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/';
@@ -223,6 +224,373 @@ class _HomeScreenState extends State<HomeScreen>
     _glowController.dispose();
     _roomCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _showMultiplayerBottomSheet() async {
+    final loc = AppLocalizations.of(context)!;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.6,
+          decoration: BoxDecoration(
+            color: Colors.grey[900],
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      loc.playWithFriends,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white70),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                
+                // Create Room Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: _showCreateRoomDialog,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.add, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text(
+                          loc.createRoom,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Join Room Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: OutlinedButton(
+                    onPressed: _showJoinRoomDialog,
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Theme.of(context).primaryColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.login, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text(
+                          loc.joinRoom,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showCreateRoomDialog() async {
+    final loc = AppLocalizations.of(context)!;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.8,
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          loc.createRoom,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          Text(
+                            loc.selectBundlesForGameplay,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white),
+                          ),
+                          const SizedBox(height: 10),
+                          Consumer<PurchaseProviderNew>(
+                            builder: (context, purchaseProvider, child) {
+                              final availableBundles = purchaseProvider.availableBundles.toList();
+                              return Wrap(
+                                spacing: 8.0,
+                                runSpacing: 8.0,
+                                children: availableBundles.map((bundleId) {
+                                  final bundleInfo = _getBundleInfo(bundleId);
+                                  final isSelected = _selectedBundles.contains(bundleId);
+                                  return FilterChip(
+                                    label: Text(bundleInfo.name),
+                                    selected: isSelected,
+                                    onSelected: (bool selected) {
+                                      setModalState(() {
+                                        if (bundleId == 'bundle.free') {
+                                          _selectedBundles.add('bundle.free');
+                                        } else {
+                                          if (selected) {
+                                            _selectedBundles.add(bundleId);
+                                          } else {
+                                            _selectedBundles.remove(bundleId);
+                                          }
+                                        }
+                                        if (_selectedBundles.isNotEmpty && !_selectedBundles.contains('bundle.free')) {
+                                          _selectedBundles.add('bundle.free');
+                                        }
+                                        if (_selectedBundles.isEmpty) {
+                                          _selectedBundles.add('bundle.free');
+                                        }
+                                      });
+                                    },
+                                    selectedColor: bundleInfo.color.withOpacity(0.3),
+                                    checkmarkColor: Colors.white,
+                                    labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.white70),
+                                    backgroundColor: Colors.white.withOpacity(0.1),
+                                    side: BorderSide(color: isSelected ? bundleInfo.color : Colors.white.withOpacity(0.3)),
+                                  );
+                                }).toList(),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _loading || _selectedBundles.isEmpty ? null : () async {
+                          setModalState(() => _loading = true);
+                          final firebaseService = context.read<FirebaseService>();
+                          final navigator = Navigator.of(context);
+                          
+                          if (_selectedBundles.isNotEmpty) {
+                            try {
+                              // Use the first selected bundle (or default to free bundle)
+                              final selectedBundle = _selectedBundles.first;
+                              final roomId = await firebaseService.createRoom(
+                                true, // saboteurEnabled
+                                true, // diceRollEnabled
+                                selectedBundle, // selectedBundle (single string)
+                              );
+                              print('Room created successfully with ID: $roomId');
+                            
+                              if (mounted) {
+                                setState(() => _loading = false);
+                                navigator.pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => LobbyScreen(roomId: roomId),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              print('Error creating room: $e');
+                              if (mounted) {
+                                setState(() {
+                                  _error = loc.errorCreatingRoom(e.toString());
+                                  _loading = false;
+                                });
+                              }
+                            }
+                          } else {
+                            print('No bundles selected');
+                            if (mounted) setState(() => _loading = false);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _loading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                loc.createRoom,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _showJoinRoomDialog() async {
+    final loc = AppLocalizations.of(context)!;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.6,
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          loc.joinRoom,
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _roomCtrl,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: loc.roomCode,
+                        labelStyle: const TextStyle(color: Colors.white70),
+                        hintText: 'e.g. ABC123',
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _loading ? null : () async {
+                          final code = _roomCtrl.text.trim().toUpperCase();
+                          if (code.isEmpty) {
+                            setModalState(() => _error = loc.pleaseEnterRoomCode);
+                            return;
+                          }
+                          final firebaseService = context.read<FirebaseService>();
+                          final navigator = Navigator.of(context);
+                          
+                          setModalState(() => _loading = true);
+                          try {
+                            await firebaseService.joinRoom(code);
+                            if (mounted) {
+                              setModalState(() => _loading = false);
+                              navigator.pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) => LobbyScreen(roomId: code),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            print('Error joining room: $e');
+                            if (mounted) {
+                              setModalState(() {
+                                _error = loc.errorJoiningRoom(e.toString());
+                                _loading = false;
+                              });
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _loading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : Text(
+                                loc.joinRoom,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                      ),
+                    ),
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(color: Colors.redAccent),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Future<List<String>?> _showBundleSelectionDialog() async {
@@ -443,202 +811,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _showMultiplayerBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.6,
-        decoration: const BoxDecoration(
-          color: Color(0xFF1A1A2E),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          children: [
-            // Handle bar
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[600],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'Play with Friends',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    // Create Room Button (same UI as current)
-                    AnimatedBuilder(
-                      animation: _glowAnimation,
-                      builder: (context, child) => SizedBox(
-                        height: 60,
-                        child: ElevatedButton(
-                          onPressed: _loading ? null : () async {
-                            // Capture FirebaseService reference before any navigation
-                            final firebaseService = context.read<FirebaseService>();
-                            Navigator.of(context).pop(); // Close bottom sheet
-                            
-                            if (!mounted) return; // Check if widget is still mounted
-                            setState(() => _loading = true);
-                            
-                            List<String>? selectedBundles;
-                            try {
-                              // Test Firebase connectivity first
-                              print('🔍 Testing Firebase connectivity before room creation...');
-                              final connectivityOk = await firebaseService.testFirebaseConnectivity();
-                              print('📶 Firebase connectivity: $connectivityOk');
-                              
-                              if (!connectivityOk) {
-                                throw Exception('Cannot connect to Firebase. Please check your internet connection.');
-                              }
-
-                              // Ensure user is authenticated before creating room
-                              print('🔐 Checking user authentication...');
-                              final isAuthenticated = await firebaseService.ensureUserAuthenticated();
-                              print('👤 User authenticated: $isAuthenticated');
-                              
-                              if (!isAuthenticated) {
-                                throw Exception('Authentication required to create room. Please restart the app.');
-                              }
-
-                              selectedBundles = await _showBundleSelectionDialog();
-                              if (selectedBundles != null && selectedBundles.isNotEmpty) {
-                                final settings = await firebaseService.fetchRoomCreationSettings();
-                                await firebaseService.createRoom(
-                                  settings['saboteurEnabled'] ?? false,
-                                  settings['diceRollEnabled'] ?? false,
-                                  selectedBundles.first,
-                                );
-                              } else {
-                                if (mounted) setState(() => _loading = false);
-                              }
-                            } catch (e) {
-                              if (mounted) {
-                                setState(() {
-                                  _error = e.toString();
-                                  _loading = false;
-                                });
-                              }
-                              print('Room creation failed: $e');
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            elevation: _glowAnimation.value,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                            padding: EdgeInsets.zero,
-                          ),
-                          child: Ink(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)]),
-                              borderRadius: BorderRadius.all(Radius.circular(30)),
-                            ),
-                            child: Center(
-                              child: _loading && _roomCtrl.text.isEmpty
-                                  ? const CircularProgressIndicator(color: Colors.white)
-                                  : Text(
-                                      AppLocalizations.of(context)!.createRoom,
-                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-                                    ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    // Join Room section
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(10),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withAlpha(20))
-                      ),
-                      child: Column(
-                        children: [
-                          TextField(
-                            controller: _roomCtrl,
-                            textAlign: TextAlign.center,
-                            textCapitalization: TextCapitalization.characters,
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, letterSpacing: 2),
-                            decoration: InputDecoration(
-                              hintText: AppLocalizations.of(context)!.enterCodeHint,
-                              hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white54),
-                              filled: true,
-                              fillColor: Colors.white12,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            height: 56,
-                            child: ElevatedButton(
-                              onPressed: _loading ? null : () async {
-                                final code = _roomCtrl.text.trim().toUpperCase();
-                                if (code.isEmpty) {
-                                  setState(() => _error = AppLocalizations.of(context)!.pleaseEnterRoomCode);
-                                  return;
-                                }
-                                Navigator.of(context).pop(); // Close bottom sheet
-                                setState(() => _loading = true);
-                                try {
-                                  await context.read<FirebaseService>().joinRoom(code);
-                                } catch (e) {
-                                  setState(() {
-                                    _error = e.toString();
-                                    _loading = false;
-                                  });
-                                  print('Room join failed: $e');
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF144D52),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              child: Center(
-                                child: _loading && _roomCtrl.text.isNotEmpty
-                                    ? const CircularProgressIndicator(color: Colors.white)
-                                    : Text(
-                                        AppLocalizations.of(context)!.joinRoom,
-                                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _showSoloBottomSheet() {
     showModalBottomSheet(
