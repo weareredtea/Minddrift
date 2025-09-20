@@ -17,7 +17,7 @@ const dailyChallengeTemplates = [
   
   // Week 2: Medium Difficulty
   { id: 'day_008', categoryId: 'myth_history', range: 2, specificClue: 'Folk tale', difficulty: 'medium' },
-  { id: 'day_009', categoryId: 'hungry_satiated', range: 3, specificClue: 'Just right', difficulty: 'medium' },
+  { id: 'day_009', categoryId: 'hungry_satiated', range: 3, specificClue: 'A perfect cup of tea', difficulty: 'medium' },
   { id: 'day_010', categoryId: 'spicy_mild', range: 3, specificClue: 'Black pepper', difficulty: 'medium' },
   { id: 'day_011', categoryId: 'magic_science', range: 4, specificClue: 'Laboratory', difficulty: 'medium' },
   { id: 'day_012', categoryId: 'myth_history', range: 4, specificClue: 'Archaeological find', difficulty: 'medium' },
@@ -37,7 +37,7 @@ const dailyChallengeTemplates = [
   { id: 'day_022', categoryId: 'spicy_mild', range: 5, specificClue: 'Tasteless', difficulty: 'easy' },
   { id: 'day_023', categoryId: 'magic_science', range: 1, specificClue: 'Magic potion', difficulty: 'medium' },
   { id: 'day_024', categoryId: 'myth_history', range: 5, specificClue: 'Historical fact', difficulty: 'medium' },
-  { id: 'day_025', categoryId: 'hungry_satiated', range: 3, specificClue: 'Content', difficulty: 'hard' },
+  { id: 'day_025', categoryId: 'hungry_satiated', range: 4, specificClue: 'The feeling after a good movie', difficulty: 'hard' },
   { id: 'day_026', categoryId: 'spicy_mild', range: 3, specificClue: 'Balanced', difficulty: 'hard' },
   { id: 'day_027', categoryId: 'magic_science', range: 4, specificClue: 'Research', difficulty: 'medium' },
   { id: 'day_028', categoryId: 'myth_history', range: 2, specificClue: 'Ancient legend', difficulty: 'easy' },

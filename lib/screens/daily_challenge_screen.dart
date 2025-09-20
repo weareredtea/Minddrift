@@ -39,7 +39,14 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadDailyChallenge();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isLoading && _todaysChallenge == null) {
+      _loadDailyChallenge();
+    }
   }
 
   // Helper methods to get correct font family based on locale
@@ -62,9 +69,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
   Future<void> _loadDailyChallenge() async {
     setState(() => _isLoading = true);
 
+    // Get localization before any async operations to avoid context issues
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final errorMessage = AppLocalizations.of(context)!.errorLoadingChallenge;
+
     try {
-      // Load today's challenge with current language
-      final languageCode = Localizations.localeOf(context).languageCode;
       _todaysChallenge = await DailyChallengeService.getTodaysChallenge(languageCode);
       
       // Check if user has already played today
@@ -87,7 +96,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${AppLocalizations.of(context)!.errorLoadingChallenge}: $e')),
+          SnackBar(content: Text('$errorMessage: $e')),
         );
       }
     } finally {

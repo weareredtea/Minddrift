@@ -118,7 +118,7 @@ class DailyChallengeDatabase {
       id: 'day_009',
       categoryId: 'hungry_satiated',
       range: 3,
-      specificClue: 'Just right',
+      specificClue: 'A perfect cup of tea',
       difficulty: 'medium',
     ),
     
@@ -257,8 +257,8 @@ class DailyChallengeDatabase {
     DailyChallengeTemplate(
       id: 'day_025',
       categoryId: 'hungry_satiated',
-      range: 3,
-      specificClue: 'Content',
+      range: 4,
+      specificClue: 'The feeling after a good movie',
       difficulty: 'hard',
     ),
     
