@@ -185,19 +185,6 @@ class _PlayerStatusCache {
   }
 }
 
-class ReadyScreenViewModel {
-  final bool isHost;
-  final bool allPlayersReady;
-  final List<PlayerStatus> players;
-  final PlayerStatus? me;
-
-  ReadyScreenViewModel({
-    required this.isHost,
-    required this.allPlayersReady,
-    required this.players,
-    this.me,
-  });
-}
 
 class FirebaseService with ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -275,8 +262,8 @@ class FirebaseService with ChangeNotifier {
         ExceptionHandler.logError('firebase_connectivity', 'Checking Firebase connectivity', 
           extraData: {'attempt': attempt, 'maxRetries': maxRetries});
         
-        // Try to access a collection that exists (rooms collection)
-        await _db.collection('rooms').limit(1).get().timeout(const Duration(seconds: 5));
+        // Try to access a collection that exists (bundles collection - users can read)
+        await _db.collection('bundles').limit(1).get().timeout(const Duration(seconds: 5));
         
         ExceptionHandler.logError('firebase_connectivity', 'Firebase connectivity verified', 
           extraData: {'attempt': attempt});
@@ -389,8 +376,8 @@ class FirebaseService with ChangeNotifier {
     try {
       print('🔍 Testing Firebase connectivity...');
       
-      // Try a simple read operation
-      await _db.collection('test').limit(1).get().timeout(const Duration(seconds: 10));
+      // Try a simple read operation on an existing collection that users can access
+      await _db.collection('bundles').limit(1).get().timeout(const Duration(seconds: 10));
       
       print('✅ Firebase connectivity test successful');
       return true;
@@ -734,33 +721,6 @@ class FirebaseService with ChangeNotifier {
     return snap.docs.map((d) => RoundHistoryEntry.fromMap(d.data())).toList();
   }
 
-  Stream<ReadyScreenViewModel> listenToReadyScreenViewModel(String roomId) {
-    return Rx.combineLatest2(
-      roomDocRef(roomId).snapshots(),
-      playersColRef(roomId).snapshots(),
-      (roomDoc, playersSnap) {
-        final roomData = roomDoc.data() ?? {};
-        final hostUid = roomData['creator'] as String? ?? '';
-        final myUid = currentUserUid;
-        final isHost = hostUid == myUid;
-
-        final players = playersSnap.docs.map((d) => PlayerStatus.fromSnapshot(d)).toList();
-        final allPlayersReady = players.isNotEmpty && players.every((p) => p.ready);
-        
-        PlayerStatus? me;
-        if (players.any((p) => p.uid == myUid)) {
-           me = players.firstWhere((p) => p.uid == myUid);
-        }
-
-        return ReadyScreenViewModel(
-          isHost: isHost,
-          allPlayersReady: allPlayersReady,
-          players: players,
-          me: me,
-        );
-      },
-    );
-  }
 
   Future<void> joinRoom(String roomId) async {
     if (currentUserUid.isEmpty) {
