@@ -12,6 +12,7 @@ import 'package:minddrift/widgets/spectrum_card.dart';
 import 'package:minddrift/widgets/bundle_indicator.dart';
 import '../theme/app_theme.dart';
 import '../services/firebase_service.dart';
+import '../services/player_service.dart';
 import '../services/category_service.dart'; // Import CategoryService for localization
 import '../models/player_status.dart';
 import '../models/round.dart';
@@ -240,7 +241,7 @@ class _NextRoundControlsState extends State<NextRoundControls> {
         final isMatchEnd = (roomData['currentRoundNumber'] as int? ?? 0) >= 5;
 
         return StreamBuilder<List<PlayerStatus>>(
-          stream: fb.listenToReady(widget.roomId),
+          stream: context.watch<PlayerService>().listenToPlayers(widget.roomId),
           builder: (ctx, playersSnap) {
             if (!playersSnap.hasData) {
               return const SizedBox(height: 80, child: Center(child: CircularProgressIndicator()));

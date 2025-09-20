@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/firebase_service.dart';
+import '../services/player_service.dart';
 import '../models/round.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -82,7 +83,7 @@ void initState() {
                           transform: Matrix4.identity()..rotateY(pi),
                           alignment: Alignment.center,
                           child: StreamBuilder<Role>(
-                            stream: fb.listenMyRole(widget.roomId),
+                            stream: context.watch<PlayerService>().listenMyRole(widget.roomId),
                             builder: (context, snapshot) {
                               final myRole = snapshot.data ?? Role.Seeker;
                               return RoleCard(role: myRole);
@@ -96,7 +97,7 @@ void initState() {
             // --- MODIFIED: Show Continue button for host after animation ---
             if (_animationComplete)
               StreamBuilder<Role>(
-                stream: fb.listenMyRole(widget.roomId),
+                stream: context.watch<PlayerService>().listenMyRole(widget.roomId),
                 builder: (context, roleSnap) {
                   final myRole = roleSnap.data ?? Role.Seeker;
                   

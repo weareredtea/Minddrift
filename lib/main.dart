@@ -24,6 +24,7 @@ import 'providers/auth_provider.dart';
 import 'services/analytics_service.dart';
 import 'services/navigation_service.dart';
 import 'services/room_service.dart';
+import 'services/player_service.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -81,7 +82,12 @@ class MyApp extends StatelessWidget {
           update: (_, authProvider, __) => RoomService(authProvider),
         ),
         
-        // 4. ChangeNotifierProxyProvider correctly injects AuthProvider into FirebaseService.
+        // 4. PlayerService for player management
+        ProxyProvider<AuthProvider, PlayerService>(
+          update: (_, authProvider, __) => PlayerService(authProvider),
+        ),
+        
+        // 5. ChangeNotifierProxyProvider correctly injects AuthProvider into FirebaseService.
         ChangeNotifierProxyProvider<AuthProvider, FirebaseService>(
           create: (_) => FirebaseService(AuthProvider()),
           update: (_, authProvider, previous) => previous ?? FirebaseService(authProvider),

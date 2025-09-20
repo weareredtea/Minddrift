@@ -8,6 +8,7 @@ import 'package:minddrift/widgets/spectrum_card.dart';
 import 'package:minddrift/widgets/effect_card.dart';
 import '../theme/app_theme.dart';
 import '../services/firebase_service.dart';
+import '../services/player_service.dart';
 import '../services/category_service.dart'; // Import CategoryService for localization
 import '../models/player_status.dart';
 import '../models/round.dart';
@@ -90,7 +91,7 @@ class _GuessRoundScreenState extends State<GuessRoundScreen> {
               children: [
                 // Role explanation card
                 StreamBuilder<Role>(
-                  stream: fb.listenMyRole(roomId),
+                  stream: context.watch<PlayerService>().listenMyRole(roomId),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) return const SizedBox.shrink();
                     final role = snapshot.data!;

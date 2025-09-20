@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../services/firebase_service.dart';
 import '../services/navigation_service.dart';
+import '../services/player_service.dart';
 import '../pigeon/pigeon.dart';
 import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
@@ -560,7 +561,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        fb.setReady(widget.roomId, !me.ready);
+                        context.read<PlayerService>().setReady(widget.roomId, !me.ready);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: me.ready ? Colors.green : null,

@@ -13,6 +13,7 @@ import 'package:minddrift/screens/settings_screen.dart';
 
 import '../services/firebase_service.dart';
 import '../services/room_service.dart';
+import '../services/player_service.dart';
 import '../widgets/animated_background.dart';
 import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
@@ -605,7 +606,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 Navigator.of(context).pop(); // Close bottom sheet
                                 setState(() => _loading = true);
                                 try {
-                                  await context.read<FirebaseService>().joinRoom(code);
+                                  await context.read<PlayerService>().joinRoom(code);
                                 } catch (e) {
                                   setState(() {
                                     _error = e.toString();

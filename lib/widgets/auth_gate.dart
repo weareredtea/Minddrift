@@ -6,6 +6,7 @@ import '../providers/auth_provider.dart';
 import '../screens/home_screen.dart';
 import '../services/firebase_service.dart';
 import '../services/room_service.dart';
+import '../services/player_service.dart';
 import '../screens/lobby_screen.dart';
 import '../screens/role_reveal_screen.dart';
 import '../screens/dice_roll_screen.dart';
@@ -187,10 +188,10 @@ class _RoleBasedNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fb = context.watch<FirebaseService>();
+    final playerService = context.watch<PlayerService>();
     
     return StreamBuilder<Role>(
-      stream: fb.listenMyRole(roomId),
+      stream: playerService.listenMyRole(roomId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
