@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../services/firebase_service.dart';
+import '../services/user_service.dart';
 import '../services/navigation_service.dart';
 import '../providers/game_state_provider.dart';
 import '../models/game_state.dart';
@@ -43,9 +43,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
   }
 
   Future<void> _loadUserSettings() async {
-    final fb = context.read<FirebaseService>();
+    final userService = context.read<UserService>();
     try {
-      final settings = await fb.loadMatchSettings();
+      final settings = await userService.loadMatchSettings();
       setState(() {
         _currentSettings = settings;
         _isLoadingSettings = false;
@@ -80,9 +80,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
   }
 
   Future<void> _saveSettings() async {
-    final fb = context.read<FirebaseService>();
+    final userService = context.read<UserService>();
     try {
-      await fb.saveMatchSettings(_currentSettings);
+      await userService.saveMatchSettings(_currentSettings);
       
       // Apply music setting immediately
       final audioService = AudioService();

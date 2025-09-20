@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/avatar.dart';
 import '../models/custom_username.dart';
-import '../services/firebase_service.dart';
+import '../services/user_service.dart';
 import '../l10n/app_localizations.dart';
 
 class ProfileEditScreen extends StatefulWidget {
@@ -65,8 +65,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       }
 
       // Load current avatar from Firebase user profile or default
-      final fb = context.read<FirebaseService>();
-      final userDoc = await fb.userDocRef(user.uid).get();
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       final userData = userDoc.data();
       _selectedAvatarId = userData?['avatarId'] as String? ?? 'bear';
 
@@ -139,11 +138,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final fb = context.read<FirebaseService>();
       final username = _usernameController.text.trim();
 
       // Update avatar in user document
-      await fb.userDocRef(user.uid).set({
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'avatarId': _selectedAvatarId,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));

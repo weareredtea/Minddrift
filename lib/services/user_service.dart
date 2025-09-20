@@ -78,4 +78,134 @@ class UserService {
       return null;
     });
   }
+
+  /// Check Firebase project connectivity
+  Future<bool> testFirebaseConnectivity() async {
+    try {
+      print('🔍 Testing Firebase connectivity...');
+      
+      // Try a simple read operation on an existing collection that users can access
+      await _db.collection('bundles').limit(1).get().timeout(const Duration(seconds: 10));
+      
+      print('✅ Firebase connectivity test successful');
+      return true;
+    } catch (e) {
+      print('❌ Firebase connectivity test failed: $e');
+      return false;
+    }
+  }
+
+  /// Get user's UID from AuthProvider
+  String get currentUserUid => _authProvider.uid ?? '';
+
+  /// Fetch room creation settings
+  Future<Map<String, bool>> fetchRoomCreationSettings() async {
+    try {
+      if (_uid.isEmpty) {
+        print('Warning: Cannot fetch room settings - user not authenticated');
+        return {
+          'saboteurEnabled': false,
+          'diceRollEnabled': false,
+        };
+      }
+
+      final docSnap = await _userSettingsDocRef().get();
+      if (docSnap.exists) {
+        final data = docSnap.data();
+        return {
+          'saboteurEnabled': data?['saboteurEnabled'] as bool? ?? false,
+          'diceRollEnabled': data?['diceRollEnabled'] as bool? ?? false,
+        };
+      }
+    } catch (e) {
+      print('Error fetching room creation settings: $e');
+    }
+    return {
+      'saboteurEnabled': false,
+      'diceRollEnabled': false,
+    };
+  }
+
+  /// Save room creation settings
+  Future<void> saveRoomCreationSettings(bool saboteurEnabled, bool diceRollEnabled, [int numRounds = 5, Set<String>? bundleSelections]) async {
+    try {
+      final data = {
+        'saboteurEnabled': saboteurEnabled,
+        'diceRollEnabled': diceRollEnabled,
+        'numRounds': numRounds,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      };
+      
+      if (bundleSelections != null) {
+        data['bundleSelections'] = bundleSelections.toList();
+      }
+      
+      await _userSettingsDocRef().set(data, SetOptions(merge: true));
+    } catch (e) {
+      print('Error saving room creation settings: $e');
+    }
+  }
+
+  /// Save bundle selections
+  Future<void> saveBundleSelections(Set<String> selectedBundles) async {
+    try {
+      await _userSettingsDocRef().set(
+        {
+          'bundleSelections': selectedBundles.toList(),
+          'lastUpdated': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      print('Error saving bundle selections: $e');
+    }
+  }
+  
+  /// Save music setting
+  Future<void> saveMusicSetting(bool musicEnabled) async {
+    try {
+      await _userSettingsDocRef().set(
+        {
+          'musicEnabled': musicEnabled,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      print('Error saving music setting: $e');
+    }
+  }
+  
+  /// Load music setting
+  Future<bool> loadMusicSetting() async {
+    try {
+      final docSnap = await _userSettingsDocRef().get();
+      if (docSnap.exists) {
+        final data = docSnap.data();
+        return data?['musicEnabled'] as bool? ?? true; // Default to true
+      }
+    } catch (e) {
+      print('Error loading music setting: $e');
+    }
+    
+    return true; // Default to true if loading fails
+  }
+
+  /// Load bundle selections
+  Future<Set<String>> loadBundleSelections() async {
+    try {
+      final docSnap = await _userSettingsDocRef().get();
+      if (docSnap.exists) {
+        final data = docSnap.data();
+        final bundleSelections = data?['bundleSelections'] as List<dynamic>?;
+        if (bundleSelections != null && bundleSelections.isNotEmpty) {
+          return Set<String>.from(bundleSelections);
+        }
+      }
+    } catch (e) {
+      print('Error loading bundle selections: $e');
+    }
+    
+    return {'bundle.free'};
+  }
 }

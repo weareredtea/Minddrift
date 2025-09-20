@@ -6,14 +6,12 @@ import 'package:minddrift/widgets/effect_card.dart';
 import 'package:minddrift/widgets/keyboard_aware_scroll_view.dart';
 // Import for DocumentSnapshot
 
-import '../services/firebase_service.dart';
 import '../providers/game_state_provider.dart';
 import '../services/category_service.dart'; // Import CategoryService for localization
 import '../models/round.dart'; // Import Round model for category data
 import '../theme/app_theme.dart'; // Import for AppColors
 // Import for PlayerStatus
 import 'home_screen.dart'; // Import for navigating back to home
-import 'scoreboard_screen.dart'; // Import for navigating to scoreboard
 import '../l10n/app_localizations.dart';
 import '../widgets/global_chat_overlay.dart';
 
@@ -29,117 +27,14 @@ class SetupRoundScreen extends StatefulWidget {
 class _SetupRoundScreenState extends State<SetupRoundScreen> {
   String _clue = '';
   bool _submitting = false;
-  bool _showingLastPlayerDialog = false;
-  late final FirebaseService _firebaseService;
 
   @override
   void initState() {
     super.initState();
-    // Capture FirebaseService reference to avoid widget lifecycle issues
-    _firebaseService = context.read<FirebaseService>();
-    _setupPlayerListeners();
-  }
-
-  void _setupPlayerListeners() {
-    // Listen for player departures to show toast messages
-    _firebaseService.listenForPlayerDepartures(widget.roomId).listen((playerName) {
-      if (playerName != null && mounted) {
-        final loc = AppLocalizations.of(context);
-        if (loc != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(loc.playerExited(playerName)),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      }
-    });
-
-    // Listen for last player standing scenario
-    _firebaseService.listenToLastPlayerStatus(widget.roomId).listen((status) async {
-      final onlinePlayerCount = status['onlinePlayerCount'] as int;
-      final isLastPlayer = status['isLastPlayer'] as bool;
-      final currentUserDisplayName = status['currentUserDisplayName'] as String;
-      final roomId = widget.roomId;
-
-      // Get room data to check if current user is creator and it's the very beginning
-      final roomSnap = await _firebaseService.roomDocRef(roomId).get();
-      final roomData = roomSnap.data();
-      final isCreator = roomData?['creator'] == _firebaseService.currentUserUid;
-      final currentRoundNumber = roomData?['currentRoundNumber'] as int? ?? 0;
-
-      // Suppress dialog if creator and it's the very first round (currentRoundNumber is 0 or 1)
-      final isInitialRoomCreation = isCreator && currentRoundNumber <= 1; // Adjust based on when roundNumber increments first
-
-      if (isLastPlayer && onlinePlayerCount == 1 && !_showingLastPlayerDialog && mounted && !isInitialRoomCreation) {
-        setState(() {
-          _showingLastPlayerDialog = true;
-        });
-        _showLastPlayerDialog(context, currentUserDisplayName, widget.roomId);
-      } else if (!isLastPlayer && onlinePlayerCount > 1 && _showingLastPlayerDialog) {
-        // If more players join, dismiss the dialog if it's showing
-        // Use pop to dismiss a dialog, not popUntil for main navigation
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
-        }
-        setState(() {
-          _showingLastPlayerDialog = false;
-        });
-      }
-    });
-  }
-
-  Future<void> _showLastPlayerDialog(BuildContext context, String displayName, String roomId) async {
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        final fb = dialogContext.read<FirebaseService>();
-        final loc = AppLocalizations.of(dialogContext)!;
-        return AlertDialog(
-          title: Text(loc.youAreLastPlayer),
-          content: Text(loc.lastPlayerMessage),
-          actions: <Widget>[
-            TextButton(
-              child: Text(loc.inviteFriends),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                setState(() { _showingLastPlayerDialog = false; });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(loc.shareRoomId(roomId))),
-                );
-              },
-            ),
-            TextButton(
-              child: Text(loc.viewScoreboard),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                setState(() { _showingLastPlayerDialog = false; });
-                Navigator.pushNamed(context, ScoreboardScreen.routeName, arguments: roomId);
-              },
-            ),
-            TextButton(
-              child: Text(loc.exitToHome),
-              onPressed: () async {
-                await fb.leaveRoom(roomId);
-                Navigator.of(dialogContext).pop();
-                setState(() { _showingLastPlayerDialog = false; });
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
+    // Player listeners are now handled by GameStateProvider
   }
 
   Future<void> _showExitConfirmationDialog(BuildContext context, String roomId) async {
-    final fb = context.read<FirebaseService>();
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -158,7 +53,7 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
             TextButton(
               child: Text(loc.exit),
               onPressed: () async {
-                await fb.leaveRoom(roomId);
+                // Leave room functionality is now handled by NavigationService
                 Navigator.of(dialogContext).pop();
                 Navigator.pushAndRemoveUntil(
                   context,

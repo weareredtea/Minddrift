@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:minddrift/screens/tutorial_screen.dart';
 // Audio service moved to lobby screen
-import '../services/firebase_service.dart';
+import '../services/user_service.dart';
 import '../providers/locale_provider.dart';
 import '../providers/purchase_provider_new.dart';
 // import '../providers/premium_provider.dart'; // Temporarily disabled
@@ -35,10 +35,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    final fb = context.read<FirebaseService>();
+    final userService = context.read<UserService>();
 
-    final settings = await fb.fetchRoomCreationSettings();
-    final bundleSelections = await fb.loadBundleSelections();
+    final settings = await userService.fetchRoomCreationSettings();
+    final bundleSelections = await userService.loadBundleSelections();
 
     setState(() {
       _saboteurEnabled = settings['saboteurEnabled'] ?? false;
@@ -49,19 +49,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _saveGameSettings() async {
-    final fb = context.read<FirebaseService>();
-    await fb.saveRoomCreationSettings(_saboteurEnabled, _diceRollEnabled, 5, _selectedBundles);
+    final userService = context.read<UserService>();
+    await userService.saveRoomCreationSettings(_saboteurEnabled, _diceRollEnabled, 5, _selectedBundles);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context)!.settingsSaved)),
     );
   }
 
   Future<void> _saveBundleSettings() async {
-    final fb = context.read<FirebaseService>();
+    final userService = context.read<UserService>();
     final loc = AppLocalizations.of(context)!;
     
     try {
-      await fb.saveBundleSelections(_selectedBundles);
+      await userService.saveBundleSelections(_selectedBundles);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(loc.bundleSelectionSaved)),
       );

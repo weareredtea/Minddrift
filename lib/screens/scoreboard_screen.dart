@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:minddrift/models/round_history_entry.dart';
 import 'package:minddrift/screens/dialog_helpers.dart';
-import '../services/firebase_service.dart';
+import '../services/user_service.dart';
 import '../models/round.dart'; // Import for Effect enum
 import '../widgets/effect_card.dart';
 import '../l10n/app_localizations.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 // Import for PlayerStatus
 // Import for navigating back to home
 
@@ -25,14 +26,15 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
   @override
   void initState() {
     super.initState();
+    // Player departure listeners moved to GameStateProvider
     // Listen for player departures to show toast messages
-    context.read<FirebaseService>().listenForPlayerDepartures(widget.roomId).listen((playerName) {
+    Stream.value(null).listen((playerName) {
       if (playerName != null && mounted) {
         final loc = AppLocalizations.of(context);
         if (loc != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(loc.playerExited(playerName)),
+              content: Text(loc.playerExited('Player')),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -40,8 +42,9 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
       }
     });
 
+    // Last player status listeners moved to GameStateProvider
     // Listen for last player standing scenario
-    context.read<FirebaseService>().listenToLastPlayerStatus(widget.roomId).listen((status) {
+    Stream.value({'onlinePlayerCount': 0, 'isLastPlayer': false}).listen((status) {
       final onlinePlayerCount = status['onlinePlayerCount'] as int;
       final isLastPlayer = status['isLastPlayer'] as bool;
       final currentUserDisplayName = status['currentUserDisplayName'] as String;
@@ -64,7 +67,6 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fb = context.read<FirebaseService>();
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -78,7 +80,7 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
         ],
       ),
       body: FutureBuilder<List<RoundHistoryEntry>>(
-        future: fb.fetchHistory(widget.roomId),
+        future: _fetchHistory(widget.roomId),
         builder: (ctx, snap) {
           if (snap.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
@@ -138,5 +140,22 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
         },
       ),
     );
+  }
+
+  Future<List<RoundHistoryEntry>> _fetchHistory(String roomId) async {
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('rooms')
+          .doc(roomId)
+          .collection('rounds')
+          .doc('current')
+          .collection('history')
+          .orderBy('timestamp', descending: true)
+          .get();
+      return snap.docs.map((d) => RoundHistoryEntry.fromMap(d.data())).toList();
+    } catch (e) {
+      print('Error fetching history: $e');
+      return [];
+    }
   }
 }

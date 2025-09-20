@@ -4,13 +4,15 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:minddrift/models/round.dart';
-import 'package:minddrift/services/firebase_service.dart';
+// FirebaseService functionality moved to specialized services
+// TestBotService temporarily disabled during refactoring
 
 class TestBotService {
   static TestBotService? _instance;
 
   final String roomId;
-  final FirebaseService _firebaseService;
+  // FirebaseService replaced with specialized services
+  // final FirebaseService _firebaseService;
   final String botUid = 'test-bot-001';
   final Random _random = Random();
   StreamSubscription? _roomSubscription;
@@ -19,14 +21,14 @@ class TestBotService {
   Timer? _actionTimer;
   String _lastActedStatus = ''; // Prevents re-triggering timers for the same state
 
-  TestBotService._internal(this.roomId, this._firebaseService) {
+  TestBotService._internal(this.roomId) {
     print('🤖 TestBotService started for room: $roomId');
     _listenToRoomChanges();
   }
 
-  static void start(String roomId, FirebaseService firebaseService) {
+  static void start(String roomId, dynamic firebaseService) {
     _instance?.dispose();
-    _instance = TestBotService._internal(roomId, firebaseService);
+    _instance = TestBotService._internal(roomId);
   }
 
   static void stop() {
@@ -35,8 +37,9 @@ class TestBotService {
   }
 
   void _listenToRoomChanges() {
+    // TestBotService temporarily disabled during FirebaseService refactoring
     // We only need to listen to the room document now to get the status.
-    _roomSubscription = _firebaseService.roomDocRef(roomId).snapshots().listen((roomSnap) async {
+    /*_roomSubscription = _firebaseService.roomDocRef(roomId).snapshots().listen((roomSnap) async {
       if (!roomSnap.exists) {
         dispose();
         return;
@@ -125,7 +128,7 @@ class TestBotService {
       
       // Remember the status we just scheduled an action for.
       _lastActedStatus = roomStatus ?? '';
-    });
+    });*/
   }
 
   String _generateRandomClue() {
@@ -144,8 +147,9 @@ class TestBotService {
   // Debug method to check bot's current role
   Future<void> debugCheckRole() async {
     try {
-      final roundSnap = await _firebaseService.roundDocRef(roomId).get();
-      if (roundSnap.exists) {
+      // TestBotService temporarily disabled during refactoring
+      // final roundSnap = await _firebaseService.roundDocRef(roomId).get();
+      /*if (roundSnap.exists) {
         final round = Round.fromMap(roundSnap.data()!);
         final myRole = round.roles?[botUid];
         print('🤖 DEBUG: Bot UID: $botUid');
@@ -154,7 +158,8 @@ class TestBotService {
         print('🤖 DEBUG: Is Navigator? ${myRole == Role.Navigator}');
       } else {
         print('🤖 DEBUG: No round document found');
-      }
+      }*/
+      print('🤖 DEBUG: TestBotService temporarily disabled during refactoring');
     } catch (e) {
       print('🤖 DEBUG: Error checking role: $e');
     }

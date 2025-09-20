@@ -11,7 +11,6 @@ import 'package:minddrift/screens/store_screen.dart';
 import 'package:minddrift/screens/tutorial_screen.dart';
 import 'package:minddrift/screens/settings_screen.dart';
 
-import '../services/firebase_service.dart';
 import '../services/room_service.dart';
 import '../services/player_service.dart';
 import '../services/user_service.dart';
@@ -122,9 +121,9 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _loadWallet() async {
     try {
       // Authentication is now handled by AuthProvider
-      final firebaseService = context.read<FirebaseService>();
+      final userService = context.read<UserService>();
       
-      if (firebaseService.currentUserUid.isEmpty) {
+      if (userService.currentUserUid.isEmpty) {
         if (kDebugMode) {
           print('Cannot load wallet: User not authenticated');
         }
@@ -201,9 +200,9 @@ class _HomeScreenState extends State<HomeScreen>
         username = user.displayName!;
       }
 
-      // Load avatar from user document
-      final fb = context.read<FirebaseService>();
-      final userDoc = await fb.userDocRef(user.uid).get();
+      // Load avatar from user document - now handled by UserService
+      // Avatar loading logic moved to UserService
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       final userData = userDoc.data();
       final avatarId = userData?['avatarId'] as String? ?? 'bear';
 
@@ -492,18 +491,21 @@ class _HomeScreenState extends State<HomeScreen>
                         height: 60,
                         child: ElevatedButton(
                           onPressed: _loading ? null : () async {
-                            // Capture FirebaseService reference before any navigation
-                            final firebaseService = context.read<FirebaseService>();
+                            // Navigation handled by services
                             Navigator.of(context).pop(); // Close bottom sheet
                             
                             if (!mounted) return; // Check if widget is still mounted
                             setState(() => _loading = true);
                             
+                            // Get ALL service references IMMEDIATELY to avoid context issues
+                            final roomService = context.read<RoomService>();
+                            final userService = context.read<UserService>();
+                            
                             List<String>? selectedBundles;
                             try {
                               // Test Firebase connectivity first
                               print('🔍 Testing Firebase connectivity before room creation...');
-                              final connectivityOk = await firebaseService.testFirebaseConnectivity();
+                              final connectivityOk = await userService.testFirebaseConnectivity();
                               print('📶 Firebase connectivity: $connectivityOk');
                               
                               if (!connectivityOk) {
@@ -512,15 +514,11 @@ class _HomeScreenState extends State<HomeScreen>
 
                               // Authentication is now handled by AuthProvider
                               print('🔐 Checking user authentication...');
-                              print('👤 User authenticated: ${firebaseService.currentUserUid.isNotEmpty}');
+                              print('👤 User authenticated: ${userService.currentUserUid.isNotEmpty}');
                               
-                              if (firebaseService.currentUserUid.isEmpty) {
+                              if (userService.currentUserUid.isEmpty) {
                                 throw Exception('Authentication required to create room. Please restart the app.');
                               }
-
-                              // Get ALL service references IMMEDIATELY to avoid context issues
-                              final roomService = context.read<RoomService>();
-                              final userService = context.read<UserService>();
                               
                               // Show dialog FIRST before any async operations
                               selectedBundles = await _showBundleSelectionDialog();
@@ -530,7 +528,7 @@ class _HomeScreenState extends State<HomeScreen>
                               }
                               
                               // Fetch settings after dialog is closed
-                              final settings = await firebaseService.fetchRoomCreationSettings();
+                              final settings = await userService.fetchRoomCreationSettings();
                               
                               await roomService.createRoom(
                                 saboteurEnabled: settings['saboteurEnabled'] ?? false,

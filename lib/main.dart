@@ -7,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:minddrift/services/audio_service.dart';
 import 'package:minddrift/widgets/auth_gate.dart';
 import 'firebase_options.dart';
-import 'services/firebase_service.dart';
 import 'screens/settings_screen.dart';
 import 'screens/tutorial_screen.dart';
 import 'screens/store_screen.dart';
@@ -99,11 +98,6 @@ class MyApp extends StatelessWidget {
           update: (_, authProvider, __) => UserService(authProvider),
         ),
         
-        // 7. ChangeNotifierProxyProvider correctly injects AuthProvider into FirebaseService.
-        ChangeNotifierProxyProvider<AuthProvider, FirebaseService>(
-          create: (_) => FirebaseService(AuthProvider()),
-          update: (_, authProvider, previous) => previous ?? FirebaseService(authProvider),
-        ),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProvider(create: (_) => PurchaseProviderNew()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),

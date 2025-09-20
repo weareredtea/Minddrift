@@ -107,12 +107,12 @@ class AudioService {
   }
   
   // Initialize music setting from Firebase
-  Future<void> initializeMusicSetting(dynamic firebaseService) async {
+  Future<void> initializeMusicSetting(dynamic userService) async {
     if (_isInitialized) return;
     
     try {
-      if (firebaseService != null) {
-        _musicEnabled = await firebaseService.loadMusicSetting();
+      if (userService != null) {
+        _musicEnabled = await userService.loadMusicSetting();
         _isInitialized = true;
         print('🎵 Music setting loaded: $_musicEnabled');
       }
@@ -124,10 +124,10 @@ class AudioService {
   }
   
   // Save music setting to Firebase
-  Future<void> persistMusicSetting(dynamic firebaseService) async {
+  Future<void> persistMusicSetting(dynamic userService) async {
     try {
-      if (firebaseService != null) {
-        await firebaseService.saveMusicSetting(_musicEnabled);
+      if (userService != null) {
+        await userService.saveMusicSetting(_musicEnabled);
         print('🎵 Music setting saved: $_musicEnabled');
       }
     } catch (e) {
