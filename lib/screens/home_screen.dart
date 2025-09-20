@@ -12,6 +12,7 @@ import 'package:minddrift/screens/tutorial_screen.dart';
 import 'package:minddrift/screens/settings_screen.dart';
 
 import '../services/firebase_service.dart';
+import '../services/room_service.dart';
 import '../widgets/animated_background.dart';
 import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
@@ -515,14 +516,19 @@ class _HomeScreenState extends State<HomeScreen>
                                 throw Exception('Authentication required to create room. Please restart the app.');
                               }
 
+                              // Get service references BEFORE the dialog to avoid context issues
+                              final roomService = context.read<RoomService>();
+                              
                               selectedBundles = await _showBundleSelectionDialog();
                               if (selectedBundles != null && selectedBundles.isNotEmpty) {
                                 final settings = await firebaseService.fetchRoomCreationSettings();
-                                await firebaseService.createRoom(
-                                  settings['saboteurEnabled'] ?? false,
-                                  settings['diceRollEnabled'] ?? false,
-                                  selectedBundles.first,
+                                await roomService.createRoom(
+                                  saboteurEnabled: settings['saboteurEnabled'] ?? false,
+                                  diceRollEnabled: settings['diceRollEnabled'] ?? false,
+                                  selectedBundle: selectedBundles.first,
                                 );
+                                // Room creation successful - reset loading state
+                                if (mounted) setState(() => _loading = false);
                               } else {
                                 if (mounted) setState(() => _loading = false);
                               }

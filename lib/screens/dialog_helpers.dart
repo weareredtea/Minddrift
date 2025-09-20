@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/firebase_service.dart';
-import '../screens/home_screen.dart';
+import '../services/navigation_service.dart';
 import '../screens/scoreboard_screen.dart';
 import '../l10n/app_localizations.dart';
 
 /// Shows a confirmation dialog for exiting the current room.
 Future<void> showExitConfirmationDialog(BuildContext context, String roomId) async {
-  final fb = context.read<FirebaseService>();
+  final navService = context.read<NavigationService>();
   final loc = AppLocalizations.of(context)!;
   return showDialog<void>(
     context: context,
@@ -25,15 +24,10 @@ Future<void> showExitConfirmationDialog(BuildContext context, String roomId) asy
           ),
           TextButton(
             child: Text(loc.exit),
-            onPressed: () async {
-              await fb.leaveRoom(roomId);
-              // Safely pop the dialog before navigating
+            onPressed: () {
+              // Pop the dialog FIRST, then call the navigation service
               Navigator.of(dialogContext).pop();
-              // Navigate all the way back to the home screen
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-                (Route<dynamic> route) => false,
-              );
+              navService.exitRoomAndNavigateToHome(context, roomId);
             },
           ),
         ],
@@ -44,12 +38,12 @@ Future<void> showExitConfirmationDialog(BuildContext context, String roomId) asy
 
 /// Shows a dialog informing the user they are the last one left in the room.
 Future<void> showLastPlayerDialog(BuildContext context, String displayName, String roomId) async {
+  final navService = context.read<NavigationService>();
   final loc = AppLocalizations.of(context)!;
   return showDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext dialogContext) {
-      final fb = context.read<FirebaseService>();
       return AlertDialog(
         title: Text(loc.youAreLastPlayer),
         content: Text(loc.lastPlayerMessage),
@@ -72,13 +66,9 @@ Future<void> showLastPlayerDialog(BuildContext context, String displayName, Stri
           ),
           TextButton(
             child: Text(loc.exitToHome),
-            onPressed: () async {
-              await fb.leaveRoom(roomId);
+            onPressed: () {
               Navigator.of(dialogContext).pop();
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-                (Route<dynamic> route) => false,
-              );
+              navService.exitRoomAndNavigateToHome(context, roomId);
             },
           ),
         ],

@@ -402,231 +402,9 @@ class FirebaseService with ChangeNotifier {
     }
   }
 
-  String _randomCode(int n) =>
-      List.generate(n, (_) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[_rnd.nextInt(36)])
-          .join();
 
-  Future<bool> roomExists(String roomId) async =>
-      (await _db.collection('rooms').doc(roomId).get()).exists;
 
-  Future<String> createRoom(bool saboteurEnabled, bool diceRollEnabled, String selectedBundle) async {
-    const operation = 'create_room';
-    
-    try {
-      ExceptionHandler.logError(operation, 'Starting room creation', 
-        extraData: {
-          'saboteurEnabled': saboteurEnabled,
-          'diceRollEnabled': diceRollEnabled,
-          'selectedBundle': selectedBundle,
-        });
 
-      // Step 1: Check network connectivity and Firebase access
-      final isEmulator = await _isRunningOnEmulator();
-      if (!isEmulator) {
-        await _checkNetworkConnectivity();
-        
-        // Test Firebase connectivity specifically
-        final firebaseConnected = await testFirebaseConnectivity();
-        if (!firebaseConnected) {
-          throw NetworkException(
-            'Cannot connect to Firebase servers. Please check your internet connection.',
-            code: 'FIREBASE_UNREACHABLE',
-            details: 'Firebase connectivity test failed',
-            stackTrace: StackTrace.current,
-          );
-        }
-      } else {
-        ExceptionHandler.logError(operation, 'Skipping network connectivity check on emulator');
-      }
-
-      // Step 2: Validate authentication - now handled by AuthProvider
-      if (currentUserUid.isEmpty) {
-        throw AuthenticationException(
-          'User authentication required. Please restart the app and try again.',
-          code: 'AUTH_REQUIRED',
-          details: 'currentUserUid is empty - authentication handled by AuthProvider',
-          stackTrace: StackTrace.current,
-        );
-      }
-
-      // Step 3: Validate bundle ownership
-      await _validateBundleOwnershipWithException(selectedBundle, operation);
-
-      // Step 4: Generate unique room ID
-      final roomId = await _generateUniqueRoomId(operation);
-
-      // Step 5: Create room document
-      await _createRoomDocument(roomId, saboteurEnabled, diceRollEnabled, selectedBundle, operation);
-
-      // Step 6: Create player document
-      await _createPlayerDocument(roomId, operation);
-
-      // Step 7: Save current room ID
-      await _saveCurrentRoomIdWithException(roomId, operation);
-
-      ExceptionHandler.logError(operation, 'Room creation completed successfully', 
-        extraData: {'roomId': roomId});
-
-      notifyListeners();
-      return roomId;
-
-    } catch (e) {
-      ExceptionHandler.logError(operation, 'Room creation failed', 
-        extraData: {'error': e.toString()});
-      
-      // Re-throw as appropriate exception type
-      if (e is FirebaseServiceException) {
-        rethrow;
-      }
-      
-      if (e is FirebaseException) {
-        throw _convertFirebaseException(e, operation);
-      }
-      
-      throw RoomOperationException(
-        'Failed to create room: ${e.toString()}',
-        code: 'UNKNOWN_ERROR',
-        details: e.toString(),
-        stackTrace: StackTrace.current,
-      );
-    }
-  }
-
-  // Helper methods for room creation with proper exception handling
-  Future<void> _ensureUserAuthenticated(String operation) async {
-    if (currentUserUid.isEmpty) {
-      ExceptionHandler.logError(operation, 'User not authenticated');
-      
-      throw AuthenticationException(
-        'User authentication required. Please restart the app and try again.',
-        code: 'AUTH_REQUIRED',
-        details: 'currentUserUid is empty - authentication handled by AuthProvider',
-        stackTrace: StackTrace.current,
-      );
-    }
-  }
-
-  Future<void> _validateBundleOwnershipWithException(String bundleId, String operation) async {
-    try {
-      if (!await _validateBundleOwnership(bundleId)) {
-        throw PermissionException(
-          'You must own this bundle to host a game with it. Please purchase the bundle first.',
-          code: 'BUNDLE_NOT_OWNED',
-          details: 'Bundle validation failed for: $bundleId',
-          stackTrace: StackTrace.current,
-        );
-      }
-    } catch (e) {
-      if (e is FirebaseServiceException) {
-        rethrow;
-      }
-      throw PermissionException(
-        'Failed to validate bundle ownership. Please try again.',
-        code: 'BUNDLE_VALIDATION_FAILED',
-        details: e.toString(),
-        stackTrace: StackTrace.current,
-      );
-    }
-  }
-
-  Future<String> _generateUniqueRoomId(String operation) async {
-    try {
-      String roomId;
-      int attempts = 0;
-      const maxAttempts = 20; // Increased from 10 to 20
-      
-      do {
-        // Use longer room codes for better uniqueness
-        roomId = _randomCode(attempts < 10 ? 4 : 5); // Start with 4, then 5 characters
-        attempts++;
-        
-        ExceptionHandler.logError(operation, 'Attempting to generate room ID', 
-          extraData: {'attempt': attempts, 'roomId': roomId});
-        
-        if (attempts > maxAttempts) {
-          throw RoomOperationException(
-            'Unable to generate a unique room ID. Please try again.',
-            code: 'ROOM_ID_GENERATION_FAILED',
-            details: 'Exceeded maximum attempts ($maxAttempts)',
-            stackTrace: StackTrace.current,
-          );
-        }
-        
-        // Add timeout to roomExists check
-        final exists = await roomExists(roomId).timeout(
-          const Duration(seconds: 5),
-          onTimeout: () {
-            ExceptionHandler.logError(operation, 'Room existence check timed out');
-            return false; // Assume room doesn't exist if check times out
-          },
-        );
-        
-        if (!exists) break;
-        
-      } while (true);
-      
-      ExceptionHandler.logError(operation, 'Generated unique room ID', 
-        extraData: {'roomId': roomId, 'attempts': attempts});
-      
-      return roomId;
-    } catch (e) {
-      if (e is FirebaseServiceException) {
-        rethrow;
-      }
-      throw RoomOperationException(
-        'Failed to generate room ID. Please try again.',
-        code: 'ROOM_ID_ERROR',
-        details: e.toString(),
-        stackTrace: StackTrace.current,
-      );
-    }
-  }
-
-  Future<void> _createRoomDocument(String roomId, bool saboteurEnabled, bool diceRollEnabled, String selectedBundle, String operation) async {
-    try {
-      final roomRef = _db.collection('rooms').doc(roomId);
-      
-      await roomRef.set({
-        'creator': currentUserUid,
-        'createdAt': FieldValue.serverTimestamp(),
-        'status': 'lobby',
-        'saboteurEnabled': saboteurEnabled,
-        'diceRollEnabled': diceRollEnabled,
-        'selectedBundle': selectedBundle,
-        'currentRoundNumber': 0,
-        'navigatorRotationIndex': 0,
-        'playerOrder': [currentUserUid],
-        'usedCategoryIds': [],
-        'saboteurId': null,
-        'totalGroupScore': 0,
-      });
-      
-      ExceptionHandler.logError(operation, 'Room document created successfully');
-    } catch (e) {
-      throw _convertFirebaseException(e, operation, 'Failed to create room document');
-    }
-  }
-
-  Future<void> _createPlayerDocument(String roomId, String operation) async {
-    try {
-      final roomRef = _db.collection('rooms').doc(roomId);
-      final String randomAvatarId = Avatars.getRandomAvatarId();
-      
-      await roomRef.collection('players').doc(currentUserUid).set({
-        'displayName': 'Player-${currentUserUid.substring(0, 4)}',
-        'isReady': false,
-        'guessReady': false,
-        'online': true,
-        'lastSeen': FieldValue.serverTimestamp(),
-        'tokens': 0,
-        'avatarId': randomAvatarId,
-      });
-      
-      ExceptionHandler.logError(operation, 'Player document created successfully');
-    } catch (e) {
-      throw _convertFirebaseException(e, operation, 'Failed to create player document');
-    }
-  }
 
   Future<void> _saveCurrentRoomIdWithException(String roomId, String operation) async {
     try {
@@ -1064,8 +842,15 @@ class FirebaseService with ChangeNotifier {
         ExceptionHandler.logError(operation, 'Skipping Firebase connectivity check on emulator');
       }
 
-      // Step 2: Validate authentication
-      await _ensureUserAuthenticated(operation);
+      // Step 2: Validate authentication - now handled by AuthProvider
+      if (currentUserUid.isEmpty) {
+        throw AuthenticationException(
+          'User authentication required. Please restart the app and try again.',
+          code: 'AUTH_REQUIRED',
+          details: 'currentUserUid is empty - authentication handled by AuthProvider',
+          stackTrace: StackTrace.current,
+        );
+      }
 
       // Step 3: Validate user is host
       await _validateUserIsHost(roomId, operation);
@@ -1101,23 +886,6 @@ class FirebaseService with ChangeNotifier {
     await roomDocRef(roomId).update({'status': 'clue_submission'});
   }
 
-  Stream<String> listenRoomStatus(String roomId) {
-    return roomDocRef(roomId).snapshots().handleError((error) {
-      ExceptionHandler.logError('room_status_stream', 'Error listening to room status', 
-        extraData: {'roomId': roomId, 'error': error.toString()});
-      
-      // Return a stream that emits 'lobby' on error to prevent app crashes
-      return 'lobby';
-    }).map((snap) {
-      final data = snap.data();
-      final status = (data?['status'] as String?) ?? 'lobby';
-      
-      ExceptionHandler.logError('room_status_stream', 'Room status update', 
-        extraData: {'roomId': roomId, 'status': status});
-      
-      return status;
-    });
-  }
 
   Stream<Role> listenMyRole(String roomId) {
     return roundDocRef(roomId).snapshots().map((snap) {
@@ -1602,7 +1370,8 @@ class FirebaseService with ChangeNotifier {
   // Helper method to validate room exists and clear stale data
   Future<void> _validateAndClearStaleRoomId(String roomId) async {
     try {
-      final exists = await roomExists(roomId);
+      final doc = await _db.collection('rooms').doc(roomId).get();
+      final exists = doc.exists;
       if (!exists) {
         print('Room $roomId no longer exists, clearing stale current room data');
         await saveCurrentRoomId(null);

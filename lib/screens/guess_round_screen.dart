@@ -169,7 +169,7 @@ class _GuessRoundScreenState extends State<GuessRoundScreen> {
 
                       return Column(
                         children: [
-                          // Shared radial spectrum
+                          // Shared al spectrum
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 12.0),
                             child: SpectrumCard(

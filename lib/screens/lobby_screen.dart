@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../services/firebase_service.dart';
+import '../services/navigation_service.dart';
 import '../pigeon/pigeon.dart';
-import 'ready_screen.dart';
 import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
 import '../services/category_service.dart';
@@ -15,6 +15,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/global_chat_overlay.dart';
 import '../models/match_settings.dart';
 import '../models/spectrum_skin.dart';
+import '../models/player_status.dart';
 import '../services/skin_manager.dart';
 import '../services/audio_service.dart';
 
@@ -173,8 +174,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
           IconButton(
             icon: const Icon(Icons.exit_to_app),
             onPressed: () {
-              fb.leaveRoom(widget.roomId);
-              Navigator.of(context).pop();
+              final navService = context.read<NavigationService>();
+              navService.exitRoomAndNavigateToHome(context, widget.roomId);
             },
             tooltip: loc.exitGame,
           ),
@@ -513,23 +514,89 @@ class _LobbyScreenState extends State<LobbyScreen> {
   }
 
   Widget _buildReadyButton(AppLocalizations loc) {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ReadyScreen(roomId: widget.roomId),
-            ),
-          );
-        },
-        child: Text(
-          loc.imHereLetsGetReady,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ),
+    final fb = context.read<FirebaseService>();
+    
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: fb.roomDocRef(widget.roomId).snapshots(),
+      builder: (context, roomSnap) {
+        if (!roomSnap.hasData) {
+          return const SizedBox.shrink();
+        }
+        
+        final roomData = roomSnap.data?.data();
+        final hostUid = roomData?['creator'] as String? ?? '';
+        final isHost = hostUid == fb.currentUserUid;
+        
+        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: fb.playersColRef(widget.roomId).snapshots(),
+          builder: (context, playersSnap) {
+            if (!playersSnap.hasData) {
+              return const SizedBox.shrink();
+            }
+            
+            final players = playersSnap.data!.docs
+                .map((doc) => PlayerStatus.fromSnapshot(doc))
+                .toList();
+            
+            final me = players.firstWhere(
+              (p) => p.uid == fb.currentUserUid,
+              orElse: () => PlayerStatus(
+                uid: fb.currentUserUid,
+                displayName: loc.you,
+                ready: false,
+                online: true,
+                guessReady: false,
+                avatarId: 'bear'
+              ),
+            );
+            
+            final allPlayersReady = players.isNotEmpty && players.every((p) => p.ready);
+            
+            return Column(
+              children: [
+                // "I'm Ready" button for all players
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        fb.setReady(widget.roomId, !me.ready);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: me.ready ? Colors.green : null,
+                      ),
+                      child: Text(
+                        me.ready ? loc.ready : loc.imHereLetsGetReady,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                
+                // "All Ready Start Round" button for host only
+                if (isHost) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: allPlayersReady ? () {
+                        fb.startRound(widget.roomId);
+                      } : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: allPlayersReady ? Colors.blue : Colors.grey,
+                      ),
+                      child: Text(
+                        allPlayersReady ? loc.allReadyStartRound : loc.waitingForPlayers,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
