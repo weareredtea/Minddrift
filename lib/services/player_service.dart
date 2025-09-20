@@ -5,6 +5,7 @@ import 'package:minddrift/models/player_status.dart';
 import 'package:minddrift/models/round.dart';
 import 'package:minddrift/models/avatar.dart';
 import 'package:minddrift/providers/auth_provider.dart';
+import 'package:minddrift/services/user_service.dart';
 
 class PlayerService {
   final FirebaseFirestore _db;
@@ -29,7 +30,7 @@ class PlayerService {
   //==================================================================
 
   /// Allows the current user to join an existing room.
-  Future<void> joinRoom(String roomId) async {
+  Future<void> joinRoom(String roomId, {required UserService userService}) async {
     if (_uid.isEmpty) {
       throw Exception("User is not authenticated. Cannot join a room.");
     }
@@ -63,10 +64,13 @@ class PlayerService {
         'playerOrder': FieldValue.arrayUnion([_uid]),
       });
     });
+
+    // Save the current room ID for navigation
+    await userService.saveCurrentRoomId(roomId);
   }
 
   /// Removes the current user's player document from a room.
-  Future<void> leaveRoom(String roomId) async {
+  Future<void> leaveRoom(String roomId, {required UserService userService}) async {
     if (_uid.isEmpty) return; // Fail silently if no user
 
     final roomRef = _roomDocRef(roomId);
@@ -88,6 +92,9 @@ class PlayerService {
       // 2. Delete the player document
       transaction.delete(playerRef);
     });
+
+    // Clear the current room ID
+    await userService.saveCurrentRoomId(null);
   }
 
   /// Sets the ready status for the current player.

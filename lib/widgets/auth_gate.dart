@@ -5,8 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/auth_provider.dart';
 import '../screens/home_screen.dart';
 import '../services/firebase_service.dart';
-import '../services/room_service.dart';
 import '../services/player_service.dart';
+import '../services/user_service.dart';
 import '../screens/lobby_screen.dart';
 import '../screens/role_reveal_screen.dart';
 import '../screens/dice_roll_screen.dart';
@@ -97,13 +97,13 @@ class RoomNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final roomService = context.watch<RoomService>();
+    final userService = context.watch<UserService>();
 
     // The StreamBuilder for FirebaseAuth.instance.authStateChanges() is REMOVED.
     // AuthGate now handles this logic.
 
     return StreamBuilder<String?>(
-      stream: roomService.listenCurrentUserRoomId(),
+      stream: userService.listenCurrentUserRoomId(),
       builder: (context, roomSnapshot) {
         // ... (the rest of your RoomNavigator and RoomStatusNavigator logic remains the same)
         // This part is already well-structured for handling room state changes.

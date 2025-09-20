@@ -14,6 +14,7 @@ import 'package:minddrift/screens/settings_screen.dart';
 import '../services/firebase_service.dart';
 import '../services/room_service.dart';
 import '../services/player_service.dart';
+import '../services/user_service.dart';
 import '../widgets/animated_background.dart';
 import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
@@ -517,8 +518,11 @@ class _HomeScreenState extends State<HomeScreen>
                                 throw Exception('Authentication required to create room. Please restart the app.');
                               }
 
-                              // Get service references BEFORE the dialog to avoid context issues
+                              // Get ALL service references IMMEDIATELY to avoid context issues
                               final roomService = context.read<RoomService>();
+                              final userService = context.read<UserService>();
+                              
+                              // Fetch settings after getting all service references
                               final settings = await firebaseService.fetchRoomCreationSettings();
                               
                               selectedBundles = await _showBundleSelectionDialog();
@@ -527,6 +531,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   saboteurEnabled: settings['saboteurEnabled'] ?? false,
                                   diceRollEnabled: settings['diceRollEnabled'] ?? false,
                                   selectedBundle: selectedBundles.first,
+                                  userService: userService,
                                 );
                                 // Room creation successful - reset loading state
                                 if (mounted) setState(() => _loading = false);
@@ -606,7 +611,9 @@ class _HomeScreenState extends State<HomeScreen>
                                 Navigator.of(context).pop(); // Close bottom sheet
                                 setState(() => _loading = true);
                                 try {
-                                  await context.read<PlayerService>().joinRoom(code);
+                                  final playerService = context.read<PlayerService>();
+                                  final userService = context.read<UserService>();
+                                  await playerService.joinRoom(code, userService: userService);
                                 } catch (e) {
                                   setState(() {
                                     _error = e.toString();
