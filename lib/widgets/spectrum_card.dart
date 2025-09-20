@@ -51,24 +51,27 @@ class SpectrumCard extends StatelessWidget {
             if (startLabel != null && endLabel != null) ...[
               //const SizedBox(height: 16),
               Flexible(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: CategoryTag(
-                        label: startLabel!, 
-                        color: const Color.fromARGB(255, 255, 255, 255)
+                child: Directionality(
+                  textDirection: TextDirection.ltr, // Force LTR to prevent RTL reversal
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: CategoryTag(
+                          label: startLabel!, 
+                          color: const Color.fromARGB(255, 255, 255, 255)
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 150),
-                    Expanded(
-                      child: CategoryTag(
-                        label: endLabel!, 
-                        color: const Color.fromARGB(255, 255, 255, 255)
+                      const SizedBox(width: 150),
+                      Expanded(
+                        child: CategoryTag(
+                          label: endLabel!, 
+                          color: const Color.fromARGB(255, 255, 255, 255)
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ]

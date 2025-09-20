@@ -80,13 +80,13 @@ class PracticeClueDatabase {
           'A puff of smoke',
           'Abracadabra',
           'A magic wand',
-          'A top hat'
+          'A crystal ball'
         ],
         arabic: [
           'نفخة دخان',
           'أبرا كادابرا',
           'عصا سحرية',
-          'قبعة عالية'
+          'كرة بلورية'
         ],
       ),
       // Range 2: 0.2-0.4 (Mostly magic)
@@ -107,16 +107,16 @@ class PracticeClueDatabase {
       // Range 3: 0.4-0.6 (Neutral/Mixed)
       range3: LocalizedClueSet(
         english: [
-          'An optical illusion',
+          'Alchemy',
           'Hypnosis',
-          'Astrology',
-          'Déjà vu'
+          'Déjà vu',
+          'The placebo effect'
         ],
         arabic: [
-          'وهم بصري',
+          'الكيمياء القديمة',
           'تنويم مغناطيسي',
-          'علم التنجيم',
-          'شعور سابق'
+          'شعور سابق',
+          'تأثير الدواء الوهمي'
         ],
       ),
       // Range 4: 0.6-0.8 (Mostly science)
@@ -139,14 +139,14 @@ class PracticeClueDatabase {
         english: [
           'A lab coat',
           'E = mc²',
-          'A beaker',
-          'The periodic table'
+          'A microscope',
+          'DNA'
         ],
         arabic: [
           'معطف المختبر',
           'E = mc²',
-          'كوب مخبري',
-          'الجدول الدوري'
+          'ميكروسكوب',
+          'الحمض النووي'
         ],
       ),
     ),
@@ -155,16 +155,16 @@ class PracticeClueDatabase {
       // Range 1: 0.0-0.2 (MYTH side)
       range1: LocalizedClueSet(
         english: [
-          'Mount Olympus',
-          'Excalibur',
-          'A golden fleece',
-          'A cyclops\'s eye'
+          'A unicorn',
+          'Zeus',
+          'The Fountain of Youth',
+          'Dragons'
         ],
         arabic: [
-          'جبل الأوليمب',
-          'إكسكاليبر',
-          'صوف ذهبي',
-          'عين العملاق'
+          'وحيد القرن',
+          'زيوس',
+          'نافورة الشباب',
+          'التنانين'
         ],
       ),
       // Range 2: 0.2-0.4 (Mostly myth)
@@ -185,16 +185,16 @@ class PracticeClueDatabase {
       // Range 3: 0.4-0.6 (Neutral/Mixed)
       range3: LocalizedClueSet(
         english: [
-          'Robin Hood',
-          'The Rosetta Stone',
-          'Hieroglyphics',
-          'The Trojan Horse'
+          'The Trojan War',
+          'King Arthur',
+          'Atlantis',
+          'Robin Hood'
         ],
         arabic: [
-          'روبن هود',
-          'حجر رشيد',
-          'الهيروغليفية',
-          'حصان طروادة'
+          'حرب طروادة',
+          'الملك آرثر',
+          'أطلانطس',
+          'روبن هود'
         ],
       ),
       // Range 4: 0.6-0.8 (Mostly history)
@@ -215,16 +215,16 @@ class PracticeClueDatabase {
       // Range 5: 0.8-1.0 (HISTORY side)
       range5: LocalizedClueSet(
         english: [
-          'A fossil',
-          'A birth certificate',
-          'A newspaper headline',
-          'Security camera footage'
+          'The pyramids of Giza',
+          'World War II',
+          'The printing press',
+          'Julius Caesar'
         ],
         arabic: [
-          'أحفورة',
-          'شهادة ميلاد',
-          'عنوان صحيفة',
-          'لقطات كاميرا مراقبة'
+          'أهرامات الجيزة',
+          'الحرب العالمية الثانية',
+          'المطبعة',
+          'يوليوس قيصر'
         ],
       ),
     ),

@@ -40,63 +40,63 @@ class CategoryItem {
 /// Your full catalog: 10 free, 20 horror, 20 kids, etc.
 /// Your full catalog: 10 free, 20 horror, 20 kids, 20 food, 20 nature, 20 fantasy
 const List<CategoryItem> allCategories = [
-  // ─── Free Bundle (10) ───
+  // ─── Free Bundle (Standardized) ───
   CategoryItem(
-    id: 'hot_cold',
+    id: 'hot_cold', // Active (Hot) vs. Passive (Cold)
     left: {'en': 'HOT', 'ar': 'ساخن'},
     right: {'en': 'COLD', 'ar': 'بارد'},
     bundleId: 'bundle.free',
   ),
   CategoryItem(
-    id: 'day_night',
+    id: 'day_night', // Active (Day) vs. Passive (Night)
     left: {'en': 'DAY', 'ar': 'نهار'},
     right: {'en': 'NIGHT', 'ar': 'ليل'},
     bundleId: 'bundle.free',
   ),
   CategoryItem(
-    id: 'happy_sad',
-    left: {'en': 'HAPPY', 'ar': 'سعيد'},
-    right: {'en': 'SAD', 'ar': 'حزين'},
+    id: 'sad_happy', // Negative (Sad) vs. Positive (Happy) - FLIPPED
+    left: {'en': 'SAD', 'ar': 'حزين'},
+    right: {'en': 'HAPPY', 'ar': 'سعيد'},
     bundleId: 'bundle.free',
   ),
   CategoryItem(
-    id: 'big_small',
-    left: {'en': 'BIG', 'ar': 'كبير'},
-    right: {'en': 'SMALL', 'ar': 'صغير'},
+    id: 'small_big', // Smaller unit vs. Larger unit - FLIPPED
+    left: {'en': 'SMALL', 'ar': 'صغير'},
+    right: {'en': 'BIG', 'ar': 'كبير'},
     bundleId: 'bundle.free',
   ),
   CategoryItem(
-    id: 'young_old',
+    id: 'young_old', // Start of life vs. End of life
     left: {'en': 'YOUNG', 'ar': 'شاب'},
     right: {'en': 'OLD', 'ar': 'عجوز'},
     bundleId: 'bundle.free',
   ),
   CategoryItem(
-    id: 'fast_slow',
+    id: 'fast_slow', // High energy vs. Low energy
     left: {'en': 'FAST', 'ar': 'سريع'},
     right: {'en': 'SLOW', 'ar': 'بطيء'},
     bundleId: 'bundle.free',
   ),
   CategoryItem(
-    id: 'sweet_sour',
-    left: {'en': 'SWEET', 'ar': 'حلو'},
-    right: {'en': 'SOUR', 'ar': 'حامض'},
+    id: 'sour_sweet', // Aversive taste vs. Pleasant taste - FLIPPED
+    left: {'en': 'SOUR', 'ar': 'حامض'},
+    right: {'en': 'SWEET', 'ar': 'حلو'},
     bundleId: 'bundle.free',
   ),
   CategoryItem(
-    id: 'rich_poor',
-    left: {'en': 'RICH', 'ar': 'غني'},
-    right: {'en': 'POOR', 'ar': 'فقير'},
+    id: 'poor_rich', // Less vs. More - FLIPPED
+    left: {'en': 'POOR', 'ar': 'فقير'},
+    right: {'en': 'RICH', 'ar': 'غني'},
     bundleId: 'bundle.free',
   ),
   CategoryItem(
-    id: 'soft_hard',
-    left: {'en': 'SOFT', 'ar': 'ناعم'},
-    right: {'en': 'HARD', 'ar': 'قاسي'},
+    id: 'hard_soft', // Resistant vs. Yielding - FLIPPED
+    left: {'en': 'HARD', 'ar': 'قاسي'},
+    right: {'en': 'SOFT', 'ar': 'ناعم'},
     bundleId: 'bundle.free',
   ),
   CategoryItem(
-    id: 'near_far',
+    id: 'near_far', // Close vs. Distant
     left: {'en': 'NEAR', 'ar': 'قريب'},
     right: {'en': 'FAR', 'ar': 'بعيد'},
     bundleId: 'bundle.free',
@@ -366,9 +366,9 @@ const List<CategoryItem> allCategories = [
     bundleId: 'bundle.food',
   ),
   CategoryItem(
-    id: 'fresh_stale',
-    left: {'en': 'FRESH', 'ar': 'طازج'},
-    right: {'en': 'STALE', 'ar': 'فاسد'},
+    id: 'stale_fresh', // Stale vs. Fresh - FLIPPED
+    left: {'en': 'STALE', 'ar': 'فاسد'},
+    right: {'en': 'FRESH', 'ar': 'طازج'},
     bundleId: 'bundle.food',
   ),
   CategoryItem(
@@ -384,7 +384,7 @@ const List<CategoryItem> allCategories = [
     bundleId: 'bundle.food',
   ),
   CategoryItem(
-    id: 'bitter_sweet',
+    id: 'bitter_sweet', // Aversive vs. Pleasant - Already correct
     left: {'en': 'BITTER', 'ar': 'مر'},
     right: {'en': 'SWEET', 'ar': 'حلو'},
     bundleId: 'bundle.food',
@@ -396,9 +396,9 @@ const List<CategoryItem> allCategories = [
     bundleId: 'bundle.food',
   ),
   CategoryItem(
-    id: 'rich_plain',
-    left: {'en': 'RICH', 'ar': 'غني'},
-    right: {'en': 'PLAIN', 'ar': 'بسيط'},
+    id: 'plain_rich', // Plain vs. Rich - FLIPPED
+    left: {'en': 'PLAIN', 'ar': 'بسيط'},
+    right: {'en': 'RICH', 'ar': 'غني'},
     bundleId: 'bundle.food',
   ),
   CategoryItem(
@@ -438,33 +438,33 @@ const List<CategoryItem> allCategories = [
     bundleId: 'bundle.food',
   ),
   CategoryItem(
-    id: 'delicious_disgusting',
-    left: {'en': 'DELICIOUS', 'ar': 'لذيذ'},
-    right: {'en': 'DISGUSTING', 'ar': 'مقرف'},
+    id: 'disgusting_delicious', // Disgusting vs. Delicious - FLIPPED
+    left: {'en': 'DISGUSTING', 'ar': 'مقرف'},
+    right: {'en': 'DELICIOUS', 'ar': 'لذيذ'},
     bundleId: 'bundle.food',
   ),
   CategoryItem(
-    id: 'healthy_unhealthy',
-    left: {'en': 'HEALTHY', 'ar': 'صحي'},
-    right: {'en': 'UNHEALTHY', 'ar': 'غير صحي'},
+    id: 'unhealthy_healthy', // Unhealthy vs. Healthy - FLIPPED
+    left: {'en': 'UNHEALTHY', 'ar': 'غير صحي'},
+    right: {'en': 'HEALTHY', 'ar': 'صحي'},
     bundleId: 'bundle.food',
   ),
   CategoryItem(
-    id: 'natural_artificial',
-    left: {'en': 'NATURAL', 'ar': 'طبيعي'},
-    right: {'en': 'ARTIFICIAL', 'ar': 'اصطناعي'},
+    id: 'artificial_natural', // Artificial vs. Natural - FLIPPED
+    left: {'en': 'ARTIFICIAL', 'ar': 'اصطناعي'},
+    right: {'en': 'NATURAL', 'ar': 'طبيعي'},
     bundleId: 'bundle.food',
   ),
   CategoryItem(
-    id: 'appealing_unappealing',
-    left: {'en': 'APPEALING', 'ar': 'جذاب'},
-    right: {'en': 'UNAPPEALING', 'ar': 'غير جذاب'},
+    id: 'unappealing_appealing', // Unappealing vs. Appealing - FLIPPED
+    left: {'en': 'UNAPPEALING', 'ar': 'غير جذاب'},
+    right: {'en': 'APPEALING', 'ar': 'جذاب'},
     bundleId: 'bundle.food',
   ),
   CategoryItem(
-    id: 'balanced_unbalanced',
-    left: {'en': 'BALANCED', 'ar': 'متوازن'},
-    right: {'en': 'UNBALANCED', 'ar': 'غير متوازن'},
+    id: 'unbalanced_balanced', // Unbalanced vs. Balanced - FLIPPED
+    left: {'en': 'UNBALANCED', 'ar': 'غير متوازن'},
+    right: {'en': 'BALANCED', 'ar': 'متوازن'},
     bundleId: 'bundle.food',
   ),
 

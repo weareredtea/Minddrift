@@ -342,8 +342,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
           SizedBox(
             height: 300, // Standard height from original
             child: SoloSpectrumCard(
-              startLabel: category.getLeftText('en'),
-              endLabel: category.getRightText('en'),
+              startLabel: category.getLeftText(Localizations.localeOf(context).languageCode),
+              endLabel: category.getRightText(Localizations.localeOf(context).languageCode),
               child: RadialSpectrumWidget(
                 value: _currentValue,
                 onChanged: _isSubmitting ? (value) {} : (value) {
