@@ -7,6 +7,7 @@ import 'package:minddrift/widgets/keyboard_aware_scroll_view.dart';
 // Import for DocumentSnapshot
 
 import '../services/firebase_service.dart';
+import '../providers/game_state_provider.dart';
 import '../services/category_service.dart'; // Import CategoryService for localization
 import '../models/round.dart'; // Import Round model for category data
 import '../theme/app_theme.dart'; // Import for AppColors
@@ -176,7 +177,8 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fb = context.read<FirebaseService>();
+    final gameState = context.watch<GameStateProvider>().state;
+    final gameProvider = context.read<GameStateProvider>();
     final loc = AppLocalizations.of(context)!;
     final roomId = widget.roomId;
 
@@ -194,15 +196,26 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
         children: [
           SafeArea(
             bottom: false, // Don't add bottom safe area, we'll handle it manually
-            child: StreamBuilder<Round>(
-        stream: fb.listenCurrentRound(roomId),
-        builder: (ctx, snap) {
-          if (!snap.hasData || snap.data!.secretPosition == null || snap.data!.categoryLeft == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final currentRound = snap.data!;
-          final secretPos = currentRound.secretPosition!.toDouble();
-                          final categoryId = currentRound.categoryId ?? '';
+            child: Builder(
+              builder: (ctx) {
+                // Check if we have the essential round data
+                final currentRound = gameState.currentRound;
+                if (currentRound.secretPosition == null || 
+                    currentRound.categoryLeft == null || 
+                    currentRound.categoryId == null) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Setting up round...', style: TextStyle(color: Colors.white70)),
+                      ],
+                    ),
+                  );
+                }
+                final secretPos = currentRound.secretPosition!.toDouble();
+                final categoryId = currentRound.categoryId!; // We already checked it's not null
                 final categoryLeft = CategoryService.getLocalizedCategoryText(context, categoryId, true);
                 final categoryRight = CategoryService.getLocalizedCategoryText(context, categoryId, false);
           final effect = currentRound.effect; // Get the effect
@@ -294,8 +307,8 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                       : () async {
                           setState(() => _submitting = true);
                           // If 'No Clue' effect, submit empty clue
-                          await fb.submitClue(
-                              roomId, secretPos.round(), isNoClueEffect ? '' : _clue);
+                          await gameProvider.submitClue(
+                              secretPos.round(), isNoClueEffect ? '' : _clue);
                           setState(() => _submitting = false);
                         },
                   style: ElevatedButton.styleFrom(
@@ -316,8 +329,8 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                 ),
               ],
             );
-        },
-      ),
+              },
+            ),
     ),
           // Global Chat Overlay
           GlobalChatOverlay(

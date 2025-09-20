@@ -1,11 +1,9 @@
 // lib/screens/role_reveal_screen.dart
 
 import 'dart:math';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/firebase_service.dart';
-import '../services/player_service.dart';
+import '../providers/game_state_provider.dart';
 import '../models/round.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -59,7 +57,8 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
-    final fb = context.watch<FirebaseService>();
+    final gameState = context.watch<GameStateProvider>().state;
+    final gameProvider = context.read<GameStateProvider>();
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -82,13 +81,12 @@ void initState() {
                       : Transform(
                           transform: Matrix4.identity()..rotateY(pi),
                           alignment: Alignment.center,
-                          child: StreamBuilder<Role>(
-                            stream: context.watch<PlayerService>().listenMyRole(widget.roomId),
-                            builder: (context, snapshot) {
-                              final myRole = snapshot.data ?? Role.Seeker;
-                              return RoleCard(role: myRole);
-                            },
-                          ),
+                          child: RoleCard(role: gameState.myPlayerStatus?.role != null 
+                              ? Role.values.firstWhere(
+                                  (e) => e.toString().split('.').last.toLowerCase() == gameState.myPlayerStatus!.role!.toLowerCase(),
+                                  orElse: () => Role.Seeker,
+                                )
+                              : Role.Seeker),
                         ),
                 );
               },
@@ -96,31 +94,31 @@ void initState() {
             const SizedBox(height: 40),
             // --- MODIFIED: Show Continue button for host after animation ---
             if (_animationComplete)
-              StreamBuilder<Role>(
-                stream: context.watch<PlayerService>().listenMyRole(widget.roomId),
-                builder: (context, roleSnap) {
-                  final myRole = roleSnap.data ?? Role.Seeker;
+              Builder(
+                builder: (context) {
+                  final myRole = gameState.myPlayerStatus?.role != null 
+                      ? Role.values.firstWhere(
+                          (e) => e.toString().split('.').last.toLowerCase() == gameState.myPlayerStatus!.role!.toLowerCase(),
+                          orElse: () => Role.Seeker,
+                        )
+                      : Role.Seeker;
                   
-                  return FutureBuilder<DocumentSnapshot<Map<String,dynamic>>>(
-                    future: fb.roomDocRef(widget.roomId).get(),
-                    builder: (context, roomSnap) {
-                      final isHost = roomSnap.hasData && roomSnap.data?['creator'] == fb.currentUserUid;
-                      if (isHost) {
-                        // Get role-based color for the continue button
-                        Color buttonColor;
-                        switch (myRole) {
-                          case Role.Navigator:
-                            buttonColor = AppColors.accent; // Teal
-                            break;
-                          case Role.Saboteur:
-                            buttonColor = AppColors.accentVariant; // Electric Pink/Magenta
-                            break;
-                          default: // Role.Seeker
-                            buttonColor = AppColors.primary; // Deep Purple
-                        }
+                  if (gameState.isHost) {
+                    // Get role-based color for the continue button
+                    Color buttonColor;
+                    switch (myRole) {
+                      case Role.Navigator:
+                        buttonColor = AppColors.accent; // Teal
+                        break;
+                      case Role.Saboteur:
+                        buttonColor = AppColors.accentVariant; // Electric Pink/Magenta
+                        break;
+                      default: // Role.Seeker
+                        buttonColor = AppColors.primary; // Deep Purple
+                    }
                         
                         return ElevatedButton(
-                          onPressed: () => fb.transitionAfterRoleReveal(widget.roomId),
+                          onPressed: () => gameProvider.transitionAfterRoleReveal(widget.roomId),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: buttonColor,
                             foregroundColor: AppColors.onPrimary,
@@ -130,8 +128,6 @@ void initState() {
                       } else {
                         return Text(loc.waitingForHostToContinue);
                       }
-                    },
-                  );
                 },
               )
           ],

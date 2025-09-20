@@ -1,12 +1,13 @@
 // lib/widgets/auth_gate.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/auth_provider.dart';
 import '../screens/home_screen.dart';
-import '../services/firebase_service.dart';
 import '../services/player_service.dart';
+import '../services/room_service.dart';
+import '../services/game_service.dart';
 import '../services/user_service.dart';
+import '../providers/game_state_provider.dart';
 import '../screens/lobby_screen.dart';
 import '../screens/role_reveal_screen.dart';
 import '../screens/dice_roll_screen.dart';
@@ -125,51 +126,52 @@ class RoomStatusNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fb = context.watch<FirebaseService>();
+    // --- THIS IS THE KEY CHANGE ---
+    // We create ONE GameStateProvider here. It will be available to ALL
+    // screens inside the room (Lobby, Game, Result, etc.).
+    return ChangeNotifierProvider(
+      create: (ctx) => GameStateProvider(
+        roomId: roomId,
+        authProvider: ctx.read<AuthProvider>(),
+        roomService: ctx.read<RoomService>(),
+        playerService: ctx.read<PlayerService>(),
+        gameService: ctx.read<GameService>(),
+      ),
+      child: Consumer<GameStateProvider>(
+        builder: (context, gameStateProvider, child) {
+          final status = gameStateProvider.state.roomStatus;
 
-    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      stream: fb.roomDocRef(roomId).snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const HomeScreen();
-        }
+          // If the state is still loading, show a loading indicator.
+          if (status == 'loading') {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
 
-        final roomData = snapshot.data!.data()!;
-        final status = roomData['status'] as String? ?? 'lobby';
-
-        // --- UPDATED NAVIGATION LOGIC ---
-        switch (status) {
-          case 'lobby':
-            return LobbyScreen(roomId: roomId);
-          
-          case 'role_reveal':
-            return RoleRevealScreen(roomId: roomId);
-          
-          case 'dice_roll':
-            return DiceRollScreen(roomId: roomId);
-
-          case 'clue_submission':
-            // Role-based navigation: Navigator gets SetupRoundScreen, Seekers get WaitingClueScreen
-            return _RoleBasedNavigator(
-              roomId: roomId,
-              navigatorScreen: SetupRoundScreen(roomId: roomId),
-              seekerScreen: WaitingClueScreen(roomId: roomId),
-            );
-
-          case 'guessing':
-            // Both Navigator and Seekers get GuessRoundScreen (role logic handled internally)
-            return GuessRoundScreen(roomId: roomId);
-
-          case 'round_end':
-            return ResultScreen(roomId: roomId);
-            
-          case 'match_end':
-            return MatchSummaryScreen(roomId: roomId);
-
-          default:
-            return const HomeScreen();
-        }
-      },
+          // The switch statement now simply picks a screen.
+          // All screens will get their state from the provider.
+          switch (status) {
+            case 'lobby':
+              return LobbyScreen(roomId: roomId);
+            case 'role_reveal':
+              return RoleRevealScreen(roomId: roomId);
+            case 'dice_roll':
+              return DiceRollScreen(roomId: roomId);
+            case 'clue_submission':
+              return _RoleBasedNavigator(
+                roomId: roomId,
+                navigatorScreen: SetupRoundScreen(roomId: roomId),
+                seekerScreen: WaitingClueScreen(roomId: roomId),
+              );
+            case 'guessing':
+              return GuessRoundScreen(roomId: roomId);
+            case 'round_end':
+              return ResultScreen(roomId: roomId);
+            case 'match_end':
+              return MatchSummaryScreen(roomId: roomId);
+            default:
+              return const HomeScreen();
+          }
+        },
+      ),
     );
   }
 }

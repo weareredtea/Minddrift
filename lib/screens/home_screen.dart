@@ -522,22 +522,24 @@ class _HomeScreenState extends State<HomeScreen>
                               final roomService = context.read<RoomService>();
                               final userService = context.read<UserService>();
                               
-                              // Fetch settings after getting all service references
+                              // Show dialog FIRST before any async operations
+                              selectedBundles = await _showBundleSelectionDialog();
+                              if (selectedBundles == null || selectedBundles.isEmpty) {
+                                if (mounted) setState(() => _loading = false);
+                                return;
+                              }
+                              
+                              // Fetch settings after dialog is closed
                               final settings = await firebaseService.fetchRoomCreationSettings();
                               
-                              selectedBundles = await _showBundleSelectionDialog();
-                              if (selectedBundles != null && selectedBundles.isNotEmpty) {
-                                await roomService.createRoom(
-                                  saboteurEnabled: settings['saboteurEnabled'] ?? false,
-                                  diceRollEnabled: settings['diceRollEnabled'] ?? false,
-                                  selectedBundle: selectedBundles.first,
-                                  userService: userService,
-                                );
-                                // Room creation successful - reset loading state
-                                if (mounted) setState(() => _loading = false);
-                              } else {
-                                if (mounted) setState(() => _loading = false);
-                              }
+                              await roomService.createRoom(
+                                saboteurEnabled: settings['saboteurEnabled'] ?? false,
+                                diceRollEnabled: settings['diceRollEnabled'] ?? false,
+                                selectedBundle: selectedBundles.first,
+                                userService: userService,
+                              );
+                              // Room creation successful - reset loading state
+                              if (mounted) setState(() => _loading = false);
                             } catch (e) {
                               if (mounted) {
                                 setState(() {

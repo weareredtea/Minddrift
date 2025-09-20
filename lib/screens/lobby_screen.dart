@@ -7,8 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../services/firebase_service.dart';
 import '../services/navigation_service.dart';
-import '../services/player_service.dart';
-import '../pigeon/pigeon.dart';
+import '../providers/game_state_provider.dart';
+import '../models/game_state.dart';
 import '../widgets/bundle_indicator.dart';
 import '../widgets/language_toggle.dart';
 import '../services/category_service.dart';
@@ -164,7 +164,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fb = context.read<FirebaseService>();
+    // --- GET EVERYTHING FROM THE PROVIDER ---
+    final gameState = context.watch<GameStateProvider>().state;
+    final gameProvider = context.read<GameStateProvider>();
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -194,7 +196,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   const SizedBox(height: 24),
                   
                   // Bundle Info Section
-                  _buildBundleSection(fb),
+                  _buildBundleSection(gameState.roomId),
                   const SizedBox(height: 24),
                   
                   // Match Settings Section
@@ -202,12 +204,12 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   const SizedBox(height: 24),
                   
                   // Players Section
-                  Expanded(child: _buildPlayersSection(fb, loc)),
+                  Expanded(child: _buildPlayersSection(loc, gameState.players)),
                   
                   const SizedBox(height: 16),
                   
                   // Ready Button
-                  _buildReadyButton(loc),
+                  _buildReadyButton(loc, gameProvider, gameState),
                 ],
               ),
             ),
@@ -266,9 +268,9 @@ class _LobbyScreenState extends State<LobbyScreen> {
     );
   }
 
-  Widget _buildBundleSection(FirebaseService fb) {
+  Widget _buildBundleSection(String roomId) {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      stream: fb.roomDocRef(widget.roomId).snapshots(),
+      stream: FirebaseFirestore.instance.collection('rooms').doc(roomId).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data!.data() != null) {
           final selectedBundle = snapshot.data!.data()!['selectedBundle'] as String?;
@@ -463,7 +465,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     );
   }
 
-  Widget _buildPlayersSection(FirebaseService fb, AppLocalizations loc) {
+  Widget _buildPlayersSection(AppLocalizations loc, List<PlayerStatus> players) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -482,122 +484,76 @@ class _LobbyScreenState extends State<LobbyScreen> {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: FutureBuilder<List<PigeonUserDetails>>(
-              future: fb.fetchPlayers(widget.roomId),
-              builder: (ctx, snap) {
-                if (snap.connectionState != ConnectionState.done) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snap.hasError) {
-                  return Text(loc.error(snap.error.toString()));
-                }
-                final players = snap.data!;
-                if (players.isEmpty) {
-                  return Text(loc.waitingForPlayersToJoin);
-                }
-                return ListView.builder(
-                  itemCount: players.length,
-                  itemBuilder: (_, i) {
-                    final u = players[i];
-                    return ListTile(
-                      leading: const Icon(Icons.person),
-                      title: Text(u.displayName),
-                      subtitle: Text('${loc.uid(u.uid.substring(0, 8))}...'),
-                    );
-                  },
-                );
-              },
-            ),
+            child: players.isEmpty 
+                ? Center(child: Text(loc.waitingForPlayersToJoin))
+                : ListView.builder(
+                    itemCount: players.length,
+                    itemBuilder: (_, i) {
+                      final player = players[i];
+                      return ListTile(
+                        leading: const Icon(Icons.person),
+                        title: Text(player.displayName),
+                        subtitle: Text('${loc.uid(player.uid.substring(0, 8))}...'),
+                        trailing: player.ready 
+                            ? const Icon(Icons.check_circle, color: Colors.green)
+                            : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildReadyButton(AppLocalizations loc) {
-    final fb = context.read<FirebaseService>();
-    
-    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      stream: fb.roomDocRef(widget.roomId).snapshots(),
-      builder: (context, roomSnap) {
-        if (!roomSnap.hasData) {
-          return const SizedBox.shrink();
-        }
+  Widget _buildReadyButton(
+    AppLocalizations loc,
+    GameStateProvider gameProvider,
+    GameState gameState,
+  ) {
+    final me = gameState.myPlayerStatus;
+    if (me == null) return const SizedBox.shrink(); // Not in the game yet
+
+    final isHost = gameState.isHost;
+    final allReady = gameState.allPlayersReady;
+
+    return Column(
+      children: [
+        // "I'm Ready" button for all players
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: () => gameProvider.setReady(!me.ready), // <-- ACTION
+            style: ElevatedButton.styleFrom(
+              backgroundColor: me.ready ? Colors.green : null,
+            ),
+            child: Text(
+              me.ready ? loc.ready : loc.imHereLetsGetReady,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
         
-        final roomData = roomSnap.data?.data();
-        final hostUid = roomData?['creator'] as String? ?? '';
-        final isHost = hostUid == fb.currentUserUid;
-        
-        return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: fb.playersColRef(widget.roomId).snapshots(),
-          builder: (context, playersSnap) {
-            if (!playersSnap.hasData) {
-              return const SizedBox.shrink();
-            }
-            
-            final players = playersSnap.data!.docs
-                .map((doc) => PlayerStatus.fromSnapshot(doc))
-                .toList();
-            
-            final me = players.firstWhere(
-              (p) => p.uid == fb.currentUserUid,
-              orElse: () => PlayerStatus(
-                uid: fb.currentUserUid,
-                displayName: loc.you,
-                ready: false,
-                online: true,
-                guessReady: false,
-                avatarId: 'bear'
+        // "All Ready Start Round" button for host only
+        if (isHost) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: allReady ? () => gameProvider.startRound() : null, // <-- ACTION
+              style: ElevatedButton.styleFrom(
+                backgroundColor: allReady ? Colors.blue : Colors.grey,
               ),
-            );
-            
-            final allPlayersReady = players.isNotEmpty && players.every((p) => p.ready);
-            
-            return Column(
-              children: [
-                // "I'm Ready" button for all players
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        context.read<PlayerService>().setReady(widget.roomId, !me.ready);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: me.ready ? Colors.green : null,
-                      ),
-                      child: Text(
-                        me.ready ? loc.ready : loc.imHereLetsGetReady,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                
-                // "All Ready Start Round" button for host only
-                if (isHost) ...[
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: allPlayersReady ? () {
-                        fb.startRound(widget.roomId);
-                      } : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: allPlayersReady ? Colors.blue : Colors.grey,
-                      ),
-                      child: Text(
-                        allPlayersReady ? loc.allReadyStartRound : loc.waitingForPlayers,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            );
-          },
-        );
-      },
+              child: Text(
+                allReady ? loc.allReadyStartRound : loc.waitingForPlayers,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

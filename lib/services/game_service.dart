@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:minddrift/models/round.dart';
 import 'package:minddrift/providers/auth_provider.dart';
+import 'package:minddrift/services/category_service.dart';
 
 class GameService {
   final FirebaseFirestore _db;
@@ -233,6 +234,16 @@ class GameService {
         });
       }
 
+      // Select a random category for this round
+      final selectedBundle = roomData['selectedBundle'] as String? ?? 'bundle.free';
+      final usedCategoryIds = List<String>.from(roomData['usedCategoryIds'] ?? []);
+      final ownedBundles = {selectedBundle}; // For now, just use the selected bundle
+      
+      final selectedCategory = CategoryService.getRandomCategory(ownedBundles, usedCategoryIds);
+      if (selectedCategory == null) {
+        throw Exception('No categories available for bundle: $selectedBundle');
+      }
+
       // Update room document
       batch.update(_roomDocRef(roomId), {
         'currentRoundNumber': currentRoundNumber,
@@ -240,7 +251,11 @@ class GameService {
         'playerOrder': playerOrder,
         'saboteurId': saboteurUid,
         'status': 'role_reveal',
+        'usedCategoryIds': usedCategoryIds..add(selectedCategory.id), // Add the selected category to used list
       });
+      
+      // Generate a random secret position (0-100)
+      final secretPosition = _rnd.nextInt(101);
 
       // Create round document
       batch.set(_roundDocRef(roomId), {
@@ -257,8 +272,11 @@ class GameService {
         'saboteurUid': saboteurUid,
         'clue': '',
         'groupGuessPosition': 50,
-        'secretPosition': 0,
+        'secretPosition': secretPosition,
         'roundNumber': currentRoundNumber,
+        'categoryId': selectedCategory.id,
+        'categoryLeft': selectedCategory.getLeftText('en'),
+        'categoryRight': selectedCategory.getRightText('en'),
       });
 
       await batch.commit();
