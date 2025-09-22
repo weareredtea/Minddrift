@@ -25,6 +25,7 @@ class _DraggableChatWidgetState extends State<DraggableChatWidget> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
+  int _unreadCount = 0;
 
   @override
   void dispose() {
@@ -87,27 +88,34 @@ class _DraggableChatWidgetState extends State<DraggableChatWidget> {
     final isMe = message.senderId == FirebaseAuth.instance.currentUser?.uid;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       child: Row(
         mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           if (!isMe) ...[
             CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.grey[700],
+              radius: 18,
+              backgroundColor: Colors.white.withOpacity(0.1),
               child: Text(
                 message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : '?',
-                style: const TextStyle(fontSize: 12, color: Colors.white),
+                style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(width: 8),
           ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isMe ? Colors.blue[600] : Colors.grey[800],
-                borderRadius: BorderRadius.circular(18),
+                color: isMe ? Colors.amber[600] : const Color(0xFF1A1A2E),
+                borderRadius: BorderRadius.circular(20).copyWith(
+                  bottomLeft: isMe ? const Radius.circular(20) : const Radius.circular(4),
+                  bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(20),
+                ),
+                border: Border.all(
+                  color: isMe ? Colors.amber[400]!.withOpacity(0.3) : Colors.white.withOpacity(0.1),
+                  width: 1,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,20 +125,24 @@ class _DraggableChatWidgetState extends State<DraggableChatWidget> {
                       message.senderName,
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
+                  if (!isMe) const SizedBox(height: 4),
                   Text(
                     message.content,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                    ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
                     _formatTime(message.timestamp),
                     style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey[400],
+                      fontSize: 11,
+                      color: Colors.white.withOpacity(0.6),
                     ),
                   ),
                 ],
@@ -140,11 +152,11 @@ class _DraggableChatWidgetState extends State<DraggableChatWidget> {
           if (isMe) ...[
             const SizedBox(width: 8),
             CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.blue[600],
+              radius: 18,
+              backgroundColor: Colors.amber[600],
               child: Text(
                 message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : '?',
-                style: const TextStyle(fontSize: 12, color: Colors.white),
+                style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -168,216 +180,98 @@ class _DraggableChatWidgetState extends State<DraggableChatWidget> {
     }
   }
 
-  Widget _buildChatPopup(BuildContext context, ChatProvider chatProvider, Size screenSize) {
-    // Calculate popup position based on button position
-    final buttonX = chatProvider.buttonPosition.dx * screenSize.width;
-    final buttonY = chatProvider.buttonPosition.dy * screenSize.height;
+  // NEW: Heads-Up Display Chat Bubble
+  Widget _buildChatBubble(BuildContext context, ChatProvider chatProvider) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final safeArea = MediaQuery.of(context).padding;
     
-    // Chat popup dimensions
-    const chatWidth = 320.0;
-    const chatHeight = 400.0;
-    const buttonSize = 56.0;
-    
-    // Calculate popup position to appear next to button
-    double popupLeft = buttonX + buttonSize + 8;
-    double popupTop = buttonY - chatHeight / 2;
-    
-    // Adjust if popup would go off screen
-    if (popupLeft + chatWidth > screenSize.width) {
-      popupLeft = buttonX - chatWidth - 8; // Show on left side of button
-    }
-    if (popupTop < 0) {
-      popupTop = 8; // Minimum top padding
-    }
-    if (popupTop + chatHeight > screenSize.height) {
-      popupTop = screenSize.height - chatHeight - 8; // Maximum bottom padding
-    }
+    // Calculate actual button position
+    final buttonX = chatProvider.buttonPosition.dx * (screenWidth - 64);
+    final buttonY = chatProvider.buttonPosition.dy * (screenHeight - safeArea.top - safeArea.bottom - 64) + safeArea.top;
     
     return Positioned(
-      left: popupLeft,
-      top: popupTop,
-      child: Material(
-        elevation: 8,
+      left: buttonX,
+      top: buttonY,
+      child: Draggable(
+        feedback: _chatBubbleContent(context, isDragging: true),
+        childWhenDragging: const SizedBox.shrink(),
+        onDragEnd: (details) {
+          final RenderBox renderBox = context.findRenderObject() as RenderBox;
+          final localPosition = renderBox.globalToLocal(details.offset);
+          
+          final relativeX = (localPosition.dx / (screenWidth - 64)).clamp(0.0, 1.0);
+          final relativeY = ((localPosition.dy - safeArea.top) / (screenHeight - safeArea.top - safeArea.bottom - 64)).clamp(0.0, 1.0);
+          
+          chatProvider.updateButtonPosition(Offset(relativeX, relativeY));
+        },
+        child: _chatBubbleContent(context),
+      ),
+    );
+  }
+  
+  Widget _chatBubbleContent(BuildContext context, {bool isDragging = false}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        splashColor: Colors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: chatWidth,
-          height: chatHeight,
+        onTap: () {
+          context.read<ChatProvider>().expandChat();
+          _showChatPanel(context);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey[900],
+            color: const Color(0xFF1A1A2E).withOpacity(isDragging ? 0.7 : 0.9),
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.amber[400]!.withOpacity(0.6),
+              width: 2,
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
               ),
             ],
           ),
-          child: Column(
+          child: Stack(
             children: [
-              // Chat header
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
+              const Icon(
+                Icons.chat_bubble_outline,
+                color: Colors.white,
+                size: 28,
+              ),
+              // Notification badge for unread messages
+              if (_unreadCount > 0)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red[600],
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                    child: Text(
+                      _unreadCount > 99 ? '99+' : _unreadCount.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.chat, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${widget.roomName} Chat',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: chatProvider.collapseChat,
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      iconSize: 20,
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Messages list
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('chat_messages')
-                      .where('roomId', isEqualTo: widget.roomId)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Error loading messages: ${snapshot.error}',
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      );
-                    }
-
-                    if (!snapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-
-                    final messages = snapshot.data!.docs
-                        .map((doc) => ChatMessage.fromFirestore(doc))
-                        .toList()
-                      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
-                    if (messages.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.chat_bubble_outline,
-                              size: 48,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'No messages yet',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Start the conversation!',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        final message = messages[index];
-                        return _buildMessageBubble(message);
-                      },
-                    );
-                  },
-                ),
-              ),
-              
-              // Message input
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          hintText: 'Type a message...',
-                          hintStyle: TextStyle(color: Colors.grey[400]),
-                          filled: true,
-                          fillColor: Colors.grey[700],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                        style: const TextStyle(color: Colors.white),
-                        maxLines: null,
-                        onSubmitted: (_) => _sendMessage(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue[600],
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: IconButton(
-                        onPressed: _isLoading ? null : _sendMessage,
-                        icon: _isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            : const Icon(Icons.send, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
@@ -385,101 +279,230 @@ class _DraggableChatWidgetState extends State<DraggableChatWidget> {
     );
   }
 
+  // NEW: Slide-in Chat Panel
+  void _showChatPanel(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.7,
+            minChildSize: 0.3,
+            maxChildSize: 0.9,
+            builder: (_, scrollController) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF2A2D3E),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: Column(
+                  children: [
+                    // Header with drag handle
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const SizedBox(width: 48),
+                              Text(
+                                '${widget.roomName} Chat',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close, color: Colors.white70),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  context.read<ChatProvider>().collapseChat();
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1, color: Colors.white24),
+                    
+                    // Messages list
+                    Expanded(
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('chat_messages')
+                            .where('roomId', isEqualTo: widget.roomId)
+                            .orderBy('timestamp', descending: false)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(
+                                'Error loading messages: ${snapshot.error}',
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            );
+                          }
+
+                          if (!snapshot.hasData) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          final messages = snapshot.data!.docs
+                              .map((doc) => ChatMessage.fromFirestore(doc))
+                              .toList();
+
+                          if (messages.isEmpty) {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(24),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.05),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Icon(
+                                      Icons.chat_bubble_outline,
+                                      size: 48,
+                                      color: Colors.white54,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No messages yet',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Start the conversation!',
+                                    style: TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+
+                          return ListView.builder(
+                            controller: scrollController,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            itemCount: messages.length,
+                            itemBuilder: (context, index) {
+                              final message = messages[index];
+                              return _buildMessageBubble(message);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const Divider(height: 1, color: Colors.white24),
+
+                    // Input area
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: TextField(
+                                controller: _messageController,
+                                decoration: InputDecoration(
+                                  hintText: "Type a message...",
+                                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 16,
+                                  ),
+                                ),
+                                style: const TextStyle(color: Colors.white),
+                                maxLines: null,
+                                onSubmitted: (_) => _sendMessage(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.amber[600],
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.amber[600]!.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: IconButton(
+                              onPressed: _isLoading ? null : _sendMessage,
+                              icon: _isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    )
+                                  : const Icon(Icons.send, color: Colors.white, size: 20),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    ).whenComplete(() {
+      context.read<ChatProvider>().collapseChat();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ChatProvider>(
       builder: (context, chatProvider, child) {
-        final screenSize = MediaQuery.of(context).size;
-        final safeArea = MediaQuery.of(context).padding;
-        
-        // Calculate actual button position
-        final buttonX = chatProvider.buttonPosition.dx * (screenSize.width - 56);
-        final buttonY = chatProvider.buttonPosition.dy * (screenSize.height - safeArea.top - safeArea.bottom - 56) + safeArea.top;
-        
         return Stack(
           children: [
-            // Chat popup (if expanded)
-            if (chatProvider.isChatExpanded)
-              _buildChatPopup(context, chatProvider, screenSize),
-            
-            // Draggable chat button
-            Positioned(
-              left: buttonX,
-              top: buttonY,
-              child: Draggable(
-                feedback: Material(
-                  elevation: 8,
-                  borderRadius: BorderRadius.circular(28),
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.blue[600]?.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: const Icon(Icons.chat, color: Colors.white, size: 24),
-                  ),
-                ),
-                childWhenDragging: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: Colors.blue[600]?.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                  child: const Icon(Icons.chat, color: Colors.white54, size: 24),
-                ),
-                onDragEnd: (details) {
-                  // Convert global position to relative position
-                  final RenderBox renderBox = context.findRenderObject() as RenderBox;
-                  final localPosition = renderBox.globalToLocal(details.offset);
-                  
-                  // Calculate relative position (0.0 to 1.0)
-                  final relativeX = (localPosition.dx / (screenSize.width - 56)).clamp(0.0, 1.0);
-                  final relativeY = ((localPosition.dy - safeArea.top) / (screenSize.height - safeArea.top - safeArea.bottom - 56)).clamp(0.0, 1.0);
-                  
-                  chatProvider.updateButtonPosition(Offset(relativeX, relativeY));
-                },
-                child: GestureDetector(
-                  onTap: chatProvider.toggleChat,
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.blue[600],
-                      borderRadius: BorderRadius.circular(28),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        const Center(
-                          child: Icon(Icons.chat, color: Colors.white, size: 24),
-                        ),
-                        // Unread message indicator (for future use)
-                        // Positioned(
-                        //   top: 8,
-                        //   right: 8,
-                        //   child: Container(
-                        //     width: 12,
-                        //     height: 12,
-                        //     decoration: BoxDecoration(
-                        //       color: Colors.red,
-                        //       borderRadius: BorderRadius.circular(6),
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // Chat bubble (always visible when collapsed)
+            if (!chatProvider.isChatExpanded)
+              _buildChatBubble(context, chatProvider),
           ],
         );
       },
