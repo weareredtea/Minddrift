@@ -53,32 +53,30 @@ class GuessRoundScreen extends StatelessWidget {
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: Card(
-                    elevation: 8,
-                    color: const Color(0xFF1A1A2E), // New unified dark background
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: UnifiedSpectrum(
-                        startLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', true),
-                        endLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', false),
-                        value: (currentRound.groupGuessPosition ?? 50).toDouble(),
-                        // The navigator can see the secret value, others cannot.
-                        secretValue: isNavigator ? (currentRound.secretPosition ?? 50).toDouble() : null,
-                        // The navigator cannot change the guess.
-                        isReadOnly: isNavigator,
-                        onChanged: (newValue) {
-                          // Action: Call the provider method to update the guess.
-                          gameProvider.updateGroupGuess(newValue);
-                        },
-                        showClue: false, // Clue is shown separately above the spectrum
-                      ),
+                const SizedBox(height: 16),
+                Card(
+                  elevation: 8,
+                  color: const Color(0xFF1A1A2E), // New unified dark background
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: UnifiedSpectrum(
+                      startLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', true),
+                      endLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', false),
+                      value: (currentRound.groupGuessPosition ?? 50).toDouble(),
+                      // The navigator can see the secret value, others cannot.
+                      secretValue: isNavigator ? (currentRound.secretPosition ?? 50).toDouble() : null,
+                      // The navigator cannot change the guess.
+                      isReadOnly: isNavigator,
+                      onChanged: (newValue) {
+                        // Action: Call the provider method to update the guess.
+                        gameProvider.updateGroupGuess(newValue);
+                      },
+                      showClue: false, // Clue is shown separately above the spectrum
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 // Seekers' Tray
                 _buildSeekersTray(context, gameState.players),
                 const SizedBox(height: 16),
