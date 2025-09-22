@@ -114,14 +114,15 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
           unselectedLabelColor: Colors.white70,
           indicatorColor: Colors.amber,
           tabs: [
-            Tab(
-              icon: const Icon(Icons.palette),
-              text: AppLocalizations.of(context)!.sliderSkins,
-            ),
-            Tab(
-              icon: const Icon(Icons.military_tech),
-              text: AppLocalizations.of(context)!.badges,
-            ),
+            // Hide slider skins and badges for now
+            // Tab(
+            //   icon: const Icon(Icons.palette),
+            //   text: AppLocalizations.of(context)!.sliderSkins,
+            // ),
+            // Tab(
+            //   icon: const Icon(Icons.military_tech),
+            //   text: AppLocalizations.of(context)!.badges,
+            // ),
             Tab(
               icon: const Icon(Icons.people),
               text: AppLocalizations.of(context)!.avatarPacks,
@@ -191,27 +192,27 @@ class _GemStoreScreenState extends State<GemStoreScreen> with SingleTickerProvid
       );
     }
 
-    return TabBarView(
-      controller: _tabController,
-      children: [
-        _buildSliderSkinsTab(),
-        _buildBadgesTab(),
-        _buildAvatarPacksTab(),
-      ],
-    );
+      return TabBarView(
+        controller: _tabController,
+        children: [
+          // Hide slider skins and badges for now
+          // _buildSliderSkinsTab(),
+          // _buildBadgesTab(),
+          _buildAvatarPacksTab(),
+        ],
+      );
   }
 
-  Widget _buildSliderSkinsTab() {
-    final sliderSkins = CosmeticCatalog.sliderSkins;
-    
-    return _buildItemGrid(sliderSkins);
-  }
+  // Hidden for now - slider skins and badges
+  // Widget _buildSliderSkinsTab() {
+  //   final sliderSkins = CosmeticCatalog.sliderSkins;
+  //   return _buildItemGrid(sliderSkins);
+  // }
 
-  Widget _buildBadgesTab() {
-    final badges = CosmeticCatalog.badges;
-    
-    return _buildItemGrid(badges);
-  }
+  // Widget _buildBadgesTab() {
+  //   final badges = CosmeticCatalog.badges;
+  //   return _buildItemGrid(badges);
+  // }
 
   Widget _buildAvatarPacksTab() {
     final avatarPacks = CosmeticCatalog.getItemsByType(CosmeticType.avatarPack);

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../models/player_wallet.dart';
 import '../widgets/gems_reward_animation.dart';
 import '../services/quest_service.dart';
+import '../data/cosmetic_catalog.dart';
 
 class WalletService {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -450,5 +451,143 @@ class WalletService {
         'achievementId': achievementId,
       });
     }
+  }
+
+  // --- NEW: Real-time Wallet Stream ---
+  static Stream<PlayerWallet> getWalletStream() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      // Return a stream with default wallet for unauthenticated users
+      return Stream.value(PlayerWallet(
+        userId: '',
+        mindGems: 0,
+        totalGemsEarned: 0,
+        totalGemsSpent: 0,
+        lastDailyBonus: DateTime(2000),
+        ownedBadges: const [],
+        ownedSpectrumSkins: const [],
+        activeSpectrumSkin: 'default',
+      ));
+    }
+
+    return _db
+        .collection('player_wallets')
+        .doc(user.uid)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.exists && snapshot.data() != null) {
+        return PlayerWallet.fromFirestore(snapshot);
+      } else {
+        // Return default wallet if document doesn't exist
+        return PlayerWallet(
+          userId: user.uid,
+          lastDailyBonus: DateTime(2000),
+        );
+      }
+    });
+  }
+
+  // --- NEW: Owned Avatar Packs Stream (derived from the wallet stream) ---
+  static Stream<List<String>> getOwnedAvatarPacksStream() {
+    return getWalletStream().map((wallet) => wallet.ownedAvatarPacks);
+  }
+
+  // --- NEW: Avatar Pack Purchase Method ---
+  static Future<bool> purchaseAvatarPack(String packId) async {
+    final pack = CosmeticCatalog.getAvatarPackById(packId);
+    if (pack == null) {
+      print('Error: Pack not found: $packId');
+      return false;
+    }
+
+    final user = _auth.currentUser;
+    if (user == null) {
+      print('Error: User not authenticated');
+      return false;
+    }
+
+    try {
+      bool success = false;
+
+      await _db.runTransaction((transaction) async {
+        final walletRef = _db.collection('player_wallets').doc(user.uid);
+        final walletDoc = await transaction.get(walletRef);
+        
+        if (!walletDoc.exists) {
+          throw Exception('Wallet not found');
+        }
+
+        final currentWallet = PlayerWallet.fromFirestore(walletDoc);
+
+        // Check if user can afford the purchase
+        if (currentWallet.mindGems < pack.gemPrice) {
+          success = false;
+          return;
+        }
+
+        // Check if already owned
+        if (currentWallet.ownedAvatarPacks.contains(pack.packId)) {
+          success = false;
+          return;
+        }
+
+        // Update wallet with purchase
+        final updatedWallet = currentWallet.copyWith(
+          mindGems: currentWallet.mindGems - pack.gemPrice,
+          totalGemsSpent: currentWallet.totalGemsSpent + pack.gemPrice,
+          ownedAvatarPacks: [...currentWallet.ownedAvatarPacks, pack.packId],
+        );
+
+        // Save updated wallet
+        transaction.set(walletRef, updatedWallet.toFirestore());
+
+        // Log purchase transaction
+        final transactionRef = _db
+            .collection('gem_transactions')
+            .doc(user.uid)
+            .collection('transactions')
+            .doc();
+
+        final gemTransaction = GemTransaction(
+          transactionId: transactionRef.id,
+          userId: user.uid,
+          amount: -pack.gemPrice,
+          reason: 'purchase_avatar_pack',
+          timestamp: DateTime.now(),
+          metadata: {
+            'itemId': pack.packId,
+            'itemName': pack.name,
+            'itemType': 'avatar_pack',
+          },
+        );
+
+        transaction.set(transactionRef, gemTransaction.toFirestore());
+        success = true;
+      });
+
+      if (success) {
+        print('Successfully purchased ${pack.name} for ${pack.gemPrice} Gems');
+      } else {
+        print('Failed to purchase ${pack.name}: Insufficient balance or already owned');
+      }
+
+      return success;
+    } catch (e) {
+      print('Error purchasing avatar pack: $e');
+      return false;
+    }
+  }
+
+  // --- NEW: Username Change Spend Method ---
+  static Future<bool> spendGemsForUsernameChange({required int cost}) async {
+    return await spendGems(
+      cost,
+      'username_change',
+      'username_change',
+      metadata: {
+        'cost': cost,
+        'timestamp': DateTime.now().toIso8601String(),
+      },
+    );
   }
 }
