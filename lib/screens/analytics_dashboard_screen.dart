@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 import '../services/analytics_service.dart';
 import '../models/analytics_data.dart';
-// Removed unused import
+import '../l10n/app_localizations.dart';
 
 class AnalyticsDashboardScreen extends StatefulWidget {
   static const routeName = '/analytics-dashboard';
@@ -87,8 +87,8 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen>
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Analytics data copied to clipboard!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.analyticsDataCopiedToClipboard),
             backgroundColor: Colors.green,
           ),
         );
@@ -97,7 +97,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Export failed: $e'),
+            content: Text('${AppLocalizations.of(context)!.exportFailed}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -600,7 +600,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen>
                       ElevatedButton.icon(
                         onPressed: _loadAnalyticsData,
                         icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
+                        label: Text(AppLocalizations.of(context)!.retry),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.amber[600],
                           foregroundColor: Colors.black,

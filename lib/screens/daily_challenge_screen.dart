@@ -61,6 +61,22 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
     return locale.languageCode == 'ar' ? 'Harmattan' : 'Chewy';
   }
 
+  String _getLocalizedDifficulty(String difficulty) {
+    final loc = AppLocalizations.of(context)!;
+    switch (difficulty.toLowerCase()) {
+      case 'easy':
+        return loc.easy;
+      case 'medium':
+        return loc.medium;
+      case 'hard':
+        return loc.hard;
+      case 'expert':
+        return loc.expert;
+      default:
+        return difficulty.toUpperCase();
+    }
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -221,7 +237,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          _todaysChallenge!.difficulty.toUpperCase(),
+                          _getLocalizedDifficulty(_todaysChallenge!.difficulty),
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -275,7 +291,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '"${_todaysChallenge!.clue}"',
+                          '"${_todaysChallenge!.getClue(Localizations.localeOf(context).languageCode)}"',
                           style: TextStyle(
                             color: Colors.amber[300],
                             fontSize: 28,

@@ -35,8 +35,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return const Scaffold(
-        body: Center(child: Text('Please log in to view your profile')),
+      return Scaffold(
+        body: Center(child: Text(AppLocalizations.of(context)!.pleaseLogInToViewProfile)),
       );
     }
 
@@ -75,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 24),
                     _buildProgressCard(
                       context,
-                      title: 'Campaign Progress',
+                      title: AppLocalizations.of(context)!.campaignProgress,
                       progress: 0.75, // TODO: Replace with real data
                       progressText: 'Chapter 4 / 5',
                       icon: Icons.campaign,
@@ -84,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 16),
                     _buildProgressCard(
                       context,
-                      title: 'Achievements',
+                      title: AppLocalizations.of(context)!.achievements,
                       progress: 0.4, // TODO: Replace with real data
                       progressText: '20 / 50 Unlocked',
                       icon: Icons.emoji_events,
@@ -389,7 +389,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Choose Avatar',
+              AppLocalizations.of(context)!.chooseAvatar,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: Colors.white,
                 fontFamily: 'LuckiestGuy',
@@ -399,7 +399,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Avatar selection grid would go here
             // For now, just show a simple message
             Text(
-              'Avatar selection coming soon!',
+              AppLocalizations.of(context)!.avatarSelectionComingSoon,
               style: TextStyle(color: Colors.grey[400]),
             ),
           ],
@@ -416,7 +416,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
         title: Text(
-          'Change Username',
+          AppLocalizations.of(context)!.changeUsername,
           style: TextStyle(
             color: Colors.white,
             fontFamily: 'LuckiestGuy',
@@ -426,7 +426,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Cost: 100 💎',
+              '${AppLocalizations.of(context)!.cost}: 100 💎',
               style: TextStyle(
                 color: Colors.amber,
                 fontFamily: 'LuckiestGuy',
@@ -438,7 +438,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               controller: _usernameController,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: 'Enter new username',
+                hintText: AppLocalizations.of(context)!.enterNewUsername,
                 hintStyle: TextStyle(color: Colors.grey[400]),
                 filled: true,
                 fillColor: Colors.grey[800],
@@ -453,7 +453,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: _isChangingUsername ? null : () => _changeUsername(),
@@ -463,7 +463,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Change'),
+                : Text(AppLocalizations.of(context)!.change),
           ),
         ],
       ),
@@ -506,11 +506,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => _purchaseAvatarPack(packId),
-            child: const Text('Purchase'),
+            child: Text(AppLocalizations.of(context)!.purchase),
           ),
         ],
       ),
@@ -522,8 +522,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await _profileService.updateUserAvatar(avatarId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Avatar changed successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.avatarChangedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -532,7 +532,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error changing avatar: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorChangingAvatar}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -548,8 +548,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Username changed successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.usernameChangedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -558,7 +558,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error changing username: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorChangingUsername}: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -577,15 +577,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Navigator.of(context).pop();
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Avatar pack purchased successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.avatarPackPurchasedSuccessfully),
               backgroundColor: Colors.green,
             ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to purchase avatar pack. Check your gem balance.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.failedToPurchaseAvatarPack),
               backgroundColor: Colors.red,
             ),
           );
@@ -596,7 +596,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error purchasing pack: $e'),
+            content: Text('${AppLocalizations.of(context)!.errorPurchasingPack}: $e'),
             backgroundColor: Colors.red,
           ),
         );

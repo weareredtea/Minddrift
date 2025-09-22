@@ -835,4 +835,170 @@ class AppLocalizationsAr extends AppLocalizations {
   String get campaignSections => 'أقسام الحملة';
   @override
   String get completePreviousSectionToUnlock => 'أكمل القسم السابق بـ 22+ نجمة للفتح';
+
+  // Missing multiplayer strings
+  @override
+  String get testBotRemoved => 'تم إزالة الروبوت التجريبي';
+  
+  @override
+  String get testBotAdded => 'تم إضافة الروبوت التجريبي';
+  
+  @override
+  String get failedToManageBot => 'فشل في إدارة الروبوت';
+  
+  @override
+  String get numberOfRounds => 'عدد الجولات';
+  
+  @override
+  String get backgroundMusic => 'الموسيقى الخلفية';
+  
+  @override
+  String get spectrumTheme => 'مظهر المؤشر';
+  
+  @override
+  String get clue => 'التلميح';
+  
+  @override
+  String get finalizeRound => 'إنهاء الجولة';
+  
+  @override
+  String get pleaseLogInToViewProfile => 'يرجى تسجيل الدخول لعرض ملفك الشخصي';
+  
+  @override
+  String get avatarChangedSuccessfully => 'تم تغيير الصورة الرمزية بنجاح!';
+  
+  @override
+  String get errorChangingAvatar => 'خطأ في تغيير الصورة الرمزية';
+  
+  @override
+  String get usernameChangedSuccessfully => 'تم تغيير اسم المستخدم بنجاح!';
+  
+  @override
+  String get errorChangingUsername => 'خطأ في تغيير اسم المستخدم';
+  
+  @override
+  String get avatarPackPurchasedSuccessfully => 'تم شراء حزمة الصور الرمزية بنجاح!';
+  
+  @override
+  String get failedToPurchaseAvatarPack => 'فشل في شراء حزمة الصور الرمزية. تحقق من رصيد الجواهر.';
+  
+  @override
+  String get errorPurchasingPack => 'خطأ في شراء الحزمة';
+  
+  @override
+  String get changeUsername => 'تغيير اسم المستخدم';
+  
+  @override
+  String get cost => 'التكلفة';
+  
+  @override
+  String get enterNewUsername => 'أدخل اسم مستخدم جديد';
+  
+  @override
+  String get change => 'تغيير';
+  
+  
+  @override
+  String get avatarSelectionComingSoon => 'اختيار الصور الرمزية قريباً!';
+
+  // Solo features strings
+  @override
+  String get bundleSuggestionSubmittedSuccessfully => 'تم إرسال اقتراح الحزمة بنجاح!';
+  
+  @override
+  String get failedToSubmitSuggestion => 'فشل في إرسال الاقتراح';
+  
+  @override
+  String get failedToUpdateStatus => 'فشل في تحديث الحالة';
+  
+  @override
+  String get roomCreatedWith => 'تم إنشاء غرفة مع';
+  
+  @override
+  String get failedToCreateRoom => 'فشل في إنشاء الغرفة';
+  
+  @override
+  String get play => 'العب';
+  
+  @override
+  String get notAvailable => 'غير متاح';
+  
+  @override
+  String get thisScreenOnlyAvailableInDebugMode => 'هذه الشاشة متاحة فقط في وضع التطوير.';
+  
+  @override
+  String get waveSpectrumTest => 'اختبار طيف الموجة';
+  
+  @override
+  String get resetToDefault => 'إعادة تعيين إلى الافتراضي';
+  
+  @override
+  String get premiumPurchaseComingSoon => 'شراء بريميوم قريباً!';
+
+  // Reward system strings
+  @override
+  String get campaignProgress => 'تقدم الحملة';
+  
+  @override
+  String get mindReaders => 'قارئو العقول!';
+  
+  @override
+  String get incredible => 'مذهل!';
+  
+  @override
+  String get greatJob => 'عمل رائع!';
+  
+  @override
+  String get goodEffort => 'جهد جيد!';
+  
+  @override
+  String get tryAgain => 'حاول مرة أخرى!';
+  
+  @override
+  String get analyticsDataCopiedToClipboard => 'تم نسخ بيانات التحليلات إلى الحافظة!';
+  
+  @override
+  String get exportFailed => 'فشل التصدير';
+
+  // Remaining screen strings
+  @override
+  String get settingUpRound => 'جاري إعداد الجولة...';
+  
+  @override
+  String get tokens => 'الرموز';
+
+  // Campaign and tasks strings
+  @override
+  String get best => 'الأفضل';
+
+  // Campaign section titles/descriptions
+  @override
+  String get campaignSection1Title => 'رحلة المبتدئين';
+  @override
+  String get campaignSection1Desc => 'تعلّم الأساسيات بتحديات واضحة وبديهية';
+  @override
+  String get campaignSection2Title => 'تحدٍّ متصاعد';
+  @override
+  String get campaignSection2Desc => 'صعوبات متنوعة بينما تطوّر مهاراتك';
+  @override
+  String get campaignSection3Title => 'أرض الخبراء';
+  @override
+  String get campaignSection3Desc => 'تحديات صعبة تتطلب دقة وخبرة';
+  @override
+  String get campaignSection4Title => 'اختبار الأساتذة الكبار';
+  @override
+  String get campaignSection4Desc => 'تحديات قصوى للمحترفين الحقيقيين';
+
+  // Campaign level and daily challenge strings
+  @override
+  String get easy => 'سهل';
+  
+  @override
+  String get medium => 'متوسط';
+  
+  @override
+  String get hard => 'صعب';
+  
+  @override
+  String get expert => 'خبير';
 }

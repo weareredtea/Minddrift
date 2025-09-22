@@ -108,7 +108,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to save settings: $e'),
+          content: Text('${AppLocalizations.of(context)!.error}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -149,8 +149,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
         });
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Test bot removed'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.testBotRemoved),
             backgroundColor: Colors.orange,
           ),
         );
@@ -168,8 +168,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
         });
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Test bot added'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.testBotAdded),
             backgroundColor: Colors.green,
           ),
         );
@@ -177,7 +177,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to manage bot: $e'),
+          content: Text('${AppLocalizations.of(context)!.failedToManageBot}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -437,7 +437,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Number of Rounds'),
+        Text(AppLocalizations.of(context)!.numberOfRounds),
         Row(
           children: [
             IconButton(
@@ -477,7 +477,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Background Music'),
+        Text(AppLocalizations.of(context)!.backgroundMusic),
         Switch(
           value: _currentSettings.musicEnabled,
           onChanged: (value) {
@@ -492,7 +492,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Spectrum Theme'),
+        Text(AppLocalizations.of(context)!.spectrumTheme),
         const SizedBox(height: 8),
         Container(
           height: 60,

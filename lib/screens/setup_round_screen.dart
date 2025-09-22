@@ -98,13 +98,13 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                 if (currentRound.secretPosition == null || 
                     currentRound.categoryLeft == null || 
                     currentRound.categoryId == null) {
-                  return const Center(
+                  return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                        Text('Setting up round...', style: TextStyle(color: Colors.white70)),
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 16),
+                        Text(AppLocalizations.of(context)!.settingUpRound, style: const TextStyle(color: Colors.white70)),
                       ],
                     ),
                   );

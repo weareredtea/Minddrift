@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../widgets/wave_spectrum.dart';
 import '../widgets/radial_spectrum.dart';
+import '../l10n/app_localizations.dart';
 
 class WaveSpectrumTestScreen extends StatefulWidget {
   static const routeName = '/wave-spectrum-test';
@@ -28,14 +29,14 @@ class _WaveSpectrumTestScreenState extends State<WaveSpectrumTestScreen> {
       return Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-          title: const Text('Not Available'),
+          title: Text(AppLocalizations.of(context)!.notAvailable),
           backgroundColor: Colors.transparent,
           elevation: 0,
           foregroundColor: Colors.white,
         ),
-        body: const Center(
+        body: Center(
           child: Text(
-            'This screen is only available in debug mode.',
+            AppLocalizations.of(context)!.thisScreenOnlyAvailableInDebugMode,
             style: TextStyle(color: Colors.white70),
           ),
         ),
@@ -45,7 +46,7 @@ class _WaveSpectrumTestScreenState extends State<WaveSpectrumTestScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Wave Spectrum Test'),
+        title: Text(AppLocalizations.of(context)!.waveSpectrumTest),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -305,7 +306,7 @@ class _WaveSpectrumTestScreenState extends State<WaveSpectrumTestScreen> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('Reset to Default'),
+                      child: Text(AppLocalizations.of(context)!.resetToDefault),
                     ),
                   ),
                 ],

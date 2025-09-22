@@ -112,15 +112,15 @@ class _QuestScreenState extends State<QuestScreen> with SingleTickerProviderStat
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: Colors.amber),
-            SizedBox(height: 16),
+            const CircularProgressIndicator(color: Colors.amber),
+            const SizedBox(height: 16),
             Text(
-              'Loading Quests...',
-              style: TextStyle(
+              AppLocalizations.of(context)!.loadingQuests,
+              style: const TextStyle(
                 fontFamily: 'Chewy',
                 fontSize: 18,
                 color: Colors.white70,

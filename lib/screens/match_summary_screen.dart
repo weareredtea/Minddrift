@@ -37,11 +37,11 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
   }
 
   String _getGroupPerformance(int totalScore, AppLocalizations loc) {
-    if (totalScore >= 28) return 'Mind Readers!';
-    if (totalScore >= 24) return 'Incredible!';
-    if (totalScore >= 20) return 'Great Job!';
-    if (totalScore >= 15) return 'Good Effort!';
-    return 'Try Again!';
+    if (totalScore >= 28) return loc.mindReaders;
+    if (totalScore >= 24) return loc.incredible;
+    if (totalScore >= 20) return loc.greatJob;
+    if (totalScore >= 15) return loc.goodEffort;
+    return loc.tryAgain;
   }
 
   @override
@@ -113,7 +113,7 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text('💎 0'), // TODO: Add tokens to PlayerStatus model
+                              Text('💎 0'), // TODO: Add tokens to PlayerStatus model
                               if (isMe) ...[
                                 const SizedBox(width: 8),
                                 const Icon(

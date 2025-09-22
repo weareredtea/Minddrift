@@ -1348,6 +1348,75 @@ abstract class AppLocalizations {
   String get complete;
   String get campaignSections;
   String get completePreviousSectionToUnlock;
+
+  // Missing multiplayer strings
+  String get testBotRemoved;
+  String get testBotAdded;
+  String get failedToManageBot;
+  String get numberOfRounds;
+  String get backgroundMusic;
+  String get spectrumTheme;
+  String get clue;
+  String get finalizeRound;
+  String get pleaseLogInToViewProfile;
+  String get avatarChangedSuccessfully;
+  String get errorChangingAvatar;
+  String get usernameChangedSuccessfully;
+  String get errorChangingUsername;
+  String get avatarPackPurchasedSuccessfully;
+  String get failedToPurchaseAvatarPack;
+  String get errorPurchasingPack;
+  String get changeUsername;
+  String get cost;
+  String get enterNewUsername;
+  String get change;
+  String get avatarSelectionComingSoon;
+
+  // Solo features strings
+  String get bundleSuggestionSubmittedSuccessfully;
+  String get failedToSubmitSuggestion;
+  String get failedToUpdateStatus;
+  String get roomCreatedWith;
+  String get failedToCreateRoom;
+  String get play;
+  String get notAvailable;
+  String get thisScreenOnlyAvailableInDebugMode;
+  String get waveSpectrumTest;
+  String get resetToDefault;
+  String get premiumPurchaseComingSoon;
+
+  // Reward system strings
+  String get campaignProgress;
+  String get mindReaders;
+  String get incredible;
+  String get greatJob;
+  String get goodEffort;
+  String get tryAgain;
+  String get analyticsDataCopiedToClipboard;
+  String get exportFailed;
+
+  // Remaining screen strings
+  String get settingUpRound;
+  String get tokens;
+
+  // Campaign and tasks strings
+  String get best;
+
+  // Campaign section titles/descriptions
+  String get campaignSection1Title;
+  String get campaignSection1Desc;
+  String get campaignSection2Title;
+  String get campaignSection2Desc;
+  String get campaignSection3Title;
+  String get campaignSection3Desc;
+  String get campaignSection4Title;
+  String get campaignSection4Desc;
+
+  // Campaign level and daily challenge strings
+  String get easy;
+  String get medium;
+  String get hard;
+  String get expert;
 }
 
 class _AppLocalizationsDelegate

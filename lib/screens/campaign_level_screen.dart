@@ -85,6 +85,22 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
     return locale.languageCode == 'ar' ? 'Harmattan' : 'Chewy';
   }
 
+  String _getLocalizedDifficulty(String difficulty) {
+    final loc = AppLocalizations.of(context)!;
+    switch (difficulty.toLowerCase()) {
+      case 'easy':
+        return loc.easy;
+      case 'medium':
+        return loc.medium;
+      case 'hard':
+        return loc.hard;
+      case 'expert':
+        return loc.expert;
+      default:
+        return difficulty.toUpperCase();
+    }
+  }
+
   @override
   void dispose() {
     _pulseController.dispose();
@@ -134,7 +150,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              _level!.difficulty.toUpperCase(),
+              _getLocalizedDifficulty(_level!.difficulty),
               style: TextStyle(
                 fontFamily: _getHeaderFont(),
                 fontSize: 12,
@@ -183,7 +199,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
             child: Column(
               children: [
                 Text(
-                  'Level ${_level!.levelNumber}',
+                  '${AppLocalizations.of(context)!.level} ${_level!.levelNumber}',
                   style: TextStyle(
                     fontFamily: _getHeaderFont(),
                     fontSize: 24,
@@ -222,7 +238,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Best: ${_level!.bestScore}',
+                          '${AppLocalizations.of(context)!.best}: ${_level!.bestScore}',
                           style: TextStyle(
                             fontFamily: _getHeaderFont(),
                             fontSize: 14,
@@ -311,7 +327,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                   child: Column(
                     children: [
                       Text(
-                        'Your Clue',
+                        AppLocalizations.of(context)!.yourClue,
                         style: TextStyle(
                           fontFamily: _getHeaderFont(),
                           fontSize: 18,
@@ -383,7 +399,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                       ),
                     )
                   : Text(
-                      'Submit Guess',
+                      AppLocalizations.of(context)!.submitGuess,
                       style: TextStyle(
                         fontFamily: _getHeaderFont(),
                         fontSize: 18,
@@ -674,13 +690,4 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
     Navigator.of(context).pop(true); // Return true to indicate level was played
   }
 
-  String _getCategoryDisplayName(String categoryId) {
-    switch (categoryId) {
-      case 'hungry_satiated': return 'Hunger & Satisfaction';
-      case 'spicy_mild': return 'Spice Level';
-      case 'magic_science': return 'Magic & Science';
-      case 'myth_history': return 'Myth & History';
-      default: return 'Category';
-    }
-  }
 }

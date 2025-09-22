@@ -386,8 +386,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
       // For now, show a placeholder
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Premium purchase coming soon!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.premiumPurchaseComingSoon),
             backgroundColor: Colors.purple,
           ),
         );
@@ -396,7 +396,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Purchase failed: $e'),
+            content: Text('${AppLocalizations.of(context)!.purchaseFailed}: $e'),
             backgroundColor: Colors.red,
           ),
         );

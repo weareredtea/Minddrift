@@ -102,8 +102,8 @@ class _BundleSuggestionScreenState extends State<BundleSuggestionScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Bundle suggestion submitted successfully!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.bundleSuggestionSubmittedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
@@ -112,7 +112,7 @@ class _BundleSuggestionScreenState extends State<BundleSuggestionScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit suggestion: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.failedToSubmitSuggestion}: $e')),
         );
       }
     } finally {
@@ -129,7 +129,7 @@ class _BundleSuggestionScreenState extends State<BundleSuggestionScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Suggest Bundle'),
+        title: Text(AppLocalizations.of(context)!.suggestBundle),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,

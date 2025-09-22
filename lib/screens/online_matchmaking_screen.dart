@@ -86,7 +86,7 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update status: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.failedToUpdateStatus}: $e')),
         );
       }
     }
@@ -110,7 +110,7 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update status: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.failedToUpdateStatus}: $e')),
         );
       }
     } finally {
@@ -175,7 +175,7 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Room created with ${otherUser.displayName}!'),
+            content: Text('${AppLocalizations.of(context)!.roomCreatedWith} ${otherUser.displayName}!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -184,7 +184,7 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create room: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.failedToCreateRoom}: $e')),
         );
       }
     } finally {
@@ -208,7 +208,7 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Online Matchmaking'),
+        title: Text(AppLocalizations.of(context)!.onlineMatchmaking),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
@@ -493,7 +493,7 @@ class _OnlineMatchmakingScreenState extends State<OnlineMatchmakingScreen> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 ),
-                child: const Text('Play'),
+                child: Text(AppLocalizations.of(context)!.play),
               ),
       ),
     );

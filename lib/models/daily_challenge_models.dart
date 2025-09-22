@@ -9,6 +9,8 @@ class DailyChallenge {
   final double secretPosition;
   final int range; // 1-5, which range the position falls into
   final String clue;
+  final String? clueAr; // Optional Arabic translation if provided in Firestore
+  final String? clueEn; // Optional English override if provided in Firestore
   final String difficulty; // 'easy', 'medium', 'hard'
   final DateTime date;
   final String bundleId;
@@ -21,6 +23,8 @@ class DailyChallenge {
     required this.secretPosition,
     required this.range,
     required this.clue,
+    this.clueAr,
+    this.clueEn,
     required this.difficulty,
     required this.date,
     required this.bundleId,
@@ -37,6 +41,8 @@ class DailyChallenge {
       secretPosition: data['secretPosition']?.toDouble() ?? 0.5,
       range: data['range'] ?? 3,
       clue: data['clue'] ?? '',
+      clueAr: data['clueAr'],
+      clueEn: data['clueEn'],
       difficulty: data['difficulty'] ?? 'medium',
       date: data['date']?.toDate() ?? DateTime.now(),
       bundleId: data['bundleId'] ?? '',
@@ -52,6 +58,8 @@ class DailyChallenge {
       'secretPosition': secretPosition,
       'range': range,
       'clue': clue,
+      if (clueAr != null) 'clueAr': clueAr,
+      if (clueEn != null) 'clueEn': clueEn,
       'difficulty': difficulty,
       'date': date,
       'bundleId': bundleId,
@@ -67,12 +75,25 @@ class DailyChallenge {
     'secretPosition': secretPosition,
     'range': range,
     'clue': clue,
+    'clueAr': clueAr,
+    'clueEn': clueEn,
     'difficulty': difficulty,
     'date': date.toIso8601String(),
     'bundleId': bundleId,
     'leftLabel': leftLabel,
     'rightLabel': rightLabel,
   };
+
+  /// Returns a localized clue string when available. Falls back to `clue`.
+  String getClue(String languageCode) {
+    switch (languageCode) {
+      case 'ar':
+        return (clueAr != null && clueAr!.isNotEmpty) ? clueAr! : clue;
+      case 'en':
+      default:
+        return (clueEn != null && clueEn!.isNotEmpty) ? clueEn! : clue;
+    }
+  }
 }
 
 /// Represents a user's daily challenge result

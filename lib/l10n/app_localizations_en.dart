@@ -837,4 +837,170 @@ class AppLocalizationsEn extends AppLocalizations {
   String get campaignSections => 'Campaign Sections';
   @override
   String get completePreviousSectionToUnlock => 'Complete previous section with 22+ stars to unlock';
+
+  // Missing multiplayer strings
+  @override
+  String get testBotRemoved => 'Test bot removed';
+  
+  @override
+  String get testBotAdded => 'Test bot added';
+  
+  @override
+  String get failedToManageBot => 'Failed to manage bot';
+  
+  @override
+  String get numberOfRounds => 'Number of Rounds';
+  
+  @override
+  String get backgroundMusic => 'Background Music';
+  
+  @override
+  String get spectrumTheme => 'Spectrum Theme';
+  
+  @override
+  String get clue => 'Clue';
+  
+  @override
+  String get finalizeRound => 'Finalize Round';
+  
+  @override
+  String get pleaseLogInToViewProfile => 'Please log in to view your profile';
+  
+  @override
+  String get avatarChangedSuccessfully => 'Avatar changed successfully!';
+  
+  @override
+  String get errorChangingAvatar => 'Error changing avatar';
+  
+  @override
+  String get usernameChangedSuccessfully => 'Username changed successfully!';
+  
+  @override
+  String get errorChangingUsername => 'Error changing username';
+  
+  @override
+  String get avatarPackPurchasedSuccessfully => 'Avatar pack purchased successfully!';
+  
+  @override
+  String get failedToPurchaseAvatarPack => 'Failed to purchase avatar pack. Check your gem balance.';
+  
+  @override
+  String get errorPurchasingPack => 'Error purchasing pack';
+  
+  @override
+  String get changeUsername => 'Change Username';
+  
+  @override
+  String get cost => 'Cost';
+  
+  @override
+  String get enterNewUsername => 'Enter new username';
+  
+  @override
+  String get change => 'Change';
+  
+  
+  @override
+  String get avatarSelectionComingSoon => 'Avatar selection coming soon!';
+
+  // Solo features strings
+  @override
+  String get bundleSuggestionSubmittedSuccessfully => 'Bundle suggestion submitted successfully!';
+  
+  @override
+  String get failedToSubmitSuggestion => 'Failed to submit suggestion';
+  
+  @override
+  String get failedToUpdateStatus => 'Failed to update status';
+  
+  @override
+  String get roomCreatedWith => 'Room created with';
+  
+  @override
+  String get failedToCreateRoom => 'Failed to create room';
+  
+  @override
+  String get play => 'Play';
+  
+  @override
+  String get notAvailable => 'Not Available';
+  
+  @override
+  String get thisScreenOnlyAvailableInDebugMode => 'This screen is only available in debug mode.';
+  
+  @override
+  String get waveSpectrumTest => 'Wave Spectrum Test';
+  
+  @override
+  String get resetToDefault => 'Reset to Default';
+  
+  @override
+  String get premiumPurchaseComingSoon => 'Premium purchase coming soon!';
+
+  // Reward system strings
+  @override
+  String get campaignProgress => 'Campaign Progress';
+  
+  @override
+  String get mindReaders => 'Mind Readers!';
+  
+  @override
+  String get incredible => 'Incredible!';
+  
+  @override
+  String get greatJob => 'Great Job!';
+  
+  @override
+  String get goodEffort => 'Good Effort!';
+  
+  @override
+  String get tryAgain => 'Try Again!';
+  
+  @override
+  String get analyticsDataCopiedToClipboard => 'Analytics data copied to clipboard!';
+  
+  @override
+  String get exportFailed => 'Export failed';
+
+  // Remaining screen strings
+  @override
+  String get settingUpRound => 'Setting up round...';
+  
+  @override
+  String get tokens => 'Tokens';
+
+  // Campaign and tasks strings
+  @override
+  String get best => 'Best';
+
+  // Campaign section titles/descriptions
+  @override
+  String get campaignSection1Title => "Beginner's Journey";
+  @override
+  String get campaignSection1Desc => 'Learn the basics with clear, obvious challenges';
+  @override
+  String get campaignSection2Title => 'Rising Challenge';
+  @override
+  String get campaignSection2Desc => 'Mixed difficulties as you develop your skills';
+  @override
+  String get campaignSection3Title => 'Expert Territory';
+  @override
+  String get campaignSection3Desc => 'Difficult challenges requiring precision and expertise';
+  @override
+  String get campaignSection4Title => 'Grandmaster Gauntlet';
+  @override
+  String get campaignSection4Desc => 'Ultimate challenges for true grandmasters';
+
+  // Campaign level and daily challenge strings
+  @override
+  String get easy => 'EASY';
+  
+  @override
+  String get medium => 'MEDIUM';
+  
+  @override
+  String get hard => 'HARD';
+  
+  @override
+  String get expert => 'EXPERT';
 }

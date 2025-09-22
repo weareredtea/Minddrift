@@ -42,7 +42,7 @@ class GuessRoundScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                Text('Clue: ${currentRound.clue ?? '...'}', style: Theme.of(context).textTheme.headlineSmall),
+                Text('${AppLocalizations.of(context)!.clue}: ${currentRound.clue ?? '...'}', style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 24),
                 Expanded(
                   child: SpectrumCard(
@@ -67,7 +67,7 @@ class GuessRoundScreen extends StatelessWidget {
                   ElevatedButton(
                     // This could be tied to a new state property like `allSeekersReady`
                     onPressed: () => gameProvider.finalizeRound(),
-                    child: Text('Finalize Round'),
+                    child: Text(AppLocalizations.of(context)!.finalizeRound),
                   ),
               ],
             ),

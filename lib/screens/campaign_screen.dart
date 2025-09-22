@@ -226,7 +226,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Section ${_progress!.currentSection}',
+                      '${AppLocalizations.of(context)!.section} ${_progress!.currentSection}',
                       style: TextStyle(
                         fontFamily: _getBodyFont(),
                         fontSize: 16,
@@ -381,7 +381,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  section.title,
+                  _localizedSectionTitle(section.sectionNumber),
                   style: TextStyle(
                     fontFamily: _getHeaderFont(),
                     fontSize: 20,
@@ -390,7 +390,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  section.description,
+                  _localizedSectionDesc(section.sectionNumber),
                   style: TextStyle(
                     fontFamily: _getBodyFont(),
                     fontSize: 14,
@@ -441,6 +441,38 @@ class _CampaignScreenState extends State<CampaignScreen> {
     }
   }
 
+  String _localizedSectionTitle(int sectionNumber) {
+    final loc = AppLocalizations.of(context)!;
+    switch (sectionNumber) {
+      case 1:
+        return loc.campaignSection1Title;
+      case 2:
+        return loc.campaignSection2Title;
+      case 3:
+        return loc.campaignSection3Title;
+      case 4:
+        return loc.campaignSection4Title;
+      default:
+        return '';
+    }
+  }
+
+  String _localizedSectionDesc(int sectionNumber) {
+    final loc = AppLocalizations.of(context)!;
+    switch (sectionNumber) {
+      case 1:
+        return loc.campaignSection1Desc;
+      case 2:
+        return loc.campaignSection2Desc;
+      case 3:
+        return loc.campaignSection3Desc;
+      case 4:
+        return loc.campaignSection4Desc;
+      default:
+        return '';
+    }
+  }
+
   void _showSectionLevels(CampaignSection section) {
     showModalBottomSheet(
       context: context,
@@ -479,7 +511,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        section.title,
+                        _localizedSectionTitle(section.sectionNumber),
                         style: TextStyle(
                           fontFamily: _getHeaderFont(),
                           fontSize: 24,
@@ -487,7 +519,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                         ),
                       ),
                       Text(
-                        section.description,
+                        _localizedSectionDesc(section.sectionNumber),
                         style: TextStyle(
                           fontFamily: _getBodyFont(),
                           fontSize: 14,
