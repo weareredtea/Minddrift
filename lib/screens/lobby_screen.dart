@@ -20,6 +20,10 @@ import '../models/spectrum_skin.dart';
 import '../models/player_status.dart';
 import '../services/skin_manager.dart';
 import '../services/audio_service.dart';
+import '../services/player_service.dart';
+import '../services/room_service.dart';
+import '../services/game_service.dart';
+import '../services/test_bot_service.dart';
 
 class LobbyScreen extends StatefulWidget {
   static const routeName = '/lobby';
@@ -35,6 +39,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
   List<String> _ownedSkins = ['default'];
   bool _isLoadingSettings = true;
   bool _isLoadingSkins = true;
+  bool _isBotInGame = false;
+  bool _isManagingBot = false;
 
   @override
   void initState() {
@@ -116,6 +122,72 @@ class _LobbyScreenState extends State<LobbyScreen> {
     _saveSettings();
   }
 
+  /// Checks if the bot is currently in the game
+  bool _checkIfBotInGame(List<PlayerStatus> players) {
+    return players.any((player) => player.uid == 'test-bot-001');
+  }
+
+  /// Manages the test bot (add or remove)
+  Future<void> _manageTestBot() async {
+    if (_isManagingBot) return;
+
+    setState(() {
+      _isManagingBot = true;
+    });
+
+    try {
+      final playerService = context.read<PlayerService>();
+      final roomService = context.read<RoomService>();
+      final gameService = context.read<GameService>();
+
+      if (_isBotInGame) {
+        // Remove bot
+        await playerService.manageTestBot(widget.roomId, addBot: false);
+        TestBotService.stop();
+        setState(() {
+          _isBotInGame = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Test bot removed'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      } else {
+        // Add bot
+        await playerService.manageTestBot(widget.roomId, addBot: true);
+        TestBotService.start(
+          roomId: widget.roomId,
+          roomService: roomService,
+          playerService: playerService,
+          gameService: gameService,
+        );
+        setState(() {
+          _isBotInGame = true;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Test bot added'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to manage bot: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isManagingBot = false;
+      });
+    }
+  }
+
   BundleInfo _getBundleInfo(String bundleId) {
     switch (bundleId) {
       case 'bundle.free':
@@ -170,6 +242,16 @@ class _LobbyScreenState extends State<LobbyScreen> {
     final gameProvider = context.read<GameStateProvider>();
     final loc = AppLocalizations.of(context)!;
 
+    // Update bot status based on current players
+    final botInGame = _checkIfBotInGame(gameState.players);
+    if (botInGame != _isBotInGame) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _isBotInGame = botInGame;
+        });
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.lobby),
@@ -205,7 +287,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   const SizedBox(height: 24),
                   
                   // Players Section
-                  Expanded(child: _buildPlayersSection(loc, gameState.players)),
+                  Expanded(child: _buildPlayersSection(loc, gameState.players, gameState)),
                   
                   const SizedBox(height: 16),
                   
@@ -466,7 +548,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     );
   }
 
-  Widget _buildPlayersSection(AppLocalizations loc, List<PlayerStatus> players) {
+  Widget _buildPlayersSection(AppLocalizations loc, List<PlayerStatus> players, GameState gameState) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -477,11 +559,37 @@ class _LobbyScreenState extends State<LobbyScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Players',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Players',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              // Test Bot Button (only show in debug mode or for testing)
+              if (gameState.isHost) ...[
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: _isManagingBot ? null : _manageTestBot,
+                  icon: _isManagingBot 
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(_isBotInGame ? Icons.remove : Icons.add),
+                  label: Text(_isBotInGame ? 'Remove Bot' : 'Add Bot'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isBotInGame ? Colors.red.shade600 : Colors.blue.shade600,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    minimumSize: const Size(0, 32),
+                  ),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 16),
           Expanded(

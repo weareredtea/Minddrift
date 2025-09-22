@@ -35,8 +35,9 @@ service cloud.firestore {
       match /players/{playerId} {
         allow read: if request.auth != null;
 
-        // A user can create their own player document.
-        allow create: if request.auth.uid == playerId;
+        // A user can create their own player document OR the host can create bot documents.
+        allow create: if request.auth.uid == playerId || 
+                      (isCreator(roomId) && playerId == 'test-bot-001');
 
         // A user can update their own player document OR the host can update it.
         allow update: if request.auth.uid == playerId || isCreator(roomId);
@@ -49,10 +50,10 @@ service cloud.firestore {
       match /rounds/{roundId} { // Assuming roundId is 'current'
         allow read: if request.auth != null && isPlayer(roomId);
 
-        // Allow any player to update the round.
+        // Allow any player to update the round OR the room creator to update on behalf of bots.
         // This is a broad rule for simplicity. You can make it more granular later
         // by checking for specific roles (e.g., only the navigator can write the 'clue' field).
-        allow create, update: if request.auth != null && isPlayer(roomId);
+        allow create, update: if request.auth != null && (isPlayer(roomId) || isCreator(roomId));
 
         // --- History Subcollection ---
         match /history/{historyId} {

@@ -97,6 +97,18 @@ class GameService {
     });
   }
 
+  /// Gets the current round data synchronously.
+  Future<Round?> getCurrentRound(String roomId) async {
+    try {
+      final snap = await _roundDocRef(roomId).get();
+      if (!snap.exists) return null;
+      return Round.fromMap(snap.data() ?? {});
+    } catch (e) {
+      print('Error getting current round: $e');
+      return null;
+    }
+  }
+
   /// Calculates the score, finalizes the round, and moves the state to 'round_end'.
   Future<void> finalizeRound(String roomId) async {
     await _db.runTransaction((transaction) async {

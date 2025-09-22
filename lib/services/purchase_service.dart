@@ -48,6 +48,9 @@ class PurchaseService {
   // Streams
   Stream<Set<String>> get ownedBundlesStream => _ownedBundlesController.stream;
   Stream<String?> get errorStream => _errorController.stream;
+  
+  // Public getter for purchase state changes (for provider synchronization)
+  Stream<void> get onPurchaseStateChanged => _ownedBundlesController.stream.map((_) => null);
 
   /// Initialize the purchase service
   Future<void> initialize() async {
@@ -225,6 +228,11 @@ class PurchaseService {
       if (purchase.status == PurchaseStatus.purchased) {
         _verifyPurchase(purchase);
       }
+      
+      // Always complete the purchase on the device to finalize the transaction
+      if (purchase.pendingCompletePurchase) {
+        _iap.completePurchase(purchase);
+      }
     }
   }
 
@@ -241,9 +249,11 @@ class PurchaseService {
 
       final callable = _functions.httpsCallable('verifyPurchase');
       final result = await callable.call({
-        'token': purchase.purchaseID,
+        'token': purchase.verificationData.serverVerificationData,
         'sku': purchase.productID,
-        'platform': 'google_play',
+        'platform': 'android',
+        'transactionId': purchase.purchaseID,
+        'originalTransactionId': purchase.purchaseID,
       });
 
       print('✅ Purchase verified: ${result.data}');

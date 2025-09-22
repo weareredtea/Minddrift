@@ -1,4 +1,5 @@
 // lib/providers/purchase_provider_new.dart
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import '../services/purchase_service.dart';
@@ -6,6 +7,7 @@ import '../services/purchase_service.dart';
 /// New simplified PurchaseProvider that delegates to PurchaseService
 class PurchaseProviderNew extends ChangeNotifier {
   final PurchaseService _purchaseService = PurchaseService();
+  StreamSubscription? _purchaseServiceSubscription;
   
   // State
   bool _isInitialized = false;
@@ -34,6 +36,11 @@ class PurchaseProviderNew extends ChangeNotifier {
 
   PurchaseProviderNew() {
     _initialize();
+    
+    // Listen to the service's stream for purchase state changes
+    _purchaseServiceSubscription = _purchaseService.onPurchaseStateChanged.listen((_) {
+      notifyListeners();
+    });
   }
 
   /// Initialize the provider
@@ -104,6 +111,7 @@ class PurchaseProviderNew extends ChangeNotifier {
 
   @override
   void dispose() {
+    _purchaseServiceSubscription?.cancel();
     _purchaseService.dispose();
     super.dispose();
   }
