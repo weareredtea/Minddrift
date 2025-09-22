@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:minddrift/widgets/radial_spectrum.dart';
-import 'package:minddrift/widgets/spectrum_card.dart';
+import 'package:minddrift/widgets/unified_spectrum.dart';
 import 'package:minddrift/widgets/effect_card.dart';
 import 'package:minddrift/widgets/keyboard_aware_scroll_view.dart';
 // Import for DocumentSnapshot
@@ -156,17 +155,24 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                     child: EffectCard(effect: effect),
                   ),
 
-                // *** REPLACE WITH RadialSpectrum ***
+                // NEW: Unified Spectrum Design
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: SpectrumCard(
-                    startLabel: categoryLeft,
-                    endLabel: categoryRight,
-                    child: RadialSpectrumWidget(
-                      value: secretPos,
-                      secretValue: secretPos, // Show the secret position
-                      onChanged: (_) {}, // No-op, it's read-only
-                      isReadOnly: true,
+                  child: Card(
+                    elevation: 8,
+                    color: const Color(0xFF1A1A2E), // New unified dark background
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: UnifiedSpectrum(
+                        startLabel: categoryLeft,
+                        endLabel: categoryRight,
+                        value: secretPos,
+                        secretValue: secretPos, // Show the secret position
+                        onChanged: (_) {}, // No-op, it's read-only
+                        isReadOnly: true,
+                        showClue: false, // Setup screen doesn't show clue in spectrum
+                      ),
                     ),
                   ),
                 ),

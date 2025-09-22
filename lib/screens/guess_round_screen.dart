@@ -3,8 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:minddrift/providers/game_state_provider.dart';
-import 'package:minddrift/widgets/radial_spectrum.dart';
-import 'package:minddrift/widgets/spectrum_card.dart';
+import 'package:minddrift/widgets/unified_spectrum.dart';
 import 'package:minddrift/widgets/global_chat_overlay.dart';
 import '../l10n/app_localizations.dart';
 import '../services/category_service.dart';
@@ -45,19 +44,26 @@ class GuessRoundScreen extends StatelessWidget {
                 Text('${AppLocalizations.of(context)!.clue}: ${currentRound.clue ?? '...'}', style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 24),
                 Expanded(
-                  child: SpectrumCard(
-                    startLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', true),
-                    endLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', false),
-                    child: RadialSpectrumWidget(
-                      value: (currentRound.groupGuessPosition ?? 50).toDouble(),
-                      // The navigator can see the secret value, others cannot.
-                      secretValue: isNavigator ? (currentRound.secretPosition ?? 50).toDouble() : null,
-                      // The navigator cannot change the guess.
-                      isReadOnly: isNavigator,
-                      onChanged: (newValue) {
-                        // Action: Call the provider method to update the guess.
-                        gameProvider.updateGroupGuess(newValue);
-                      },
+                  child: Card(
+                    elevation: 8,
+                    color: const Color(0xFF1A1A2E), // New unified dark background
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: UnifiedSpectrum(
+                        startLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', true),
+                        endLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', false),
+                        value: (currentRound.groupGuessPosition ?? 50).toDouble(),
+                        // The navigator can see the secret value, others cannot.
+                        secretValue: isNavigator ? (currentRound.secretPosition ?? 50).toDouble() : null,
+                        // The navigator cannot change the guess.
+                        isReadOnly: isNavigator,
+                        onChanged: (newValue) {
+                          // Action: Call the provider method to update the guess.
+                          gameProvider.updateGroupGuess(newValue);
+                        },
+                        showClue: false, // Clue is shown separately above the spectrum
+                      ),
                     ),
                   ),
                 ),

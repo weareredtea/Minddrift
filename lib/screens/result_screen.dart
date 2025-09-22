@@ -6,9 +6,8 @@ import 'package:minddrift/providers/game_state_provider.dart';
 import 'package:minddrift/services/audio_service.dart';
 import 'package:minddrift/widgets/bundle_indicator.dart';
 import 'package:minddrift/widgets/global_chat_overlay.dart';
-import 'package:minddrift/widgets/radial_spectrum.dart';
+import 'package:minddrift/widgets/unified_spectrum.dart';
 import 'package:minddrift/widgets/result_animations.dart';
-import 'package:minddrift/widgets/spectrum_card.dart';
 import '../l10n/app_localizations.dart';
 import '../services/category_service.dart';
 import '../services/navigation_service.dart';
@@ -95,14 +94,21 @@ class _ResultScreenState extends State<ResultScreen> {
                       showLabel: true,
                     ),
                     const SizedBox(height: 16),
-                    SpectrumCard(
-                      startLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', true),
-                      endLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', false),
-                      child: RadialSpectrumWidget(
-                        value: (currentRound.groupGuessPosition ?? 50).toDouble(),
-                        secretValue: (currentRound.secretPosition ?? 50).toDouble(),
-                        onChanged: (_) {},
-                        isReadOnly: true,
+                    Card(
+                      elevation: 8,
+                      color: const Color(0xFF1A1A2E), // New unified dark background
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: UnifiedSpectrum(
+                          startLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', true),
+                          endLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', false),
+                          value: (currentRound.groupGuessPosition ?? 50).toDouble(),
+                          secretValue: (currentRound.secretPosition ?? 50).toDouble(),
+                          onChanged: (_) {},
+                          isReadOnly: true,
+                          showClue: false, // Result screen doesn't show clue in spectrum
+                        ),
                       ),
                     ),
                     const Spacer(),
