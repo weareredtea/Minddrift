@@ -13,6 +13,7 @@ import '../services/category_service.dart';
 import '../widgets/bundle_indicator.dart';
 import '../l10n/app_localizations.dart';
 import 'analytics_dashboard_screen.dart';
+import 'spectrum_ui_showcase_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const routeName = '/settings';
@@ -395,6 +396,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             const Divider(),
+            
+            // Debug Section
+            if (kDebugMode) ...[
+              ListTile(
+                leading: const Icon(Icons.palette, color: Colors.orange),
+                title: const Text(
+                  'Spectrum UI Showcase',
+                  style: TextStyle(fontFamily: 'Chewy'),
+                ),
+                subtitle: const Text(
+                  'Debug: Test spectrum card UI variations',
+                  style: TextStyle(color: Colors.grey, fontFamily: 'Chewy'),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SpectrumUIShowcaseScreen(),
+                    ),
+                  );
+                },
+              ),
+              const Divider(),
+            ],
           ],
           
           // Build timestamp for version verification

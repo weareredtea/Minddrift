@@ -5,8 +5,7 @@ import 'package:flutter/services.dart';
 import '../services/campaign_service.dart';
 import '../models/campaign_models.dart';
 import '../data/category_data.dart';
-import '../widgets/solo_spectrum_card.dart';
-import '../widgets/radial_spectrum.dart';
+import '../widgets/unified_spectrum.dart';
 import '../l10n/app_localizations.dart';
 // Removed unused import
 
@@ -354,13 +353,16 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
           
           const SizedBox(height: 40),
           
-          // Radial Spectrum Widget
-          SizedBox(
-            height: 300, // Standard height from original
-            child: SoloSpectrumCard(
-              startLabel: category.getLeftText(Localizations.localeOf(context).languageCode),
-              endLabel: category.getRightText(Localizations.localeOf(context).languageCode),
-              child: RadialSpectrumWidget(
+          // NEW: Unified Spectrum Design
+          Card(
+            elevation: 8,
+            color: const Color(0xFF1A1A2E), // New unified dark background
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: UnifiedSpectrum(
+                startLabel: category.getLeftText(Localizations.localeOf(context).languageCode),
+                endLabel: category.getRightText(Localizations.localeOf(context).languageCode),
                 value: _currentValue,
                 onChanged: _isSubmitting ? (value) {} : (value) {
                   setState(() {
@@ -369,6 +371,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                   HapticFeedback.selectionClick();
                 },
                 isReadOnly: _isSubmitting,
+                showClue: false, // Campaign mode doesn't show clue in spectrum
               ),
             ),
           ),

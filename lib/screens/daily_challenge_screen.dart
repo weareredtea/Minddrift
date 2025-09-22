@@ -7,8 +7,7 @@ import 'package:provider/provider.dart';
 import '../services/daily_challenge_service.dart';
 import '../models/daily_challenge_models.dart';
 import '../models/avatar.dart';
-import '../widgets/solo_spectrum_card.dart';
-import '../widgets/radial_spectrum.dart';
+import '../widgets/unified_spectrum.dart';
 import '../providers/user_profile_provider.dart';
 import '../l10n/app_localizations.dart';
 // Removed unused import
@@ -331,13 +330,16 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // Radial Spectrum Widget
-            SizedBox(
-              height: 300, // Standard height from original
-              child: SoloSpectrumCard(
-                startLabel: _todaysChallenge!.leftLabel,
-                endLabel: _todaysChallenge!.rightLabel,
-                child: RadialSpectrumWidget(
+            // NEW: Unified Spectrum Design
+            Card(
+              elevation: 8,
+              color: const Color(0xFF1A1A2E), // New unified dark background
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: UnifiedSpectrum(
+                  startLabel: _todaysChallenge!.leftLabel,
+                  endLabel: _todaysChallenge!.rightLabel,
                   value: _userGuess * 100, // Convert 0-1 to 0-100
                   onChanged: _isSubmitting ? (value) {} : (value) {
                     setState(() {
@@ -345,6 +347,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> with Ticker
                     });
                   },
                   isReadOnly: _isSubmitting,
+                  showClue: false, // Daily challenge doesn't show clue in spectrum
                 ),
               ),
             ),

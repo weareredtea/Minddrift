@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/practice_service.dart';
 import '../models/practice_models.dart';
-import '../widgets/solo_spectrum_card.dart';
-import '../widgets/radial_spectrum.dart';
+import '../widgets/unified_spectrum.dart';
 import '../l10n/app_localizations.dart';
 // Removed unused import
 
@@ -171,28 +170,25 @@ class _PracticeModeScreenState extends State<PracticeModeScreen> {
     if (_currentChallenge == null) return const SizedBox();
 
     return Card(
-      elevation: 4,
-      color: Colors.grey[900],
+      elevation: 8,
+      color: const Color(0xFF1A1A2E), // New unified dark background
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            SizedBox(
-              height: 300, // Standard height from original
-              child: SoloSpectrumCard(
-                startLabel: _currentChallenge!.leftLabel,
-                endLabel: _currentChallenge!.rightLabel,
-                child: RadialSpectrumWidget(
-                  value: _userGuess * 100, // Convert 0-1 to 0-100
-                  onChanged: _hasGuessed ? (value) {} : (value) {
-                    setState(() {
-                      _userGuess = value / 100; // Convert 0-100 back to 0-1
-                    });
-                  },
-                  isReadOnly: _hasGuessed,
-                ),
-              ),
+            // NEW: Unified Spectrum Design
+            UnifiedSpectrum(
+              startLabel: _currentChallenge!.leftLabel,
+              endLabel: _currentChallenge!.rightLabel,
+              value: _userGuess * 100, // Convert 0-1 to 0-100
+              onChanged: _hasGuessed ? (value) {} : (value) {
+                setState(() {
+                  _userGuess = value / 100; // Convert 0-100 back to 0-1
+                });
+              },
+              isReadOnly: _hasGuessed,
+              showClue: false, // Practice mode doesn't show clue
             ),
             
             // Show secret position and user guess after guessing

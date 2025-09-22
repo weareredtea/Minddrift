@@ -183,22 +183,46 @@ class CampaignService {
 
     try {
       print('Submitting campaign result for ${level.id}, user: ${user.uid}, score: $score, stars: $starsEarned');
+      
+      // Add timeout to prevent hanging
+      return await Future.any([
+        _submitResultWithRewards(level, result, existingResult, context),
+        Future.delayed(Duration(seconds: 30), () {
+          throw Exception('Campaign submission timed out after 30 seconds');
+        }),
+      ]);
+    } catch (e) {
+      print('Error submitting campaign result: $e');
+      rethrow;
+    }
+  }
 
-      // Store result
-      await _db
-          .collection('campaign_results')
-          .doc(user.uid)
-          .collection('levels')
-          .doc(level.id)
-          .set(result.toFirestore());
+  /// Internal method to submit result with rewards (separated for timeout handling)
+  static Future<CampaignResult> _submitResultWithRewards(
+    CampaignLevel level,
+    CampaignResult result,
+    CampaignResult? existingResult,
+    BuildContext? context,
+  ) async {
+    final user = _auth.currentUser!;
 
-      // Update user progress
-      await _updateUserProgress(level, result);
+    // Store result
+    await _db
+        .collection('campaign_results')
+        .doc(user.uid)
+        .collection('levels')
+        .doc(level.id)
+        .set(result.toFirestore());
 
-      // Award Mind Gems for completion and stars (first time only)
-      if (isNewBest) {
-        // Base completion reward for first-time level completion
-        if (existingResult == null) {
+    // Update user progress
+    await _updateUserProgress(level, result);
+
+    // Award Mind Gems for completion and stars (first time only)
+    final isNewBest = existingResult == null || result.score > existingResult.score;
+    if (isNewBest) {
+      // Base completion reward for first-time level completion
+      if (existingResult == null) {
+        try {
           await WalletService.awardGems(50, 'campaign_completion', 
             context: context,
             metadata: {
@@ -206,16 +230,24 @@ class CampaignService {
               'levelNumber': level.levelNumber,
               'sectionNumber': level.sectionNumber,
             });
-        }
-
-        // Star-based Gem rewards (only for new/better star achievements)
-        final previousStars = existingResult?.starsEarned ?? 0;
-        if (starsEarned > previousStars) {
-          await WalletService.awardCampaignStarGems(level.id, starsEarned, existingResult == null, context: context);
+        } catch (e) {
+          print('Warning: Failed to award completion gems: $e');
         }
       }
 
-      // Track quest progress
+      // Star-based Gem rewards (only for new/better star achievements)
+      final previousStars = existingResult?.starsEarned ?? 0;
+      if (result.starsEarned > previousStars) {
+        try {
+          await WalletService.awardCampaignStarGems(level.id, result.starsEarned, existingResult == null, context: context);
+        } catch (e) {
+          print('Warning: Failed to award star gems: $e');
+        }
+      }
+    }
+
+    // Track quest progress with error handling to prevent hanging
+    try {
       await QuestService.trackProgress('complete_campaign_level', 
         amount: 1,
         context: context,
@@ -223,60 +255,75 @@ class CampaignService {
           'levelId': level.id,
           'levelNumber': level.levelNumber,
           'sectionNumber': level.sectionNumber,
-          'score': score,
-          'accuracy': accuracy,
-          'starsEarned': starsEarned,
+          'score': result.score,
+          'accuracy': result.accuracy,
+          'starsEarned': result.starsEarned,
           'isFirstTime': existingResult == null,
         });
+    } catch (e) {
+      print('Warning: Failed to track campaign level progress: $e');
+    }
 
-      // Track star earning progress
-      if (starsEarned > 0) {
+    // Track star earning progress
+    if (result.starsEarned > 0) {
+      try {
         await QuestService.trackProgress('earn_campaign_stars', 
-          amount: starsEarned,
+          amount: result.starsEarned,
           context: context,
           metadata: {
             'levelId': level.id,
-            'starsEarned': starsEarned,
+            'starsEarned': result.starsEarned,
           });
+      } catch (e) {
+        print('Warning: Failed to track star earning progress: $e');
       }
+    }
 
-      // Track perfect score achievement
-      if (accuracy >= 1.0) {
+    // Track perfect score achievement
+    if (result.accuracy >= 1.0) {
+      try {
         await QuestService.trackProgress('perfect_score', 
           amount: 1,
           context: context,
           metadata: {
             'levelId': level.id,
             'mode': 'campaign',
-            'accuracy': accuracy,
+            'accuracy': result.accuracy,
           });
+      } catch (e) {
+        print('Warning: Failed to track perfect score progress: $e');
       }
+    }
 
-      // Track accuracy-based quests
+    // Track accuracy-based quests
+    try {
       await QuestService.trackProgress('achieve_accuracy', 
         amount: 1,
         context: context,
         metadata: {
-          'accuracy': accuracy,
+          'accuracy': result.accuracy,
           'mode': 'campaign',
         });
+    } catch (e) {
+      print('Warning: Failed to track accuracy progress: $e');
+    }
 
-      // Track section completion (if this completes a section)
-      if (_isLevelLastInSection(level)) {
+    // Track section completion (if this completes a section)
+    if (_isLevelLastInSection(level)) {
+      try {
         await QuestService.trackProgress('complete_campaign_section', 
           amount: 1,
           context: context,
           metadata: {
             'sectionNumber': level.sectionNumber,
           });
+      } catch (e) {
+        print('Warning: Failed to track section completion progress: $e');
       }
-
-      print('Successfully saved campaign result: ${level.id}');
-      return result;
-    } catch (e) {
-      print('Error submitting campaign result: $e');
-      rethrow;
     }
+
+    print('Successfully saved campaign result: ${level.id}');
+    return result;
   }
 
   /// Update user's campaign progress after completing a level
