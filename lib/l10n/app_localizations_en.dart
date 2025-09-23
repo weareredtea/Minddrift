@@ -405,6 +405,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get showMatchSummary => 'Show Match Summary';
 
+  // Multiplayer additions (new)
+  String get close => 'Close';
+  String get observingYourTeam => 'Observing your team';
+  String get navigatorObserverDescription => 'You are the Navigator. Watch as the Seekers place their guess.';
+  String get viewRoundResults => 'View Round Results';
+  String get notReady => 'Not Ready';
+  String get theyAreSubmittingClue => 'They are submitting a clue...';
+  String waitingForPlayer(String name) => 'Waiting for $name';
+  String waitingForPlayersCount(int count) => 'Waiting for $count player${count == 1 ? '' : 's'}...';
+  String get removeBot => 'Remove Bot';
+
   @override
   String get startNextRound => 'Start Next Round';
 

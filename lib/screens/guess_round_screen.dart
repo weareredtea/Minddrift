@@ -33,8 +33,8 @@ class GuessRoundScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        // Role-specific title (use literal to avoid new localization keys)
-        title: Text(isNavigator ? 'Observing your team' : loc.seekersMakeGuess),
+        // Role-specific title
+        title: Text(isNavigator ? loc.observingYourTeam : loc.seekersMakeGuess),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -54,7 +54,7 @@ class GuessRoundScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      'You are the Navigator. Watch as the Seekers place their guess.',
+                      loc.navigatorObserverDescription,
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ),
@@ -208,7 +208,7 @@ class GuessRoundScreen extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           child: Text(
-            'View Round Results',
+            AppLocalizations.of(context)!.viewRoundResults,
             style: const TextStyle(
               fontSize: 16, 
               fontWeight: FontWeight.bold,

@@ -403,6 +403,17 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get showMatchSummary => 'عرض ملخص المباراة';
 
+  // Multiplayer additions (new)
+  String get close => 'إغلاق';
+  String get observingYourTeam => 'تراقب فريقك';
+  String get navigatorObserverDescription => 'أنت الموجِّه. شاهد الباحثين وهم يضعون إجابتهم.';
+  String get viewRoundResults => 'عرض نتائج الجولة';
+  String get notReady => 'غير جاهز';
+  String get theyAreSubmittingClue => 'يقومون بإرسال التلميح...';
+  String waitingForPlayer(String name) => 'ننتظر ${name}';
+  String waitingForPlayersCount(int count) => 'ننتظر ${count} لاعب${count == 1 ? '' : 'ين'}...';
+  String get removeBot => 'إزالة الروبوت';
+
   @override
   String get startNextRound => 'ابدأ الجولة التالية';
 

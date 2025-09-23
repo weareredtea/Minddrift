@@ -144,7 +144,7 @@ class _CategoryTagState extends State<CategoryTag> with SingleTickerProviderStat
                 fontSize: widget.fontSize, // treated as max size
                 color: widget.color,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Chewy',
+                fontFamily: Localizations.localeOf(context).languageCode == 'ar' ? 'Beiruti' : 'Chewy',
               ),
               maxLines: 1,
               minFontSize: 10,

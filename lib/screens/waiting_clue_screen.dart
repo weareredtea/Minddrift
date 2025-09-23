@@ -35,13 +35,13 @@ class WaitingClueScreen extends StatelessWidget {
               PulsatingAvatar(avatarId: nav.avatarId),
               const SizedBox(height: 24),
               Text(
-                'Waiting for ${nav.displayName}',
+                loc.waitingForPlayer(nav.displayName),
                 style: Theme.of(context).textTheme.headlineSmall,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                'They are submitting a clue...',
+                loc.theyAreSubmittingClue,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
                 textAlign: TextAlign.center,
               ),

@@ -882,6 +882,17 @@ abstract class AppLocalizations {
   /// **'Show Match Summary'**
   String get showMatchSummary;
 
+  // Multiplayer additions (new keys only; avoid duplicates)
+  String get close;
+  String get observingYourTeam;
+  String get navigatorObserverDescription;
+  String get viewRoundResults;
+  String get notReady;
+  String get theyAreSubmittingClue;
+  String waitingForPlayer(String name);
+  String waitingForPlayersCount(int count);
+  String get removeBot;
+
   /// No description provided for @startNextRound.
   ///
   /// In en, this message translates to:

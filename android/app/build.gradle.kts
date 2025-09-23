@@ -90,8 +90,8 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
         targetSdk = 35
-        versionCode = 36
-        versionName = "2.2.0"
+        versionCode = 37
+        versionName = "2.2.1"
         
         // Enable edge-to-edge support
         resConfigs("en", "ar") // Specify supported languages for optimization

@@ -1,6 +1,7 @@
 // lib/screens/lobby_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -175,37 +176,37 @@ class _LobbyScreenState extends State<LobbyScreen> {
     switch (bundleId) {
       case 'bundle.free':
         return BundleInfo(
-          name: 'Free Bundle',
+          name: AppLocalizations.of(context)!.freeBundle,
           color: Colors.green,
           icon: Icons.free_breakfast,
         );
       case 'bundle.horror':
         return BundleInfo(
-          name: 'Horror Bundle',
+          name: AppLocalizations.of(context)!.horrorBundle,
           color: Colors.red,
           icon: Icons.psychology,
         );
       case 'bundle.kids':
         return BundleInfo(
-          name: 'Kids Bundle',
+          name: AppLocalizations.of(context)!.kidsBundle,
           color: Colors.orange,
           icon: Icons.child_care,
         );
       case 'bundle.food':
         return BundleInfo(
-          name: 'Food Bundle',
+          name: AppLocalizations.of(context)!.foodBundle,
           color: Colors.brown,
           icon: Icons.restaurant,
         );
       case 'bundle.nature':
         return BundleInfo(
-          name: 'Nature Bundle',
+          name: AppLocalizations.of(context)!.natureBundle,
           color: Colors.green,
           icon: Icons.eco,
         );
       case 'bundle.fantasy':
         return BundleInfo(
-          name: 'Fantasy Bundle',
+          name: AppLocalizations.of(context)!.fantasyBundle,
           color: Colors.purple,
           icon: Icons.auto_awesome,
         );
@@ -355,7 +356,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 },
                 icon: const Icon(Icons.share, color: Colors.white),
                 label: Text(
-                  'Invite Friends',
+                  loc.inviteFriends,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -381,12 +382,12 @@ class _LobbyScreenState extends State<LobbyScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Invite Friends'),
+        title: Text(loc.inviteFriends),
         content: Text('Room Code: ${widget.roomId}\n\nShare this code with your friends to join the game!'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
+            child: Text(loc.close),
           ),
           ElevatedButton(
             onPressed: () {
@@ -394,12 +395,12 @@ class _LobbyScreenState extends State<LobbyScreen> {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Room code copied to clipboard!'),
+                  content: Text(loc.roomCodeCopied),
                   backgroundColor: Colors.green,
                 ),
               );
             },
-            child: Text('Copy Code'),
+            child: Text(loc.copyRoomCode),
           ),
         ],
       ),
@@ -595,7 +596,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                if (gameState.isHost)
+                if (gameState.isHost && kDebugMode)
                   ElevatedButton.icon(
                     onPressed: _isManagingBot ? null : _manageTestBot,
                     icon: _isManagingBot 
@@ -605,7 +606,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Icon(_isBotInGame ? Icons.remove : Icons.add),
-                    label: Text(_isBotInGame ? 'Remove Bot' : 'Add Bot'),
+                    label: Text(_isBotInGame ? AppLocalizations.of(context)!.removeBot : AppLocalizations.of(context)!.addBot),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _isBotInGame ? Colors.red.shade600 : Colors.blue.shade600,
                       foregroundColor: Colors.white,
@@ -620,7 +621,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
               child: players.isEmpty 
                   ? Center(
                       child: Text(
-                        'Waiting for players to join...',
+                        AppLocalizations.of(context)!.waitingForPlayers,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Colors.white70,
                         ),
@@ -744,7 +745,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
     final isHost = gameState.isHost;
     final allReady = gameState.allPlayersReady;
-    final notReadyCount = gameState.players.where((p) => !p.ready).length;
+    // final notReadyCount = gameState.players.where((p) => !p.ready).length;
 
     return Column(
       children: [
@@ -770,7 +771,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  me.ready ? 'Ready' : 'Not Ready',
+                  me.ready ? AppLocalizations.of(context)!.ready : AppLocalizations.of(context)!.notReady,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -807,8 +808,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
                   const SizedBox(width: 12),
                   Text(
                     allReady 
-                        ? 'Start Game' 
-                        : 'Waiting for $notReadyCount player${notReadyCount == 1 ? '' : 's'}...',
+                        ? AppLocalizations.of(context)!.startGame 
+                        : AppLocalizations.of(context)!.waitingForPlayersToGetReady,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
