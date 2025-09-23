@@ -42,16 +42,15 @@ android {
     ndkVersion = "27.0.12077973"
     
     // Fix for 16KB native library alignment
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = false
-        }
-    }
-    
-    // Additional native library alignment configuration
     packaging {
         jniLibs {
             useLegacyPackaging = false
+            // Enable 16KB page size alignment for native libraries
+            pickFirsts += "**/libc++_shared.so"
+            pickFirsts += "**/libjsc.so"
+        }
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 
@@ -91,11 +90,16 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
         targetSdk = 34
-        versionCode = 34
-        versionName = "2.1.4"
+        versionCode = 35
+        versionName = "2.1.5"
         
         // Enable edge-to-edge support
         resConfigs("en", "ar") // Specify supported languages for optimization
+        
+        // Enable 16KB page size support
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
     }
 
     buildTypes {
