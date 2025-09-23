@@ -127,9 +127,10 @@ class _RadialSpectrumWidgetState extends State<RadialSpectrumWidget> {
       child: IgnorePointer(
         ignoring: widget.isReadOnly,
         child: GestureDetector(
-          onPanStart: _onPanStart,
-          onPanUpdate: _onPanUpdate,
-          onPanEnd: _onPanEnd,
+          // This is the definitive fix - set callbacks to null when in read-only mode
+          onPanStart: widget.isReadOnly ? null : _onPanStart,
+          onPanUpdate: widget.isReadOnly ? null : _onPanUpdate,
+          onPanEnd: widget.isReadOnly ? null : _onPanEnd,
           // Performance optimization: Expand touch area for better responsiveness
           behavior: HitTestBehavior.opaque,
           child: CustomPaint(

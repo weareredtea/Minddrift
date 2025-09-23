@@ -149,7 +149,7 @@ class GameService {
 
       // Update round document with final score
       transaction.update(roundRef, {
-        'finalScore': score,
+        'score': score, // Fixed: Use 'score' field name to match Round model
         'finalDistance': distance,
         'finalizedAt': FieldValue.serverTimestamp(),
       });

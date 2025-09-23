@@ -124,17 +124,50 @@ class TestBotService {
             break;
 
           case 'guessing':
+            if (kDebugMode) {
+              print('🤖 BOT DEBUG: Entering guessing case');
+              print('🤖 BOT DEBUG: My role is: $myRole');
+              print('🤖 BOT DEBUG: Is Seeker or Saboteur? ${myRole == Role.Seeker || myRole == Role.Saboteur}');
+            }
+            
             if (myRole == Role.Seeker || myRole == Role.Saboteur) {
               // REFACTORED: Use PlayerService to check player status.
               final playerIsGuessReady = await _playerService.isPlayerGuessReady(roomId, botUid);
+              if (kDebugMode) {
+                print('🤖 BOT DEBUG: Role is $myRole. Is player guess ready? $playerIsGuessReady.');
+              }
+              
               if (!playerIsGuessReady) {
                 final randomGuess = _random.nextInt(101).toDouble();
-                // REFACTORED: Use GameService and PlayerService for guessing actions.
-                await _gameService.updateGroupGuess(roomId, randomGuess);
-                await _playerService.setGuessReady(roomId, true, uid: botUid);
                 if (kDebugMode) {
-                  print('🤖 Bot (Seeker/Saboteur) made a guess at: $randomGuess');
+                  print('🤖 BOT DEBUG: Making guess at position: $randomGuess');
                 }
+                
+                try {
+                  // REFACTORED: Use GameService and PlayerService for guessing actions.
+                  await _gameService.updateGroupGuess(roomId, randomGuess);
+                  if (kDebugMode) {
+                    print('🤖 BOT DEBUG: Successfully updated group guess to: $randomGuess');
+                  }
+                  
+                  await _playerService.setGuessReady(roomId, true, uid: botUid);
+                  if (kDebugMode) {
+                    print('🤖 BOT DEBUG: Successfully set guess ready to true');
+                    print('🤖 Bot (Seeker/Saboteur) made a guess at: $randomGuess');
+                  }
+                } catch (e) {
+                  if (kDebugMode) {
+                    print('🤖 BOT DEBUG: Error during guessing actions: $e');
+                  }
+                }
+              } else {
+                if (kDebugMode) {
+                  print('🤖 BOT DEBUG: Bot is already guess ready, skipping guess submission');
+                }
+              }
+            } else {
+              if (kDebugMode) {
+                print('🤖 BOT DEBUG: Bot is not a Seeker or Saboteur, skipping guess logic');
               }
             }
             break;

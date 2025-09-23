@@ -119,6 +119,11 @@ class GameStateProvider extends ChangeNotifier {
       await _gameService.finalizeRound(_roomId);
     }
   }
+
+  /// Action for a player to set their guess ready status.
+  Future<void> setGuessReady(bool isReady) async {
+    await _playerService.setGuessReady(_roomId, isReady);
+  }
   
   // Add other game actions here as needed...
 

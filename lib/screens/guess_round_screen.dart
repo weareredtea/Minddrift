@@ -1,5 +1,6 @@
 // lib/screens/guess_round_screen.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:minddrift/providers/game_state_provider.dart';
@@ -9,7 +10,6 @@ import 'package:minddrift/widgets/global_chat_overlay.dart';
 import '../l10n/app_localizations.dart';
 import '../services/category_service.dart';
 import '../services/navigation_service.dart';
-import '../services/player_service.dart';
 
 class GuessRoundScreen extends StatelessWidget {
   final String roomId;
@@ -24,7 +24,12 @@ class GuessRoundScreen extends StatelessWidget {
 
     final currentRound = gameState.currentRound;
     final myRole = gameState.myPlayerStatus?.role;
-    final isNavigator = myRole == 'Navigator';
+    final isNavigator = myRole?.toLowerCase() == 'navigator';
+    
+    if (kDebugMode) {
+      print('🚨 DEBUG: GuessRoundScreen - MyRole: $myRole, IsNavigator: $isNavigator');
+      print('🚨 DEBUG: MyPlayerStatus: ${gameState.myPlayerStatus}');
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -40,7 +45,7 @@ class GuessRoundScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          Padding(
+          SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
@@ -68,7 +73,9 @@ class GuessRoundScreen extends StatelessWidget {
                       secretValue: isNavigator ? (currentRound.secretPosition ?? 50).toDouble() : null,
                       // The navigator cannot change the guess.
                       isReadOnly: isNavigator,
-                      onChanged: (newValue) {
+                      onChanged: isNavigator ? (_) {
+                        // Navigator cannot change the guess - no-op
+                      } : (newValue) {
                         // Action: Call the provider method to update the guess.
                         gameProvider.updateGroupGuess(newValue);
                       },
@@ -82,6 +89,7 @@ class GuessRoundScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 // Context-aware action buttons
                 _buildActionButtons(context, gameProvider, gameState),
+                const SizedBox(height: 20), // Extra padding at bottom for scroll
               ],
             ),
           ),
@@ -138,47 +146,106 @@ class GuessRoundScreen extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, GameStateProvider gameProvider, dynamic gameState) {
+    // --- Get all necessary state variables for clarity ---
     final isHost = gameState.isHost as bool;
-    final me = gameState.myPlayerStatus as PlayerStatus?;
-    if (me == null) return const SizedBox.shrink();
+    final myStatus = gameState.myPlayerStatus as PlayerStatus?;
+    if (myStatus == null) {
+      if (kDebugMode) {
+        print('🚨 DEBUG: myStatus is null, returning empty widget');
+      }
+      return const SizedBox.shrink(); // Safety check
+    }
 
-    // For Seekers: Lock In Guess
-    if (me.role == 'Seeker') {
+    final myRole = myStatus.role;
+    final isMeReady = myStatus.guessReady;
+    
+    if (kDebugMode) {
+      print('🚨 DEBUG: Action Buttons - Role: $myRole, IsHost: $isHost, IsMeReady: $isMeReady');
+    }
+
+    final seekers = (gameState.players as List<PlayerStatus>).where((p) => p.role?.toLowerCase() == 'seeker').toList();
+    final totalSeekers = seekers.length;
+    final readySeekersCount = seekers.where((p) => p.guessReady).length;
+    final areAllSeekersReady = totalSeekers > 0 && readySeekersCount == totalSeekers;
+
+    // --- Build Widgets Based on Precise Rules ---
+
+    Widget buildSeekerButton() {
       return SizedBox(
         width: double.infinity,
         height: 48,
         child: ElevatedButton(
-          onPressed: me.guessReady ? null : () async {
-            await context.read<PlayerService>().setGuessReady(gameState.roomId as String, true);
+          onPressed: () {
+            // Toggle ready state through GameStateProvider for consistent state updates
+            final gameProvider = context.read<GameStateProvider>();
+            gameProvider.setGuessReady(!isMeReady);
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: me.guessReady ? Colors.green[700] : Colors.blue[600],
+            backgroundColor: isMeReady ? Colors.green[600] : Colors.blue[600],
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: Text(me.guessReady ? 'Guess Locked In!' : 'Lock In Guess'),
+          child: Text(
+            'I\'m Ready ($readySeekersCount/$totalSeekers)',
+            style: const TextStyle(
+              fontSize: 16, 
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
         ),
       );
     }
 
-    // For Host: Finalize Round when all seekers ready
-    if (isHost) {
-      final seekers = (gameState.players as List<PlayerStatus>).where((p) => p.role == 'Seeker');
-      final allSeekersReady = seekers.isNotEmpty && seekers.every((p) => p.guessReady);
+    Widget buildHostButton() {
       return SizedBox(
         width: double.infinity,
         height: 48,
         child: ElevatedButton(
-          onPressed: allSeekersReady ? () => gameProvider.finalizeRound() : null,
+          onPressed: areAllSeekersReady ? () => gameProvider.finalizeRound() : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: allSeekersReady ? Colors.amber[700] : Colors.grey[700],
+            backgroundColor: Colors.amber[600],
+            disabledBackgroundColor: Colors.grey[700],
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: Text(allSeekersReady ? AppLocalizations.of(context)!.finalizeRound : 'Waiting for Seekers...'),
+          child: Text(
+            'View Round Results',
+            style: const TextStyle(
+              fontSize: 16, 
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
         ),
       );
     }
 
-    // Navigator (non-host): no action button
-    return const SizedBox.shrink();
+    // --- Return the correct layout based on Role and Host status ---
+
+    if (myRole?.toLowerCase() == 'seeker') {
+      if (kDebugMode) {
+        print('🚨 DEBUG: Building Seeker buttons - TotalSeekers: $totalSeekers, ReadyCount: $readySeekersCount');
+      }
+      return Column(
+        children: [
+          buildSeekerButton(),
+          // If the Seeker is ALSO the host, show the host button when everyone is ready.
+          if (isHost && areAllSeekersReady) ...[
+            const SizedBox(height: 12),
+            buildHostButton(),
+          ],
+        ],
+      );
+    }
+
+    if (myRole?.toLowerCase() == 'navigator') {
+      // The Navigator only sees a button if they are the Host and everyone is ready.
+      if (isHost && areAllSeekersReady) {
+        return buildHostButton();
+      }
+      // Otherwise, the Navigator sees no buttons.
+      return const SizedBox.shrink();
+    }
+
+    return const SizedBox.shrink(); // Fallback
   }
 }
