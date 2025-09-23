@@ -287,8 +287,8 @@ class GameService {
         'secretPosition': secretPosition,
         'roundNumber': currentRoundNumber,
         'categoryId': selectedCategory.id,
-        'categoryLeft': selectedCategory.getLeftText('en'),
-        'categoryRight': selectedCategory.getRightText('en'),
+        'categoryLeft': selectedCategory.getPositiveText('en'),
+        'categoryRight': selectedCategory.getNegativeText('en'),
       });
 
       await batch.commit();

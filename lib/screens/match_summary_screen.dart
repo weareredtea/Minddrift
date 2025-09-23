@@ -52,7 +52,7 @@ class _MatchSummaryScreenState extends State<MatchSummaryScreen> {
     final loc = AppLocalizations.of(context)!;
 
     final players = gameState.players;
-    final totalGroupScore = 0; // TODO: Add totalGroupScore to Round model or calculate from rounds
+    final totalGroupScore = gameState.totalGroupScore;
     final groupPerformance = _getGroupPerformance(totalGroupScore, loc);
 
     return Scaffold(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:minddrift/widgets/unified_spectrum.dart';
 import 'package:minddrift/widgets/effect_card.dart';
-import 'package:minddrift/widgets/keyboard_aware_scroll_view.dart';
+// import 'package:minddrift/widgets/keyboard_aware_scroll_view.dart';
 // Import for DocumentSnapshot
 
 import '../providers/game_state_provider.dart';
@@ -110,17 +110,19 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                 }
                 final secretPos = currentRound.secretPosition!.toDouble();
                 final categoryId = currentRound.categoryId!; // We already checked it's not null
-                final categoryLeft = CategoryService.getLocalizedCategoryText(context, categoryId, true);
-                final categoryRight = CategoryService.getLocalizedCategoryText(context, categoryId, false);
+                final categoryLeft = CategoryService.getPositiveCategoryText(context, categoryId);
+                final categoryRight = CategoryService.getNegativeCategoryText(context, categoryId);
           final effect = currentRound.effect; // Get the effect
 
           // Apply 'No Clue' effect if active
           final isNoClueEffect = effect == Effect.noClue;
 
-          return KeyboardAwareColumn(
-            padding: const EdgeInsets.all(16),
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                 // Role explanation card
                 Card(
                   child: ListTile(
@@ -139,7 +141,7 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
                 
                 Text(
                   loc.secretPositionSet,
@@ -151,7 +153,7 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                 // Display active effect if any
                 if (effect != null && effect != Effect.none)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
+                    padding: const EdgeInsets.only(bottom: 16.0),
                     child: EffectCard(effect: effect),
                   ),
 
@@ -200,7 +202,7 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                     ),
                   ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
                 ElevatedButton(
                   onPressed: (_clue.isEmpty && !isNoClueEffect) || _submitting
@@ -228,12 +230,14 @@ class _SetupRoundScreenState extends State<SetupRoundScreen> {
                         style: Theme.of(context).textTheme.labelLarge,
                       ),
                 ),
+                const SizedBox(height: 20),
               ],
-            );
+            ),
+          ));
               },
             ),
-    ),
-          // Global Chat Overlay
+          ),
+          // Global Chat Overlay (re-enabled)
           GlobalChatOverlay(
             roomId: widget.roomId,
             roomName: 'Room ${widget.roomId}',

@@ -11,6 +11,7 @@ class GameState {
   final Round currentRound;
   final bool isHost;
   final PlayerStatus? myPlayerStatus;
+  final int totalGroupScore;
 
   const GameState({
     required this.roomId,
@@ -19,6 +20,7 @@ class GameState {
     required this.currentRound,
     this.isHost = false,
     this.myPlayerStatus,
+    this.totalGroupScore = 0,
   });
 
   // Helper getters to simplify UI logic
@@ -30,6 +32,7 @@ class GameState {
       roomId: roomId,
       roomStatus: 'loading',
       currentRound: Round(),
+      totalGroupScore: 0,
     );
   }
 
@@ -39,6 +42,7 @@ class GameState {
     Round? currentRound,
     bool? isHost,
     PlayerStatus? myPlayerStatus,
+    int? totalGroupScore,
   }) {
     return GameState(
       roomId: roomId,
@@ -47,6 +51,7 @@ class GameState {
       currentRound: currentRound ?? this.currentRound,
       isHost: isHost ?? this.isHost,
       myPlayerStatus: myPlayerStatus ?? this.myPlayerStatus,
+      totalGroupScore: totalGroupScore ?? this.totalGroupScore,
     );
   }
 }

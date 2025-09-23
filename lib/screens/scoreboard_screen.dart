@@ -1,9 +1,7 @@
 // lib/screens/scoreboard_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:minddrift/models/round_history_entry.dart';
 import 'package:minddrift/screens/dialog_helpers.dart';
-import '../services/user_service.dart';
 import '../models/round.dart'; // Import for Effect enum
 import '../widgets/effect_card.dart';
 import '../l10n/app_localizations.dart';

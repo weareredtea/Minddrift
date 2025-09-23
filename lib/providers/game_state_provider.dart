@@ -43,6 +43,7 @@ class GameStateProvider extends ChangeNotifier {
       _state = _state.copyWith(
         roomStatus: roomData['status'] as String? ?? 'lobby',
         isHost: roomData['creator'] == _authProvider.uid,
+        totalGroupScore: (roomData['totalGroupScore'] as num?)?.toInt() ?? _state.totalGroupScore,
       );
       notifyListeners();
     });

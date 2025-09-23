@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:minddrift/widgets/radial_spectrum.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 /// Unified spectrum widget that provides consistent UI across all game modes
 /// This widget is NOT a Card itself - it's a transparent layout container
@@ -64,24 +65,30 @@ class UnifiedSpectrum extends StatelessWidget {
         const SizedBox(height: 16),
 
         // 3. Category Labels with animated CategoryTag
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: CategoryTag(
-                label: startLabel,
-                color: const Color(0xFF4FC3F7), // Blue for start
+        // Force LTR so labels stay visually left/right even in RTL locales (e.g., Arabic)
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: CategoryTag(
+                  label: startLabel,
+                  color: const Color(0xFF4FC3F7), // Blue for start (left)
+                ),
               ),
-            ),
-            const SizedBox(width: 150), // Space for the spectrum
-            Expanded(
-              child: CategoryTag(
-                label: endLabel,
-                color: const Color(0xFFEF5350), // Red for end
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.28, // Responsive spacer for arc
               ),
-            ),
-          ],
+              Expanded(
+                child: CategoryTag(
+                  label: endLabel,
+                  color: const Color(0xFFEF5350), // Red for end (right)
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -130,14 +137,18 @@ class _CategoryTagState extends State<CategoryTag> with SingleTickerProviderStat
       builder: (context, child) {
         return Column(
           children: [
-            Text(
+            AutoSizeText(
               widget.label,
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: widget.fontSize,
+                fontSize: widget.fontSize, // treated as max size
                 color: widget.color,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Chewy',
               ),
+              maxLines: 1,
+              minFontSize: 10,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
             Container(

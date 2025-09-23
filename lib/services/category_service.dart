@@ -69,32 +69,47 @@ class CategoryService {
     _categoryCache.clear();
   }
   
-  /// Get localized category text
-  static String getLocalizedCategoryText(BuildContext context, String categoryId, bool isLeft) {
+  /// Get positive (left pole) text
+  static String getPositiveCategoryText(BuildContext context, String categoryId) {
     final locale = Localizations.localeOf(context).languageCode;
-    
-    // Debug logging for release mode issues
     if (categoryId.isEmpty) {
       print('⚠️ CategoryService: categoryId is empty');
-      return isLeft ? 'LEFT' : 'RIGHT';
+      return 'LEFT';
     }
-    
     final category = allCategories.firstWhere(
       (cat) => cat.id == categoryId,
       orElse: () {
         print('⚠️ CategoryService: Category not found for ID: $categoryId');
-        return CategoryItem(id: '', left: 'LEFT', right: 'RIGHT', bundleId: 'bundle.free');
+        return CategoryItem(id: '', positive: const {'en': 'LEFT'}, negative: const {'en': 'RIGHT'}, bundleId: 'bundle.free');
       },
     );
-    
-    final result = isLeft ? category.getLeftText(locale) : category.getRightText(locale);
-    
-    // Debug logging for empty results
+    final result = category.getPositiveText(locale);
     if (result.isEmpty) {
-      print('⚠️ CategoryService: Empty text for categoryId: $categoryId, isLeft: $isLeft, locale: $locale');
-      return isLeft ? 'LEFT' : 'RIGHT';
+      print('⚠️ CategoryService: Empty positive text for categoryId: $categoryId, locale: $locale');
+      return 'LEFT';
     }
-    
+    return result;
+  }
+
+  /// Get negative (right pole) text
+  static String getNegativeCategoryText(BuildContext context, String categoryId) {
+    final locale = Localizations.localeOf(context).languageCode;
+    if (categoryId.isEmpty) {
+      print('⚠️ CategoryService: categoryId is empty');
+      return 'RIGHT';
+    }
+    final category = allCategories.firstWhere(
+      (cat) => cat.id == categoryId,
+      orElse: () {
+        print('⚠️ CategoryService: Category not found for ID: $categoryId');
+        return CategoryItem(id: '', positive: const {'en': 'LEFT'}, negative: const {'en': 'RIGHT'}, bundleId: 'bundle.free');
+      },
+    );
+    final result = category.getNegativeText(locale);
+    if (result.isEmpty) {
+      print('⚠️ CategoryService: Empty negative text for categoryId: $categoryId, locale: $locale');
+      return 'RIGHT';
+    }
     return result;
   }
 }

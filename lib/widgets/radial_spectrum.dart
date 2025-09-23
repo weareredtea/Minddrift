@@ -166,7 +166,8 @@ class _GaugePainter extends CustomPainter {
   // Default colors (performance optimized)
   static const Color _defaultArcColor = Color(0xFF00A896); // Teal
   static const Color _defaultNeedleColor = Colors.white;
-  static const Color _defaultBackgroundColor = Colors.transparent;
+  // Removed unused default background color (handled via backgroundColor param)
+  // static const Color _defaultBackgroundColor = Colors.transparent;
   static const Color _defaultTrackColor = Colors.grey;
 
   const _GaugePainter({
@@ -190,7 +191,6 @@ class _GaugePainter extends CustomPainter {
     
     // Performance optimization: Create paint objects with themed colors
     final currentArcColor = arcColor ?? _defaultArcColor;
-    final currentNeedleColor = needleColor ?? _defaultNeedleColor;
     
     final fillPaint = Paint()..color = currentArcColor.withOpacity(0.1);
     final arcPaint = Paint()

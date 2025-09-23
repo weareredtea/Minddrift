@@ -67,8 +67,8 @@ class DailyChallengeService {
       difficulty: template.difficulty,
       date: date,
       bundleId: categoryInfo.bundleId,
-      leftLabel: categoryInfo.getLeftText(languageCode),
-      rightLabel: categoryInfo.getRightText(languageCode),
+      leftLabel: categoryInfo.getPositiveText(languageCode),
+      rightLabel: categoryInfo.getNegativeText(languageCode),
     );
   }
 
@@ -93,8 +93,8 @@ class DailyChallengeService {
       difficulty: serverChallenge.difficulty,
       date: serverChallenge.date,
       bundleId: serverChallenge.bundleId,
-      leftLabel: categoryInfo.getLeftText(languageCode),
-      rightLabel: categoryInfo.getRightText(languageCode),
+      leftLabel: categoryInfo.getPositiveText(languageCode),
+      rightLabel: categoryInfo.getNegativeText(languageCode),
     );
   }
 

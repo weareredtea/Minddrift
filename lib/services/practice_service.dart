@@ -38,8 +38,8 @@ class PracticeService {
     // Get category info for labels
     final categoryInfo = allCategories.firstWhere((cat) => cat.id == categoryId);
     final bundleId = categoryInfo.bundleId;
-    final leftLabel = categoryInfo.getLeftText(languageCode);
-    final rightLabel = categoryInfo.getRightText(languageCode);
+    final leftLabel = categoryInfo.getPositiveText(languageCode);
+    final rightLabel = categoryInfo.getNegativeText(languageCode);
     
     return PracticeChallenge(
       categoryId: categoryId,

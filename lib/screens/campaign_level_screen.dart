@@ -6,6 +6,7 @@ import '../services/campaign_service.dart';
 import '../models/campaign_models.dart';
 import '../data/category_data.dart';
 import '../widgets/unified_spectrum.dart';
+import '../data/campaign_data.dart';
 import '../l10n/app_localizations.dart';
 // Removed unused import
 
@@ -26,6 +27,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
   bool _isSubmitting = false;
   CampaignResult? _result;
   DateTime? _startTime;
+  String? _nextLevelId;
+  bool _canProceedNext = false;
   
   late AnimationController _pulseController;
   late AnimationController _resultController;
@@ -277,7 +280,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      category.getLeftText('en'),
+                      category.getPositiveText('en'),
                       style: TextStyle(
                         fontFamily: _getBodyFont(),
                         fontSize: 16,
@@ -285,7 +288,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                       ),
                     ),
                     Text(
-                      category.getRightText('en'),
+                      category.getNegativeText('en'),
                       style: TextStyle(
                         fontFamily: _getBodyFont(),
                         fontSize: 16,
@@ -361,8 +364,8 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: UnifiedSpectrum(
-                startLabel: category.getLeftText(Localizations.localeOf(context).languageCode),
-                endLabel: category.getRightText(Localizations.localeOf(context).languageCode),
+                startLabel: category.getPositiveText(Localizations.localeOf(context).languageCode),
+                endLabel: category.getNegativeText(Localizations.localeOf(context).languageCode),
                 value: _currentValue,
                 onChanged: _isSubmitting ? (value) {} : (value) {
                   setState(() {
@@ -539,7 +542,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                 width: double.infinity,
                 height: 56,
                 child: OutlinedButton(
-                  onPressed: _backToCampaign,
+                  onPressed: _canProceedNext ? _goToNextLevel : null,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     side: const BorderSide(color: Colors.white24),
@@ -548,7 +551,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
                     ),
                   ),
                   child: Text(
-                    'Back to Campaign',
+                    AppLocalizations.of(context)?.nextChallenge ?? 'Next',
                     style: TextStyle(
                       fontFamily: _getHeaderFont(),
                       fontSize: 18,
@@ -652,6 +655,9 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
         _isSubmitting = false;
       });
 
+      // Compute next eligibility once result saved and progress updated
+      await _evaluateNextEligibility();
+
       // Start result animation
       _resultController.forward();
 
@@ -689,8 +695,42 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
     HapticFeedback.lightImpact();
   }
 
-  void _backToCampaign() {
-    Navigator.of(context).pop(true); // Return true to indicate level was played
+  Future<void> _evaluateNextEligibility() async {
+    // Determine the next level id based on current level
+    final current = _level!;
+    String? computedNextId;
+    if (current.levelNumber < 10) {
+      // Next level in same section
+      final nextLevelNumber = current.levelNumber + 1;
+      computedNextId = 'campaign_${(current.sectionNumber * 10 + nextLevelNumber - 10).toString().padLeft(3, '0')}';
+    } else if (current.sectionNumber < 4) {
+      // First level of next section
+      final nextSectionFirst = current.sectionNumber * 10 + 1;
+      computedNextId = 'campaign_${nextSectionFirst.toString().padLeft(3, '0')}';
+    }
+
+    bool canGo = false;
+    if (computedNextId != null) {
+      canGo = await CampaignService.canAccessLevel(computedNextId);
+    }
+
+    if (mounted) {
+      setState(() {
+        _nextLevelId = computedNextId;
+        _canProceedNext = canGo;
+      });
+    }
+  }
+
+  void _goToNextLevel() {
+    if (_nextLevelId == null) return;
+    final nextLevel = CampaignDatabase.getLevelById(_nextLevelId!);
+    if (nextLevel == null) return;
+
+    Navigator.of(context).pushReplacementNamed(
+      CampaignLevelScreen.routeName,
+      arguments: nextLevel,
+    );
   }
 
 }

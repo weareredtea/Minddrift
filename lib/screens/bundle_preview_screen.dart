@@ -114,7 +114,7 @@ class BundlePreviewScreen extends StatelessWidget {
                       size: 20,
                     ),
                     title: Text(
-                      '${CategoryService.getLocalizedCategoryText(context, category.id, true)} ↔ ${CategoryService.getLocalizedCategoryText(context, category.id, false)}',
+                      '${CategoryService.getPositiveCategoryText(context, category.id)} ↔ ${CategoryService.getNegativeCategoryText(context, category.id)}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                       ),

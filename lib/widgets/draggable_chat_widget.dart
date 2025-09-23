@@ -197,13 +197,19 @@ class _DraggableChatWidgetState extends State<DraggableChatWidget> {
         feedback: _chatBubbleContent(context, isDragging: true),
         childWhenDragging: const SizedBox.shrink(),
         onDragEnd: (details) {
-          final RenderBox renderBox = context.findRenderObject() as RenderBox;
-          final localPosition = renderBox.globalToLocal(details.offset);
-          
-          final relativeX = (localPosition.dx / (screenWidth - 64)).clamp(0.0, 1.0);
-          final relativeY = ((localPosition.dy - safeArea.top) / (screenHeight - safeArea.top - safeArea.bottom - 64)).clamp(0.0, 1.0);
-          
-          chatProvider.updateButtonPosition(Offset(relativeX, relativeY));
+          try {
+            final overlay = Overlay.of(context).context.findRenderObject();
+            if (overlay is! RenderBox) return;
+            final RenderBox renderBox = overlay;
+            final localPosition = renderBox.globalToLocal(details.offset);
+
+            final relativeX = (localPosition.dx / (screenWidth - 64)).clamp(0.0, 1.0);
+            final relativeY = ((localPosition.dy - safeArea.top) / (screenHeight - safeArea.top - safeArea.bottom - 64)).clamp(0.0, 1.0);
+
+            chatProvider.updateButtonPosition(Offset(relativeX, relativeY));
+          } catch (_) {
+            // If layout info isn't available, skip updating position this frame
+          }
         },
         child: _chatBubbleContent(context),
       ),

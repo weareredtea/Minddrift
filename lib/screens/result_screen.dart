@@ -101,8 +101,8 @@ class _ResultScreenState extends State<ResultScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(24),
                         child: UnifiedSpectrum(
-                          startLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', true),
-                          endLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', false),
+                          startLabel: CategoryService.getPositiveCategoryText(context, currentRound.categoryId ?? ''),
+                          endLabel: CategoryService.getNegativeCategoryText(context, currentRound.categoryId ?? ''),
                           value: (currentRound.groupGuessPosition ?? 50).toDouble(),
                           secretValue: (currentRound.secretPosition ?? 50).toDouble(),
                           onChanged: (_) {},

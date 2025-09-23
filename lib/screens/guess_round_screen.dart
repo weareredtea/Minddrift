@@ -66,8 +66,8 @@ class GuessRoundScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: UnifiedSpectrum(
-                      startLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', true),
-                      endLabel: CategoryService.getLocalizedCategoryText(context, currentRound.categoryId ?? '', false),
+                      startLabel: CategoryService.getPositiveCategoryText(context, currentRound.categoryId ?? ''),
+                      endLabel: CategoryService.getNegativeCategoryText(context, currentRound.categoryId ?? ''),
                       value: (currentRound.groupGuessPosition ?? 50).toDouble(),
                       // The navigator can see the secret value, others cannot.
                       secretValue: isNavigator ? (currentRound.secretPosition ?? 50).toDouble() : null,
