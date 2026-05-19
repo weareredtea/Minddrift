@@ -406,7 +406,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen>
               ),
               _buildStatCard(
                 'Daily Streaks',
-                '${_engagementData.averageDailyStreak.toStringAsFixed(1)}',
+                _engagementData.averageDailyStreak.toStringAsFixed(1),
                 'Average streak length',
                 Colors.orange,
                 Icons.local_fire_department,

@@ -38,7 +38,7 @@ dependencies {
 
 android {
     namespace = "com.redtea.minddrift"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
     
     // Fix for 16KB native library alignment
@@ -48,6 +48,9 @@ android {
             // Enable 16KB page size alignment for native libraries
             pickFirsts += "**/libc++_shared.so"
             pickFirsts += "**/libjsc.so"
+            // Additional 16KB page size support
+            pickFirsts += "**/libflutter.so"
+            pickFirsts += "**/libapp.so"
         }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -68,6 +71,9 @@ android {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -88,10 +94,10 @@ android {
         applicationId = "com.redtea.minddrift"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
-        targetSdk = 35
-        versionCode = 37
-        versionName = "2.2.1"
+        minSdk = flutter.minSdkVersion
+        targetSdk = 36
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
         
         // Enable edge-to-edge support
         resConfigs("en", "ar") // Specify supported languages for optimization
@@ -99,6 +105,13 @@ android {
         // Enable 16KB page size support
         ndk {
             abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
+        
+        // Additional 16KB page size configuration
+        externalNativeBuild {
+            cmake {
+                cppFlags += "-DANDROID_PAGE_SIZE_AGNOSTIC=1"
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 // lib/services/purchase_service.dart
 import 'dart:async';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,15 +17,21 @@ class PurchaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(region: 'us-central1');
 
-  // Product IDs
+  // Product IDs — must match App Store Connect / Google Play Console exactly
   static const List<String> productIds = [
-    'bundle.horror',
-    'bundle.kids', 
-    'bundle.food',
-    'bundle.nature',
-    'bundle.fantasy',
-    'all_access',
+    'com.redtea.minddrift.bundle.horror',
+    'com.redtea.minddrift.bundle.kids',
+    'com.redtea.minddrift.bundle.food',
+    'com.redtea.minddrift.bundle.nature',
+    'com.redtea.minddrift.bundle.fantasy',
+    'com.redtea.minddrift.all_access',
   ];
+
+  // Strip app-id prefix so internal code keeps using short IDs (e.g. 'bundle.horror')
+  static String _normalizeSkuId(String sku) {
+    const prefix = 'com.redtea.minddrift.';
+    return sku.startsWith(prefix) ? sku.substring(prefix.length) : sku;
+  }
 
   // State
   List<ProductDetails> _products = [];
@@ -173,8 +180,10 @@ class PurchaseService {
       
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        final ownedSkus = List<String>.from(data['owned_skus'] ?? []);
-        
+        final ownedSkus = List<String>.from(data['owned_skus'] ?? [])
+            .map(_normalizeSkuId)
+            .toList();
+
         _ownedBundles = {'bundle.free', ...ownedSkus};
         _ownedBundlesController.add(_ownedBundles);
         
@@ -202,8 +211,10 @@ class PurchaseService {
         
         if (snapshot.exists && snapshot.data() != null) {
           final data = snapshot.data()!;
-          final ownedSkus = List<String>.from(data['owned_skus'] ?? []);
-          
+          final ownedSkus = List<String>.from(data['owned_skus'] ?? [])
+              .map(_normalizeSkuId)
+              .toList();
+
           _ownedBundles = {'bundle.free', ...ownedSkus};
           _ownedBundlesController.add(_ownedBundles);
           
@@ -222,16 +233,31 @@ class PurchaseService {
     );
   }
 
-  /// Handle purchase updates from Google Play
-  void _handlePurchaseUpdate(List<PurchaseDetails> purchases) {
+  /// Handle purchase updates from the store
+  Future<void> _handlePurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final purchase in purchases) {
-      if (purchase.status == PurchaseStatus.purchased) {
-        _verifyPurchase(purchase);
-      }
-      
-      // Always complete the purchase on the device to finalize the transaction
-      if (purchase.pendingCompletePurchase) {
-        _iap.completePurchase(purchase);
+      switch (purchase.status) {
+        case PurchaseStatus.purchased:
+        case PurchaseStatus.restored:
+          await _verifyPurchase(purchase);
+          if (purchase.pendingCompletePurchase) {
+            await _iap.completePurchase(purchase);
+          }
+          break;
+        case PurchaseStatus.error:
+          _setError('Purchase failed: ${purchase.error?.message ?? 'Unknown error'}');
+          if (purchase.pendingCompletePurchase) {
+            await _iap.completePurchase(purchase);
+          }
+          break;
+        case PurchaseStatus.canceled:
+          if (purchase.pendingCompletePurchase) {
+            await _iap.completePurchase(purchase);
+          }
+          break;
+        case PurchaseStatus.pending:
+          // Awaiting external payment confirmation — nothing to do yet
+          break;
       }
     }
   }
@@ -247,11 +273,12 @@ class PurchaseService {
         return;
       }
 
+      final platform = defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
       final callable = _functions.httpsCallable('verifyPurchase');
       final result = await callable.call({
         'token': purchase.verificationData.serverVerificationData,
         'sku': purchase.productID,
-        'platform': 'android',
+        'platform': platform,
         'transactionId': purchase.purchaseID,
         'originalTransactionId': purchase.purchaseID,
       });
@@ -267,12 +294,15 @@ class PurchaseService {
   /// Buy a product
   Future<void> buyProduct(String productId) async {
     try {
-      final product = _products.firstWhere((p) => p.id == productId);
+      final product = getProduct(productId);
+      if (product == null) {
+        _setError('Product not available: $productId');
+        print('❌ Product not found in loaded list: $productId');
+        return;
+      }
       final purchaseParam = PurchaseParam(productDetails: product);
-      
       await _iap.buyNonConsumable(purchaseParam: purchaseParam);
       print('🛒 Purchase initiated for: $productId');
-      
     } catch (e) {
       _setError('Failed to initiate purchase: $e');
       print('❌ Purchase initiation failed: $e');
@@ -308,16 +338,20 @@ class PurchaseService {
         'bundle.food',
         'bundle.nature',
         'bundle.fantasy',
-      };
+      }; // short IDs — matches normalized _ownedBundles
     }
     return _ownedBundles;
   }
 
-  /// Get product details by ID
+  /// Get product details by ID (accepts both full and short IDs)
   ProductDetails? getProduct(String productId) {
     try {
       return _products.firstWhere((p) => p.id == productId);
-    } catch (e) {
+    } catch (_) {}
+    // Fall back to short-ID suffix match
+    try {
+      return _products.firstWhere((p) => _normalizeSkuId(p.id) == productId);
+    } catch (_) {
       return null;
     }
   }

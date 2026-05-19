@@ -25,7 +25,7 @@ class _DraggableChatWidgetState extends State<DraggableChatWidget> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
-  int _unreadCount = 0;
+  final int _unreadCount = 0;
 
   @override
   void dispose() {

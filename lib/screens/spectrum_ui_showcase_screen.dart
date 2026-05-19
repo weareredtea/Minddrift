@@ -18,7 +18,7 @@ class _SpectrumUIShowcaseScreenState extends State<SpectrumUIShowcaseScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   double _currentValue = 50.0;
-  String _clue = "Sample clue text for testing the spectrum card UI";
+  final String _clue = "Sample clue text for testing the spectrum card UI";
 
   @override
   void initState() {

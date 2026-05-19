@@ -160,8 +160,7 @@ class StoreScreen extends StatelessWidget {
     required PurchaseProviderNew purchase,
   }) {
     final owned = purchase.isOwned(sku);
-    final matches = purchase.products.where((pd) => pd.id == sku);
-    final ProductDetails? product = matches.isNotEmpty ? matches.first : null;
+    final ProductDetails? product = purchase.getProduct(sku);
 
     return ListTile(
       leading: Icon(

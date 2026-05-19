@@ -6,6 +6,8 @@
 /// Structure: 4 categories × 5 ranges × 4 clues = 80 total clues
 /// User Experience: 4 categories × 5 ranges = 20 unique challenges
 /// Supports: English and Arabic localization
+library;
+
 
 class LocalizedClueSet {
   final List<String> english;

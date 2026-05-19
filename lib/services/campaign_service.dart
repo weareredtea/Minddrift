@@ -110,7 +110,9 @@ class CampaignService {
     // Current level and previous levels are unlocked
     if (level.sectionNumber < progress.currentSection) return true;
     if (level.sectionNumber == progress.currentSection && 
-        level.levelNumber <= progress.currentLevel) return true;
+        level.levelNumber <= progress.currentLevel) {
+      return true;
+    }
     
     return false;
   }

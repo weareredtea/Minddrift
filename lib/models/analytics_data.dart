@@ -1,6 +1,8 @@
 // lib/models/analytics_data.dart
 
 /// Data models for analytics dashboard
+library;
+
 
 class UserOverviewData {
   final int totalUsers;

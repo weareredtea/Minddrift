@@ -3,6 +3,8 @@
 /// Curated Daily Challenge Database
 /// 365+ hand-picked challenges for optimal user experience
 /// Easy to add/edit/remove challenges
+library;
+
 
 import '../models/campaign_models.dart'; // For LocalizedClue
 

@@ -3,6 +3,8 @@
 /// Campaign Mode Database
 /// 40 hand-crafted levels organized into 4 sections of 10 levels each
 /// Progressive difficulty with carefully designed challenges
+library;
+
 
 import '../models/campaign_models.dart';
 

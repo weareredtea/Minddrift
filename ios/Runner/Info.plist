@@ -55,9 +55,7 @@
 		<string>This app allows you to take photos for your profile avatar.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>This app allows you to select photos from your library for your profile avatar.</string>
-		<key>NSUserTrackingUsageDescription</key>
-		<string>This app uses tracking to provide personalized game experiences and improve app performance.</string>
-		<key>ITSAppUsesNonExemptEncryption</key>
+<key>ITSAppUsesNonExemptEncryption</key>
 		<false/>
 	</dict>
 </plist>

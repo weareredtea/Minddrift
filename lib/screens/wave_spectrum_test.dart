@@ -251,7 +251,7 @@ class _WaveSpectrumTestScreenState extends State<WaveSpectrumTestScreen> {
                               _showSecret = value;
                             });
                           },
-                          activeColor: Colors.orange,
+                          activeThumbColor: Colors.orange,
                         ),
                       ),
                       Expanded(
@@ -266,7 +266,7 @@ class _WaveSpectrumTestScreenState extends State<WaveSpectrumTestScreen> {
                               _isReadOnly = value;
                             });
                           },
-                          activeColor: Colors.orange,
+                          activeThumbColor: Colors.orange,
                         ),
                       ),
                     ],
@@ -286,7 +286,7 @@ class _WaveSpectrumTestScreenState extends State<WaveSpectrumTestScreen> {
                         _showRadialSpectrum = value;
                       });
                     },
-                    activeColor: Colors.blue,
+                    activeThumbColor: Colors.blue,
                   ),
                   
                   const SizedBox(height: 16),

@@ -113,9 +113,7 @@ class _CampaignLevelScreenState extends State<CampaignLevelScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_level == null) {
-      _level = ModalRoute.of(context)!.settings.arguments as CampaignLevel;
-    }
+    _level ??= ModalRoute.of(context)!.settings.arguments as CampaignLevel;
   }
 
   @override
